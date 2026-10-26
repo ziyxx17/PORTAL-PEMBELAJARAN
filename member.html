@@ -653,8 +653,9 @@ async function forceLogout() {
 
     await removePresence();
     document.getElementById("lockedMessage").classList.add("show");
+    await SingleSession.release(supabaseClient); // lepas klaim agar bisa login lagi setelah dibuka admin
 
-    try { await supabaseClient.auth.signOut(); }
+    try { await supabaseClient.auth.signOut({ scope: "local" }); }
     catch (error) { console.error("Force logout:", error); }
 }
 
@@ -724,7 +725,7 @@ async function checkLogin() {
     }
 
     if (!profile) {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         window.location.href = "login-member.html";
         return null;
     }
@@ -733,17 +734,9 @@ async function checkLogin() {
     const status = String(profile.status || "").toLowerCase().trim();
 
     if (role !== "member" || status !== "open") {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         window.location.href = "login-member.html";
         return null;
-    }
-
-    // Memastikan status login di DB terisi true
-    if (profile.is_logged_in !== true) {
-        await supabaseClient
-            .from("profiles")
-            .update({ is_logged_in: true })
-            .eq("id", currentUserId);
     }
 
     const displayName = profile.nama || profile.username || "Member";
@@ -847,23 +840,17 @@ document.getElementById("logoutButton").addEventListener("click", async function
 
     await removePresence();
 
-    // Mengubah status is_logged_in kembali menjadi false
-    if (currentUserId) {
-        try {
-            await supabaseClient.from("profiles").update({ is_logged_in: false }).eq("id", currentUserId);
-        } catch (e) {
-            console.error("Gagal mereset status login:", e);
-        }
-    }
+    // Lepas klaim sesi (is_logged_in -> false) lewat fungsi database
+    await SingleSession.release(supabaseClient);
 
-    try { await supabaseClient.auth.signOut(); }
+    try { await supabaseClient.auth.signOut({ scope: "local" }); }
     catch (error) { console.error("Logout:", error); }
 
     window.location.href = "login-member.html";
 });
 
 document.getElementById("lockedButton").addEventListener("click", async function() {
-    try { await supabaseClient.auth.signOut(); }
+    try { await supabaseClient.auth.signOut({ scope: "local" }); }
     catch (error) { console.error("Locked logout:", error); }
     
     window.location.href = "login-member.html";
@@ -880,6 +867,7 @@ document.addEventListener("visibilitychange", function() {
 async function start() {
     const profile = await checkLogin();
     if (!profile) return;
+    if (!(await SingleSession.guard(supabaseClient))) return;
 
     await updatePresence();
     presenceInterval = setInterval(updatePresence, 10000);
