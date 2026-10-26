@@ -28,9 +28,19 @@ function showMessage(text, type) {
     messageBox.textContent = text;
 }
 
+// Penanda versi: judul tab berakhiran " • v2" kalau file ini yang terpakai
+document.title = document.title.replace(/ • v2$/, "") + " • v2";
+
+// Deteksi single-session.js yang tidak terbaca (salah folder / belum di-upload)
+const sessionReady = (typeof SingleSession !== "undefined");
+if (!sessionReady) {
+    showMessage("File single-session.js tidak terbaca. Taruh di folder yang sama dengan config.js (nama harus persis single-session.js), lalu muat ulang dengan Ctrl+Shift+R.", "error");
+    loginButton.disabled = true;
+}
+
 // Pesan jika dilempar balik dari halaman member
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get("reason") === "session") {
+if (sessionReady && urlParams.get("reason") === "session") {
     const kodeInfo = " [kode: " + (urlParams.get("why") || "-") + ", dari: " + (urlParams.get("from") || "-") + "]";
     if (urlParams.get("why") === "no_token") {
         showMessage("Sesi login tidak ditemukan di tab ini (halaman dibuka tanpa login, atau tab baru). Silakan login kembali." + kodeInfo, "error");
@@ -42,6 +52,7 @@ if (urlParams.get("reason") === "session") {
 // Jika tab ini sudah punya sesi yang sah, langsung masuk.
 // Jika ada sesi tapi tidak punya token klaim, bersihkan (hanya lokal).
 async function checkExistingSession() {
+    if (!sessionReady) return;
     const { data } = await supabaseClient.auth.getSession();
     if (!data || !data.session) return;
 
@@ -55,6 +66,7 @@ checkExistingSession();
 
 loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!sessionReady) return;
 
     const rawUsername = usernameInput.value.trim().toLowerCase();
     const password = passwordInput.value;
