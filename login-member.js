@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * LOGIN MEMBER SCRIPT (SINGLE SESSION ENFORCEMENT)
- * Butuh: config.js, supabase-js, single-session.js (urutan load seperti itu)
+ * Butuh: config.js (sudah memuat SingleSession) lalu supabase-js
  * ============================================================================
  */
 
@@ -28,13 +28,13 @@ function showMessage(text, type) {
     messageBox.textContent = text;
 }
 
-// Penanda versi: judul tab berakhiran " • v2" kalau file ini yang terpakai
-document.title = document.title.replace(/ • v2$/, "") + " • v2";
+// Penanda versi: judul tab berakhiran " • v3" kalau file ini yang terpakai
+document.title = document.title.replace(/ • v\d+$/, "") + " • v3";
 
-// Deteksi single-session.js yang tidak terbaca (salah folder / belum di-upload)
+// Deteksi kode sesi (dari config.js) yang tidak terbaca: config.js masih versi lama
 const sessionReady = (typeof SingleSession !== "undefined");
 if (!sessionReady) {
-    showMessage("File single-session.js tidak terbaca. Taruh di folder yang sama dengan config.js (nama harus persis single-session.js), lalu muat ulang dengan Ctrl+Shift+R.", "error");
+    showMessage("Kode sesi tidak terbaca: config.js yang terpasang masih versi lama. Ganti config.js dengan versi terbaru, lalu muat ulang dengan Ctrl+Shift+R.", "error");
     loginButton.disabled = true;
 }
 
