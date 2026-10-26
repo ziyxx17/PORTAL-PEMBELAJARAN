@@ -317,6 +317,22 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
+        .online {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fde047;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .offline {
+            background: rgba(148, 163, 184, 0.12);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .status + .status {
+            margin-left: 8px;
+        }
+
         /* =========================
            ACTION BUTTONS
         ========================= */
@@ -929,21 +945,24 @@
         /* =====================================================
            LOAD MEMBERS (CASE-INSENSITIVE CHECK)
         ===================================================== */
-        async function loadMembers() {
-            membersContainer.innerHTML = `
-                <div class="empty">
-                    ⏳ Memuat data member...
-                </div>
-            `;
+        async function loadMembers(silent = false) {
+            if (!silent) {
+                membersContainer.innerHTML = `
+                    <div class="empty">
+                        ⏳ Memuat data member...
+                    </div>
+                `;
+            }
 
             const { data, error } = await supabaseClient
                 .from("profiles")
-                .select("id, nama, username, status")
+                .select("id, nama, username, status, is_logged_in")
                 .eq("role", "member")
                 .order("nama", { ascending: true });
 
             if (error) {
                 console.error(error);
+                if (silent) return; // refresh otomatis: jangan timpa daftar yang sudah tampil
                 membersContainer.innerHTML = `
                     <div class="empty">
                         ❌ Gagal memuat member.<br><br>
@@ -984,6 +1003,9 @@
                         </div>
                         <span class="status ${locked ? "locked" : "open"}">
                             ${locked ? "🔴 Terkunci" : "🟢 Terbuka"}
+                        </span>
+                        <span class="status ${member.is_logged_in === true ? "online" : "offline"}">
+                            ${member.is_logged_in === true ? "🟡 Sedang login" : "⚪ Tidak login"}
                         </span>
                     </div>
 
@@ -1320,6 +1342,11 @@
             const admin = await checkAdmin();
             if (!admin) return;
             await loadMembers();
+
+            // Segarkan status login member secara berkala (hanya saat tab terlihat)
+            setInterval(function () {
+                if (document.visibilityState === "visible") loadMembers(true);
+            }, 15000);
         }
 
         start();
