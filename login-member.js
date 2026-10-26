@@ -1,126 +1,96 @@
-/**
- * ============================================================================
- * LOGIN MEMBER SCRIPT (SINGLE SESSION ENFORCEMENT)
- * ============================================================================
- */
+/* =====================================================
+   SINGLE SESSION - 1 akun hanya boleh aktif di 1 tab/perangkat
+   Taruh sejajar dengan config.js, lalu load SETELAH library Supabase.
+===================================================== */
+const SingleSession = (function () {
+    const KEY = "portal_session_token";
+    const LOGIN_PAGE = "login-member.html";
+    let timer = null;
+    let ended = false;
 
-// Gunakan sessionStorage agar tiap tab terisolasi dengan baik
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    {
-        auth: {
-            storage: window.sessionStorage
+    function getToken() {
+        return sessionStorage.getItem(KEY);
+    }
+
+    // Dipanggil di login-member.js SETELAH signIn berhasil.
+    // true  = sesi berhasil diklaim
+    // false = akun masih aktif di tab/perangkat lain
+    async function claim(client) {
+        const token = crypto.randomUUID();
+        const { data, error } = await client.rpc("claim_login", { p_token: token });
+        if (error) throw error;
+        if (data === true) {
+            sessionStorage.setItem(KEY, token);
+            return true;
+        }
+        return false;
+    }
+
+    // Dipanggil oleh tombol Keluar / Logout.
+    async function release(client) {
+        const token = getToken();
+        sessionStorage.removeItem(KEY);
+        stop();
+        if (!token) return;
+        try {
+            await client.rpc("release_login", { p_token: token });
+        } catch (e) {
+            console.error("release_login gagal:", e);
         }
     }
-);
 
-const loginForm = document.getElementById("loginForm");
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
-const messageBox = document.getElementById("message");
-const loginButton = document.getElementById("loginButton");
-
-function showMessage(text, type) {
-    messageBox.style.display = "block";
-    messageBox.className = `message ${type}`;
-    messageBox.textContent = text;
-}
-
-// Cek sesi lokal di tab ini
-async function checkExistingSession() {
-    const { data } = await supabaseClient.auth.getSession();
-    if (data && data.session) {
-        window.location.href = "member.html"; 
-    }
-}
-checkExistingSession();
-
-loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const rawUsername = usernameInput.value.trim().toLowerCase();
-    const password = passwordInput.value;
-
-    if (!rawUsername || !password) {
-        showMessage("Username dan password wajib diisi.", "error");
-        return;
+    // true = masih sah, false = sudah di-reset admin / tidak sah
+    async function isValid(client) {
+        const token = getToken();
+        if (!token) return false;
+        const { data, error } = await client.rpc("check_login", { p_token: token });
+        if (error) return true; // gangguan jaringan: jangan tendang member
+        return data === true;
     }
 
-    const emailForLogin = `${rawUsername}@portal.local`;
+    function stop() {
+        ended = true;
+        if (timer) { clearInterval(timer); timer = null; }
+    }
 
-    showMessage("Mencoba masuk...", "loading");
-    loginButton.disabled = true;
-    loginButton.textContent = "Memproses...";
+    // why: "no_token" = tab ini tidak punya token klaim (login lama / tab baru)
+    //      "revoked"  = token tidak cocok lagi (di-reset admin / dipakai di tempat lain)
+    async function kick(client, why) {
+        if (ended) return;
+        stop();
+        console.warn("[SingleSession] dikeluarkan, alasan:", why);
+        sessionStorage.removeItem(KEY);
+        try { await client.auth.signOut({ scope: "local" }); } catch (e) {}
+        window.location.href = LOGIN_PAGE + "?reason=session&why=" + (why || "revoked");
+    }
 
-    try {
-        // 1. Autentikasi Supabase Auth
-        const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
-            email: emailForLogin,
-            password: password
+    // Pasang di setiap halaman member. Pindah tab TIDAK mengunci akun;
+    // yang dicek hanya apakah token tab ini masih sah di database.
+    async function guard(client, intervalMs) {
+        if (!getToken()) { await kick(client, "no_token"); return false; }
+        if (!(await isValid(client))) { await kick(client, "revoked"); return false; }
+
+        timer = setInterval(async function () {
+            if (!(await isValid(client))) await kick(client, "revoked");
+        }, intervalMs || 10000);
+
+        document.addEventListener("visibilitychange", async function () {
+            if (document.visibilityState === "visible" && !ended) {
+                if (!(await isValid(client))) await kick(client, "revoked");
+            }
         });
-
-        if (authError) throw new Error("Username atau password salah.");
-
-        // 2. Ambil data profil dari database
-        const { data: profile, error: profileError } = await supabaseClient
-            .from("profiles")
-            .select("status, role, is_logged_in")
-            .eq("id", authData.user.id)
-            .maybeSingle();
-
-        if (profileError || !profile) {
-            await supabaseClient.auth.signOut();
-            throw new Error("Gagal memverifikasi profil member.");
-        }
-
-        const role = String(profile.role || "").toLowerCase().trim();
-        const status = String(profile.status || "").toLowerCase().trim();
-
-        // 3. VALIDASI ROLE
-        if (role !== "member") {
-            await supabaseClient.auth.signOut();
-            throw new Error("Akun ini bukan akun member.");
-        }
-
-        // 4. VALIDASI STATUS DARI ADMIN
-        if (status !== "open") {
-            await supabaseClient.auth.signOut();
-            throw new Error("Akun Anda sedang dikunci oleh Admin.");
-        }
-
-        // 5. VALIDASI IS_LOGGED_IN (MENCEGAH DOUBLE LOGIN / LUPA LOGOUT)
-        if (profile.is_logged_in === true) {
-            await supabaseClient.auth.signOut();
-            throw new Error("Akun masih dalam status login di tab atau perangkat lain! Jika kamu tidak sengaja menutup tab sebelumnya, silakan minta Admin untuk mereset status login akun kamu.");
-        }
-
-        // 6. UPDATE STATUS LOGIN MENJADI TRUE
-        const { error: updateError } = await supabaseClient
-            .from("profiles")
-            .update({ is_logged_in: true })
-            .eq("id", authData.user.id);
-
-        if (updateError) {
-            console.error("Gagal update status login:", updateError.message);
-            await supabaseClient.auth.signOut();
-            throw new Error("Gagal mengamankan sesi login. Cek izin RLS Database.");
-        }
-
-        showMessage("Login berhasil! Mengalihkan...", "success");
-        loginButton.textContent = "Berhasil!";
-        
-        setTimeout(() => {
-            document.body.classList.add("page-exit");
-            setTimeout(() => {
-                window.location.href = "member.html"; 
-            }, 380);
-        }, 800);
-
-    } catch (error) {
-        console.error("LOGIN ERROR:", error);
-        showMessage(error.message, "error");
-        loginButton.disabled = false;
-        loginButton.textContent = "Masuk";
+        return true;
     }
-});
+
+    // Untuk halaman yang dipakai member DAN admin (subjects, materials):
+    // tab member (punya token) pakai sessionStorage, admin tetap pakai localStorage.
+    function createClient(url, key) {
+        const memberTab = !!getToken();
+        return window.supabase.createClient(
+            url, key,
+            memberTab ? { auth: { storage: window.sessionStorage } } : undefined
+        );
+    }
+
+    return { claim, release, isValid, guard, getToken, createClient };
+})();
