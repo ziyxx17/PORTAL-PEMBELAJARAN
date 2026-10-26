@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kelola Jadwal - Portal Pembelajaran</title>
+
+<!-- GOOGLE FONTS (INTER) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* =====================================================
+   RESET & BASE STYLES
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0b1329;
+    color: #f8fafc;
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =====================================================
+   KEYFRAME ANIMATIONS
+===================================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalZoom {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header {
+    background: #0f172a;
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.back {
+    border: none;
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.back:hover {
+    background: #334155;
+    color: white;
+    transform: translateX(-3px);
+}
+
+header strong {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 32px 20px 60px;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.title {
+    margin-bottom: 24px;
+}
+
+.title h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+}
+
+.title p {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+/* =====================================================
+   MESSAGE ALERT
+===================================================== */
+
+.message {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    border: 1px solid transparent;
+}
+
+/* =====================================================
+   CARDS & BOXES
+===================================================== */
+
+.form-box,
+.table-box,
+.note-box {
+    background: #131c31;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.form-box:hover,
+.table-box:hover,
+.note-box:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* =====================================================
+   FORM STYLING
+===================================================== */
+
+.form-box {
+    margin-bottom: 28px;
+}
+
+.form-box h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #334155;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    background: #0f172a;
+    color: #f8fafc;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: #475569;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+/* =====================================================
+   WEEK OPTIONS
+===================================================== */
+
+.week-box {
+    grid-column: 1 / -1;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 18px;
+    background: #0f172a;
+}
+
+.week-box-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.week-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.week-option {
+    position: relative;
+}
+
+.week-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.week-option label {
+    display: block;
+    padding: 12px 16px;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #1e293b;
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.week-option label:hover {
+    border-color: #475569;
+    transform: translateY(-1px);
+}
+
+.week-option input:checked + label {
+    border-color: #3b82f6;
+    background: rgba(37, 99, 235, 0.25);
+    color: #60a5fa;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.week-b-option input:checked + label {
+    border-color: #8b5cf6;
+    background: rgba(124, 58, 237, 0.25);
+    color: #c084fc;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+}
+
+.week-info {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.week-info.show {
+    display: block;
+}
+
+.week-info.a {
+    background: rgba(30, 58, 138, 0.4);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.week-info.b {
+    background: rgba(76, 29, 149, 0.4);
+    color: #ddd6fe;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.form-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.form-buttons button {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.save {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.save:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.save:active {
+    transform: translateY(0);
+}
+
+.save:disabled,
+.note-save:disabled,
+.confirm-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.cancel {
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1.5px solid #334155 !important;
+}
+
+.cancel:hover {
+    background: #334155;
+    color: #f8fafc;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.table-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.table-title h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.refresh {
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.refresh:hover {
+    background: #1e293b;
+    color: #f8fafc;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+    background: #131c31;
+}
+
+th {
+    background: #0f172a;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid #334155;
+}
+
+td {
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    color: #e2e8f0;
+    vertical-align: middle;
+    transition: background 0.15s ease;
+}
+
+tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* =====================================================
+   BADGES & TABLE ELEMENTS
+===================================================== */
+
+.day {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #1e293b;
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.week-a-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(30, 58, 138, 0.5);
+    color: #93c5fd;
+    font-weight: 600;
+    font-size: 12px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.week-b-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(76, 29, 149, 0.5);
+    color: #ddd6fe;
+    font-weight: 600;
+    font-size: 12px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.subject {
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.teacher {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-buttons button {
+    border: none;
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.edit {
+    background: rgba(37, 99, 235, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.edit:hover {
+    background: rgba(37, 99, 235, 0.35);
+    color: #93c5fd;
+}
+
+.delete {
+    background: rgba(220, 38, 38, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.delete:hover {
+    background: rgba(220, 38, 38, 0.35);
+    color: #fca5a5;
+}
+
+.empty {
+    text-align: center;
+    padding: 36px !important;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* =====================================================
+   ADMIN NOTE
+===================================================== */
+
+.note-box {
+    margin-top: 28px;
+}
+
+.note-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.note-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.note-title h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.note-description {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.note-textarea {
+    min-height: 120px;
+    background: #0f172a;
+    border: 1.5px solid rgba(245, 158, 11, 0.4);
+    font-family: inherit;
+    color: #f8fafc;
+}
+
+.note-textarea:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+}
+
+.note-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.note-save,
+.note-delete {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.note-save {
+    background: #2563eb;
+    color: white;
+}
+
+.note-save:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.note-delete {
+    background: rgba(220, 38, 38, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.note-delete:hover {
+    background: rgba(220, 38, 38, 0.35);
+}
+
+.note-status {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease forwards;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-box {
+    background: #1e293b;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal.show .modal-box {
+    animation: modalZoom 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.modal-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(220, 38, 38, 0.2);
+    font-size: 22px;
+    margin-bottom: 14px;
+}
+
+.note-modal-icon {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.modal-box h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 8px;
+}
+
+.modal-box p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    border: none;
+    padding: 11px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.confirm-delete {
+    background: #dc2626;
+    color: white;
+}
+
+.confirm-delete:hover {
+    background: #b91c1c;
+}
+
+.modal-cancel {
+    background: #0f172a;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+}
+
+.modal-cancel:hover {
+    background: #334155;
+    color: #f8fafc;
+}
+
+/* =====================================================
+   RESPONSIVE (MOBILE)
+===================================================== */
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px 14px 40px;
+    }
+
+    .title h1 {
+        font-size: 22px;
+    }
+
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    .week-options {
+        grid-template-columns: 1fr;
+    }
+
+    .note-actions {
+        flex-direction: column;
+    }
+
+    .note-actions button {
+        width: 100%;
+    }
+
+    .table-title {
+        align-items: flex-start;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+<header>
+    <a href="admin.html" class="back">← Kembali</a>
+    <strong>📅 Kelola Jadwal</strong>
+</header>
+
+<main class="container">
+
+<!-- =====================================================
+     TITLE
+===================================================== -->
+<section class="title">
+    <h1>📅 Kelola Jadwal Pelajaran</h1>
+    <p>Atur jadwal Minggu A dan Minggu B. Jam pelajaran dapat berbeda antara Minggu A dan Minggu B.</p>
+</section>
+
+<div id="message" class="message"></div>
+
+<!-- =====================================================
+     FORM JADWAL
+===================================================== -->
+<section class="form-box">
+    <h2 id="formTitle">➕ Tambah Jadwal</h2>
+
+    <form id="scheduleForm">
+        <input type="hidden" id="editId">
+
+        <div class="form-grid">
+
+            <!-- HARI -->
+            <div class="field">
+                <label for="hari">Hari</label>
+                <select id="hari" required>
+                    <option value="">Pilih hari</option>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                    <option value="Sabtu">Sabtu</option>
+                    <option value="Minggu">Minggu</option>
+                </select>
+            </div>
+
+            <!-- MINGGU -->
+            <div class="week-box">
+                <div class="week-box-title">📅 Jadwal ini digunakan pada:</div>
+                <div class="week-options">
+                    <div class="week-option">
+                        <input type="radio" name="minggu" id="mingguA" value="A" required>
+                        <label for="mingguA">🔵 Minggu A</label>
+                    </div>
+                    <div class="week-option week-b-option">
+                        <input type="radio" name="minggu" id="mingguB" value="B">
+                        <label for="mingguB">🟣 Minggu B</label>
+                    </div>
+                </div>
+                <div id="weekInfo" class="week-info"></div>
+            </div>
+
+            <!-- JAM MULAI -->
+            <div class="field">
+                <label for="jamMulai">Jam Mulai</label>
+                <input type="time" id="jamMulai" required>
+            </div>
+
+            <!-- JAM SELESAI -->
+            <div class="field">
+                <label for="jamSelesai">Jam Selesai</label>
+                <input type="time" id="jamSelesai" required>
+            </div>
+
+            <!-- MAPEL -->
+            <div class="field">
+                <label for="mataPelajaran">Mata Pelajaran</label>
+                <select id="mataPelajaran" required>
+                    <option value="">⏳ Memuat mata pelajaran...</option>
+                </select>
+            </div>
+
+            <!-- GURU -->
+            <div class="field">
+                <label for="guru">Guru</label>
+                <input type="text" id="guru" placeholder="Nama guru">
+            </div>
+
+            <!-- KETERANGAN -->
+            <div class="field full">
+                <label for="keterangan">Keterangan</label>
+                <textarea id="keterangan" placeholder="Keterangan tambahan (opsional)"></textarea>
+            </div>
+
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" class="save" id="saveButton">💾 Simpan Jadwal</button>
+            <button type="button" class="cancel" id="cancelEdit" style="display:none;">Batal Edit</button>
+        </div>
+    </form>
+</section>
+
+<!-- =====================================================
+     DAFTAR JADWAL
+===================================================== -->
+<section class="table-box">
+    <div class="table-title">
+        <h2>📋 Daftar Jadwal</h2>
+        <button type="button" class="refresh" id="refreshButton">🔄 Refresh</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Hari</th>
+                    <th>Minggu</th>
+                    <th>Jam</th>
+                    <th>Mata Pelajaran</th>
+                    <th>Guru</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleList">
+                <tr>
+                    <td colspan="7" class="empty">⏳ Memuat jadwal...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- =====================================================
+     CATATAN ADMIN
+===================================================== -->
+<section class="note-box">
+    <div class="note-header">
+        <div class="note-icon">📝</div>
+        <div class="note-title">
+            <h2>Catatan Admin</h2>
+        </div>
+    </div>
+    <p class="note-description">Catatan ini akan ditampilkan paling bawah pada halaman jadwal pelajaran member.</p>
+
+    <textarea id="adminNote" class="note-textarea" placeholder="Tulis catatan untuk siswa..."></textarea>
+
+    <div class="note-actions">
+        <button type="button" class="note-save" id="saveNoteButton">💾 Simpan Catatan</button>
+        <button type="button" class="note-delete" id="deleteNoteButton">🗑️ Hapus Catatan</button>
+    </div>
+
+    <div id="noteStatus" class="note-status"></div>
+</section>
+
+</main>
+
+<!-- =====================================================
+     MODAL HAPUS JADWAL
+===================================================== -->
+<div id="deleteModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-icon">🗑️</div>
+        <h3>Hapus Jadwal?</h3>
+        <p id="deleteText">Apakah kamu yakin ingin menghapus jadwal ini?</p>
+        <div class="modal-buttons">
+            <button type="button" class="modal-cancel" id="cancelDelete">Batal</button>
+            <button type="button" class="confirm-delete" id="confirmDelete">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
+<!-- =====================================================
+     MODAL HAPUS CATATAN
+===================================================== -->
+<div id="deleteNoteModal" class="modal">
+    <div class="modal-box">
+        <div class="modal-icon note-modal-icon">📝</div>
+        <h3>Hapus Catatan?</h3>
+        <p>Catatan admin akan dihapus dan tidak akan ditampilkan lagi pada halaman jadwal member.</p>
+        <div class="modal-buttons">
+            <button type="button" class="modal-cancel" id="cancelNoteDelete">Batal</button>
+            <button type="button" class="confirm-delete" id="confirmNoteDelete">🗑️ Hapus Catatan</button>
+        </div>
+    </div>
+</div>
+
+<!-- =====================================================
+     SUPABASE & LOGIC SCRIPT
+===================================================== -->
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+const message = document.getElementById("message");
+const scheduleForm = document.getElementById("scheduleForm");
+const scheduleList = document.getElementById("scheduleList");
+const formTitle = document.getElementById("formTitle");
+const saveButton = document.getElementById("saveButton");
+const cancelEdit = document.getElementById("cancelEdit");
+const subject = document.getElementById("mataPelajaran");
+const mingguA = document.getElementById("mingguA");
+const mingguB = document.getElementById("mingguB");
+const weekInfo = document.getElementById("weekInfo");
+const adminNote = document.getElementById("adminNote");
+const saveNoteButton = document.getElementById("saveNoteButton");
+const deleteNoteButton = document.getElementById("deleteNoteButton");
+const noteStatus = document.getElementById("noteStatus");
+const refreshButton = document.getElementById("refreshButton");
+
+const dayOrder = {
+    "Senin": 1,
+    "Selasa": 2,
+    "Rabu": 3,
+    "Kamis": 4,
+    "Jumat": 5,
+    "Sabtu": 6,
+    "Minggu": 7
+};
+
+function showMessage(text, success = false) {
+    message.style.display = "block";
+    message.textContent = text;
+    message.style.background = success ? "rgba(22, 101, 52, 0.3)" : "rgba(153, 27, 27, 0.3)";
+    message.style.color = success ? "#4ade80" : "#f87171";
+    message.style.borderColor = success ? "rgba(34, 197, 94, 0.4)" : "rgba(239, 68, 68, 0.4)";
+}
+
+function escapeHTML(value) {
+    const div = document.createElement("div");
+    div.textContent = value ?? "";
+    return div.innerHTML;
+}
+
+async function checkAdmin() {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error || !data || !data.session) {
+        location.href = "login-admin.html";
+        return false;
+    }
+    const session = data.session;
+    const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("id, role, status")
+        .eq("id", session.user.id)
+        .single();
+
+    if (profileError || !profile || profile.role !== "admin" || profile.status !== "open") {
+        await supabaseClient.auth.signOut();
+        location.href = "login-admin.html";
+        return false;
+    }
+    return true;
+}
+
+async function loadSubjects() {
+    let result = await supabaseClient.from("subjects").select("*");
+    if (result.error) {
+        result = await supabaseClient.from("mata_pelajaran").select("*");
+    }
+    if (result.error) {
+        subject.innerHTML = `<option value="">❌ Gagal memuat mata pelajaran</option>`;
+        showMessage("Mata pelajaran gagal dimuat: " + result.error.message);
+        return;
+    }
+
+    const data = result.data || [];
+    if (!data.length) {
+        subject.innerHTML = `<option value="">Belum ada mata pelajaran</option>`;
+        return;
+    }
+
+    const names = [];
+    data.forEach(item => {
+        const name = item.nama ?? item.name ?? item.title ?? item.mata_pelajaran ?? item.subject;
+        if (name && !names.includes(name)) {
+            names.push(name);
+        }
+    });
+
+    names.sort((a,b) => String(a).localeCompare(String(b), "id"));
+    subject.innerHTML = `<option value="">Pilih mata pelajaran</option>`;
+
+    names.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        subject.appendChild(option);
+    });
+}
+
+function updateWeekInfo() {
+    if (mingguA.checked) {
+        weekInfo.className = "week-info show a";
+        weekInfo.innerHTML = "🔵 <strong>Minggu A</strong><br>Jadwal ini berlaku khusus untuk Minggu A.";
+    } else if (mingguB.checked) {
+        weekInfo.className = "week-info show b";
+        weekInfo.innerHTML = "🟣 <strong>Minggu B</strong><br>Jadwal ini berlaku khusus untuk Minggu B.";
+    } else {
+        weekInfo.className = "week-info";
+        weekInfo.innerHTML = "";
+    }
+}
+
+mingguA.addEventListener("change", updateWeekInfo);
+mingguB.addEventListener("change", updateWeekInfo);
+
+function formatTime(time) {
+    if (!time) return "-";
+    return String(time).substring(0, 5);
+}
+
+async function loadSchedules() {
+    scheduleList.innerHTML = `
+        <tr>
+            <td colspan="7" class="empty">⏳ Memuat jadwal...</td>
+        </tr>
+    `;
+
+    const { data, error } = await supabaseClient
+        .from("jadwal_pelajaran")
+        .select("id, hari, minggu, jam_mulai, jam_selesai, mata_pelajaran, guru, keterangan");
+
+    if (error) {
+        scheduleList.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">❌ Gagal memuat jadwal.<br><br>${escapeHTML(error.message)}</td>
+            </tr>
+        `;
+        return;
+    }
+
+    if (!data || !data.length) {
+        scheduleList.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty">📅 Belum ada jadwal.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    data.sort((a,b) => {
+        const dayCompare = (dayOrder[a.hari] || 99) - (dayOrder[b.hari] || 99);
+        if (dayCompare !== 0) return dayCompare;
+        const weekCompare = String(a.minggu || "").localeCompare(String(b.minggu || ""));
+        if (weekCompare !== 0) return weekCompare;
+        return String(a.jam_mulai || "").localeCompare(String(b.jam_mulai || ""));
+    });
+
+    scheduleList.innerHTML = "";
+    data.forEach(item => {
+        const row = document.createElement("tr");
+        const weekBadge = String(item.minggu).toUpperCase() === "B"
+            ? `<span class="week-b-badge">🟣 Minggu B</span>`
+            : `<span class="week-a-badge">🔵 Minggu A</span>`;
+
+        row.innerHTML = `
+            <td><span class="day">${escapeHTML(item.hari)}</span></td>
+            <td>${weekBadge}</td>
+            <td>${formatTime(item.jam_mulai)} - ${formatTime(item.jam_selesai)}</td>
+            <td><div class="subject">${escapeHTML(item.mata_pelajaran || "-")}</div></td>
+            <td><div class="teacher">${escapeHTML(item.guru || "-")}</div></td>
+            <td>${escapeHTML(item.keterangan || "-")}</td>
+            <td>
+                <div class="action-buttons">
+                    <button type="button" class="edit">✏️ Edit</button>
+                    <button type="button" class="delete">🗑️ Hapus</button>
+                </div>
+            </td>
+        `;
+
+        row.querySelector(".edit").addEventListener("click", () => editSchedule(item));
+        row.querySelector(".delete").addEventListener("click", () => askDelete(item));
+
+        scheduleList.appendChild(row);
+    });
+}
+
+function resetForm() {
+    scheduleForm.reset();
+    document.getElementById("editId").value = "";
+    formTitle.textContent = "➕ Tambah Jadwal";
+    saveButton.textContent = "💾 Simpan Jadwal";
+    cancelEdit.style.display = "none";
+    weekInfo.className = "week-info";
+    weekInfo.innerHTML = "";
+}
+
+function editSchedule(item) {
+    document.getElementById("editId").value = item.id;
+    document.getElementById("hari").value = item.hari || "";
+    document.getElementById("jamMulai").value = formatTime(item.jam_mulai);
+    document.getElementById("jamSelesai").value = formatTime(item.jam_selesai);
+    subject.value = item.mata_pelajaran || "";
+    document.getElementById("guru").value = item.guru || "";
+    document.getElementById("keterangan").value = item.keterangan || "";
+
+    if (String(item.minggu).toUpperCase() === "B") {
+        mingguB.checked = true;
+    } else {
+        mingguA.checked = true;
+    }
+
+    updateWeekInfo();
+    formTitle.textContent = "✏️ Edit Jadwal";
+    saveButton.textContent = "💾 Simpan Perubahan";
+    cancelEdit.style.display = "inline-block";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+scheduleForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const id = document.getElementById("editId").value;
+    const hari = document.getElementById("hari").value;
+    const minggu = document.querySelector('input[name="minggu"]:checked')?.value;
+    const jamMulai = document.getElementById("jamMulai").value;
+    const jamSelesai = document.getElementById("jamSelesai").value;
+    const mataPelajaran = subject.value;
+    const guru = document.getElementById("guru").value.trim();
+    const keterangan = document.getElementById("keterangan").value.trim();
+
+    if (!hari || !minggu || !jamMulai || !jamSelesai || !mataPelajaran) {
+        showMessage("Hari, Minggu, jam, dan Mata Pelajaran wajib diisi.");
+        return;
+    }
+
+    if (jamSelesai <= jamMulai) {
+        showMessage("Jam selesai harus lebih besar dari jam mulai.");
+        return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Menyimpan...";
+
+    try {
+        const scheduleData = {
+            hari,
+            minggu,
+            jam_mulai: jamMulai,
+            jam_selesai: jamSelesai,
+            mata_pelajaran: mataPelajaran,
+            guru: guru || null,
+            keterangan: keterangan || null
+        };
+
+        const duplicateQuery = await supabaseClient
+            .from("jadwal_pelajaran")
+            .select("id")
+            .eq("hari", hari)
+            .eq("minggu", minggu)
+            .eq("jam_mulai", jamMulai)
+            .eq("jam_selesai", jamSelesai);
+
+        if (duplicateQuery.error) throw duplicateQuery.error;
+
+        const duplicate = duplicateQuery.data?.some(item => String(item.id) !== String(id));
+        if (duplicate) {
+            showMessage("Jadwal dengan hari, minggu, dan jam tersebut sudah ada.");
+            return;
+        }
+
+        let result;
+        if (id) {
+            result = await supabaseClient.from("jadwal_pelajaran").update(scheduleData).eq("id", id);
+        } else {
+            result = await supabaseClient.from("jadwal_pelajaran").insert(scheduleData);
+        }
+
+        if (result.error) throw result.error;
+
+        showMessage(id ? "✅ Jadwal berhasil diperbarui." : "✅ Jadwal berhasil ditambahkan.", true);
+        resetForm();
+        await loadSchedules();
+
+    } catch(error) {
+        console.error("SAVE SCHEDULE ERROR:", error);
+        showMessage("❌ Gagal menyimpan jadwal: " + error.message);
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "💾 Simpan Jadwal";
+    }
+});
+
+cancelEdit.addEventListener("click", resetForm);
+
+const deleteModal = document.getElementById("deleteModal");
+const deleteText = document.getElementById("deleteText");
+const confirmDelete = document.getElementById("confirmDelete");
+const cancelDelete = document.getElementById("cancelDelete");
+let deleteId = null;
+
+function askDelete(item) {
+    deleteId = item.id;
+    const mingguText = String(item.minggu).toUpperCase() === "B" ? "Minggu B" : "Minggu A";
+    deleteText.innerHTML = `Jadwal <strong>${escapeHTML(item.mata_pelajaran || "-")}</strong> pada <strong>${mingguText}</strong> hari <strong>${escapeHTML(item.hari || "-")}</strong> pukul <strong>${formatTime(item.jam_mulai)} - ${formatTime(item.jam_selesai)}</strong> akan dihapus.`;
+    deleteModal.classList.add("show");
+}
+
+function closeDeleteModal() {
+    deleteModal.classList.remove("show");
+    deleteId = null;
+}
+
+cancelDelete.addEventListener("click", closeDeleteModal);
+
+confirmDelete.addEventListener("click", async () => {
+    if (!deleteId) return;
+    const id = deleteId;
+    closeDeleteModal();
+    showMessage("Menghapus jadwal...");
+
+    const { error } = await supabaseClient.from("jadwal_pelajaran").delete().eq("id", id);
+
+    if (error) {
+        showMessage("❌ Gagal menghapus jadwal: " + error.message);
+        return;
+    }
+
+    showMessage("✅ Jadwal berhasil dihapus.", true);
+    await loadSchedules();
+});
+
+async function loadAdminNote() {
+    noteStatus.style.display = "none";
+    noteStatus.textContent = "";
+
+    const { data, error } = await supabaseClient
+        .from("catatan_jadwal")
+        .select("id, catatan, updated_at")
+        .eq("id", 1)
+        .maybeSingle();
+
+    if (error) {
+        console.error("LOAD NOTE ERROR:", error);
+        adminNote.value = "";
+        showNoteStatus("❌ Catatan gagal dimuat: " + error.message, false);
+        return false;
+    }
+
+    adminNote.value = data?.catatan || "";
+    return true;
+}
+
+function showNoteStatus(text, success = true) {
+    noteStatus.style.display = "block";
+    noteStatus.textContent = text;
+    noteStatus.style.background = success ? "rgba(22, 101, 52, 0.3)" : "rgba(153, 27, 27, 0.3)";
+    noteStatus.style.color = success ? "#4ade80" : "#f87171";
+    noteStatus.style.border = success ? "1px solid rgba(34, 197, 94, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)";
+}
+
+saveNoteButton.addEventListener("click", async () => {
+    const text = adminNote.value.trim();
+    if (!text) {
+        showNoteStatus("⚠️ Isi catatan terlebih dahulu.", false);
+        return;
+    }
+
+    saveNoteButton.disabled = true;
+    saveNoteButton.textContent = "Menyimpan...";
+
+    try {
+        const result = await supabaseClient
+            .from("catatan_jadwal")
+            .upsert({ id: 1, catatan: text, updated_at: new Date().toISOString() }, { onConflict: "id" });
+
+        if (result.error) throw result.error;
+
+        const loaded = await loadAdminNote();
+        if (!loaded) throw new Error("Data tersimpan tetapi gagal dibaca kembali.");
+
+        showNoteStatus("✅ Catatan berhasil disimpan.", true);
+
+    } catch(error) {
+        console.error("SAVE NOTE ERROR:", error);
+        showNoteStatus("❌ Gagal menyimpan catatan: " + error.message, false);
+    } finally {
+        saveNoteButton.disabled = false;
+        saveNoteButton.textContent = "💾 Simpan Catatan";
+    }
+});
+
+const deleteNoteModal = document.getElementById("deleteNoteModal");
+const confirmNoteDelete = document.getElementById("confirmNoteDelete");
+const cancelNoteDelete = document.getElementById("cancelNoteDelete");
+
+function closeNoteDeleteModal() {
+    deleteNoteModal.classList.remove("show");
+}
+
+cancelNoteDelete.addEventListener("click", closeNoteDeleteModal);
+
+deleteNoteButton.addEventListener("click", () => {
+    const text = adminNote.value.trim();
+    if (!text) {
+        showNoteStatus("Tidak ada catatan untuk dihapus.", false);
+        return;
+    }
+    deleteNoteModal.classList.add("show");
+});
+
+confirmNoteDelete.addEventListener("click", async () => {
+    confirmNoteDelete.disabled = true;
+    confirmNoteDelete.textContent = "Menghapus...";
+
+    try {
+        const { error } = await supabaseClient.from("catatan_jadwal").delete().eq("id", 1);
+        if (error) throw error;
+
+        adminNote.value = "";
+        closeNoteDeleteModal();
+        showNoteStatus("✅ Catatan berhasil dihapus.", true);
+    } catch(error) {
+        console.error("DELETE NOTE ERROR:", error);
+        closeNoteDeleteModal();
+        showNoteStatus("❌ Gagal menghapus catatan: " + error.message, false);
+    } finally {
+        confirmNoteDelete.disabled = false;
+        confirmNoteDelete.textContent = "🗑️ Hapus Catatan";
+    }
+});
+
+refreshButton.addEventListener("click", async () => {
+    refreshButton.disabled = true;
+    refreshButton.textContent = "⏳ Memuat...";
+    await loadSchedules();
+    refreshButton.disabled = false;
+    refreshButton.textContent = "🔄 Refresh";
+});
+
+deleteModal.addEventListener("click", event => {
+    if (event.target === deleteModal) closeDeleteModal();
+});
+
+deleteNoteModal.addEventListener("click", event => {
+    if (event.target === deleteNoteModal) closeNoteDeleteModal();
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closeDeleteModal();
+        closeNoteDeleteModal();
+    }
+});
+
+supabaseClient.auth.onAuthStateChange(event => {
+    if (event === "SIGNED_OUT") {
+        location.href = "login-admin.html";
+    }
+});
+
+async function start() {
+    const admin = await checkAdmin();
+    if (!admin) return;
+    await loadSubjects();
+    await loadSchedules();
+    await loadAdminNote();
+}
+
+start();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pusat Informasi Admin - Portal Pembelajaran</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================
+           RESET & GLOBALS
+        ========================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =========================
+           AMBIENT BACKGROUND ORBS
+        ========================= */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: #8b5cf6;
+            top: -150px;
+            right: -100px;
+            animation: orbFloat1 25s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 450px;
+            height: 450px;
+            background: #3b82f6;
+            bottom: -150px;
+            left: -100px;
+            animation: orbFloat2 20s ease-in-out infinite alternate;
+        }
+
+        /* =========================
+           HEADER & NAV
+        ========================= */
+        header {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateX(-3px);
+        }
+
+        .brand {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon {
+            background: rgba(255,255,255,0.1);
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* =========================
+           CONTAINER & TITLES
+        ========================= */
+        .container {
+            max-width: 950px;
+            margin: auto;
+            padding: 36px 24px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            margin-bottom: 30px;
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .title-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .title-icon {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-size: 26px;
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+        }
+
+        .title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .title p {
+            color: #94a3b8;
+            font-size: 14.5px;
+            line-height: 1.6;
+            margin-left: 72px;
+            max-width: 700px;
+        }
+
+        /* =========================
+           SYSTEM STATUS
+        ========================= */
+        .system-status, .system-error {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        .system-status {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .system-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* =========================
+           CARDS (GLASSMORPHISM)
+        ========================= */
+        .card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 28px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+            margin-bottom: 24px;
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-title-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* =========================
+           FORM ELEMENTS
+        ========================= */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-full { grid-column: 1 / -1; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: #f8fafc;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        input::placeholder, textarea::placeholder { color: #64748b; }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #8b5cf6;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        textarea { min-height: 120px; resize: vertical; }
+
+        select option { background: #1e293b; color: #f8fafc; }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+        .save-button {
+            width: 100%;
+            border: none;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            font-family: inherit;
+        }
+
+        .save-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%);
+        }
+
+        .save-button:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        .save-button:disabled {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* =========================
+           ANNOUNCEMENT LIST
+        ========================= */
+        .announcement {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .announcement:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .announcement.pinned {
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.05);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.1);
+        }
+
+        .pinned-strip {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            margin: -20px -20px 16px -20px;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .announcement-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.4;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .badge-tugas { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-informasi { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-pengumuman { background: rgba(245, 158, 11, 0.2); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .announcement-message {
+            color: #cbd5e1;
+            font-size: 14.5px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            margin-bottom: 16px;
+        }
+
+        .announcement-meta {
+            color: #64748b;
+            font-size: 12.5px;
+            line-height: 1.8;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .announcement-meta strong { color: #94a3b8; }
+
+        /* Actions */
+        .announcement-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .action-button {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .action-button:active { transform: scale(0.95); }
+
+        .pin-button { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
+        .pin-button:hover { background: rgba(245, 158, 11, 0.25); }
+        
+        .unpin-button { background: rgba(255, 255, 255, 0.1); color: #f8fafc; }
+        .unpin-button:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .delete-button { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+        .delete-button:hover { background: rgba(239, 68, 68, 0.25); }
+
+        /* States */
+        .empty, .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 16px;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            font-size: 14.5px;
+            line-height: 1.7;
+        }
+        .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.8; }
+
+        /* =========================
+           MODAL (GLASSMORPHISM)
+        ========================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 99999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        
+        .modal-box {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.show .modal-box { transform: translateY(0) scale(1); }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: white; }
+        .modal-text { color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-button {
+            flex: 1; border: none; padding: 12px; border-radius: 12px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.2s ease; font-size: 14px;
+        }
+        .modal-cancel { background: rgba(255, 255, 255, 0.1); color: white; }
+        .modal-cancel:hover { background: rgba(255, 255, 255, 0.15); }
+        .modal-delete { background: #ef4444; color: white; }
+        .modal-delete:hover { background: #dc2626; }
+        .modal-delete:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* =========================
+           ANIMATIONS
+        ========================= */
+        @keyframes pageFadeIn { to { opacity: 1; } }
+        @keyframes containerPop { to { opacity: 1; transform: translateY(0); } }
+        @keyframes orbFloat1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-80px, 60px) scale(1.15); } }
+        @keyframes orbFloat2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(70px, -50px) scale(1.1); } }
+        
+        body.page-exit { pointer-events: none; }
+        body.page-exit .container, body.page-exit header { animation: pageExitAnim 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
+        @keyframes pageExitAnim { to { opacity: 0; transform: translateY(-20px) scale(0.97); filter: blur(8px); } }
+
+        /* =========================
+           MOBILE
+        ========================= */
+        @media (max-width: 700px) {
+            header { padding: 14px 20px; }
+            .container { padding: 24px 16px 40px; }
+            .title h1 { font-size: 23px; }
+            .title p { margin-left: 0; margin-top: 12px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .card { padding: 20px; border-radius: 20px; }
+            .announcement-header { flex-direction: column; }
+            .announcement-actions { flex-direction: column; }
+            .action-button { width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Glowing Background Orbs -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <button class="back" id="backButton">← Kembali</button>
+        <div class="brand">
+            <div class="header-icon">📢</div>
+            Pusat Informasi Admin
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Title -->
+        <section class="title">
+            <div class="title-top">
+                <div class="title-icon">📢</div>
+                <h1>Pusat Informasi</h1>
+            </div>
+            <p>Kelola tugas, informasi, dan pengumuman yang akan ditampilkan kepada Member. Informasi yang disematkan akan menjadi prioritas utama di dashboard.</p>
+        </section>
+
+        <!-- Status -->
+        <div id="systemStatus" class="system-status">
+            <div class="status-dot" style="background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,0.12);"></div>
+            <span>⏳ Memeriksa akun Admin...</span>
+        </div>
+
+        <!-- Form Tambah -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="card-title-icon">➕</div>
+                    Buat Informasi Baru
+                </div>
+            </div>
+
+            <form id="announcementForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="type">🏷️ Jenis Informasi</label>
+                        <select id="type" required>
+                            <option value="tugas">📚 Tugas</option>
+                            <option value="informasi">ℹ️ Informasi</option>
+                            <option value="pengumuman">📢 Pengumuman</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">📚 Mata Pelajaran</label>
+                        <input type="text" id="subject" placeholder="Contoh: TKR">
+                    </div>
+
+                    <div class="form-group form-full">
+                        <label for="title">📝 Judul</label>
+                        <input type="text" id="title" placeholder="Contoh: Pengumpulan Tugas TKR" required>
+                    </div>
+
+                    <div class="form-group form-full">
+                        <label for="message">💬 Isi Informasi</label>
+                        <textarea id="message" placeholder="Tuliskan informasi yang ingin disampaikan kepada Member..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deadline">📅 Batas Pengumpulan / Tanggal</label>
+                        <input type="date" id="deadline">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="visibility:hidden;">Publikasikan</label>
+                        <button type="submit" class="save-button" id="saveButton">📢 Publikasikan Informasi</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Daftar Pengumuman -->
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="card-title-icon">📋</div>
+                    Informasi yang Dipublikasikan
+                </div>
+            </div>
+            <div id="announcementList">
+                <div class="loading">⏳ Memuat informasi...</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon">🗑️</div>
+            <div class="modal-title">Hapus Informasi?</div>
+            <div class="modal-text" id="deleteModalText">Informasi ini akan dihapus secara permanen.</div>
+            <div class="modal-actions">
+                <button class="modal-button modal-cancel" id="cancelDeleteButton">Batal</button>
+                <button class="modal-button modal-delete" id="confirmDeleteButton">🗑️ Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        /* =====================================================
+           HELPER: SMOOTH NAVIGATION
+        ===================================================== */
+        function navigateTo(url) {
+            document.body.classList.add("page-exit");
+            setTimeout(function() { window.location.href = url; }, 380);
+        }
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        let currentAdminId = null;
+        let deleteTargetId = null;
+
+        const statusBox = document.getElementById("systemStatus");
+        const form = document.getElementById("announcementForm");
+        const saveButton = document.getElementById("saveButton");
+        const announcementList = document.getElementById("announcementList");
+        const deleteModal = document.getElementById("deleteModal");
+        const deleteModalText = document.getElementById("deleteModalText");
+        const cancelDeleteButton = document.getElementById("cancelDeleteButton");
+        const confirmDeleteButton = document.getElementById("confirmDeleteButton");
+
+        document.getElementById("backButton").addEventListener("click", () => navigateTo("admin.html"));
+
+        function showStatus(text, error = false) {
+            statusBox.className = error ? "system-error" : "system-status";
+            const color = error ? "#ef4444" : "#22c55e";
+            const shadow = error ? "rgba(239,68,68,0.2)" : "rgba(34,197,94,0.2)";
+            statusBox.innerHTML = `
+                <div class="status-dot" style="background: ${color}; box-shadow: 0 0 0 4px ${shadow};"></div>
+                <span>${escapeHTML(text)}</span>
+            `;
+        }
+
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = value ?? "";
+            return div.innerHTML;
+        }
+
+        async function checkAdmin() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (error || !session) { navigateTo("login-admin.html"); return null; }
+            
+            currentAdminId = session.user.id;
+            const { data: profile, error: profileError } = await supabaseClient
+                .from("profiles").select("id, role, status").eq("id", currentAdminId).maybeSingle();
+
+            if (profileError || !profile || profile.role !== "admin" || profile.status !== "open") {
+                await supabaseClient.auth.signOut();
+                navigateTo("login-admin.html");
+                return null;
+            }
+            return profile;
+        }
+
+        function getBadge(item) {
+            if (item.type === "tugas") return { className: "badge-tugas", text: "📚 TUGAS" };
+            if (item.type === "pengumuman") return { className: "badge-pengumuman", text: "📢 PENGUMUMAN" };
+            return { className: "badge-informasi", text: "ℹ️ INFORMASI" };
+        }
+
+        function formatDeadline(deadline) {
+            if (!deadline) return "";
+            return new Date(deadline + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+        }
+
+        async function loadAnnouncements() {
+            announcementList.innerHTML = `<div class="loading">⏳ Memuat informasi...</div>`;
+
+            const { data, error } = await supabaseClient
+                .from("announcements").select("*").eq("active", true)
+                .order("pinned", { ascending: false }).order("created_at", { ascending: false });
+
+            if (error) {
+                showStatus("Gagal memuat informasi: " + error.message, true);
+                announcementList.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>Gagal memuat informasi.<br><br>${escapeHTML(error.message)}</div>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                announcementList.innerHTML = `<div class="empty"><div class="empty-icon">📭</div>Belum ada informasi.<br>Silakan buat informasi baru menggunakan formulir di atas.</div>`;
+                return;
+            }
+
+            announcementList.innerHTML = "";
+
+            data.forEach(item => {
+                const element = document.createElement("div");
+                element.className = "announcement" + (item.pinned ? " pinned" : "");
+                
+                const badge = getBadge(item);
+                const deadline = formatDeadline(item.deadline);
+                const created = new Date(item.created_at).toLocaleString("id-ID");
+
+                let metaHTML = "";
+                if (item.subject) metaHTML += `<strong>📚 Mata Pelajaran:</strong> ${escapeHTML(item.subject)}<br>`;
+                if (deadline) metaHTML += `<strong>📅 Batas tanggal:</strong> ${escapeHTML(deadline)}<br>`;
+                metaHTML += `<strong>🕒 Dibuat:</strong> ${escapeHTML(created)}`;
+
+                element.innerHTML = `
+                    ${item.pinned ? `<div class="pinned-strip">📌 DISEMATKAN • Tampil sebagai informasi utama Member</div>` : ""}
+                    <div class="announcement-header">
+                        <div class="announcement-title">${escapeHTML(item.title)}</div>
+                        <div class="badge ${badge.className}">${badge.text}</div>
+                    </div>
+                    <div class="announcement-message">${escapeHTML(item.message)}</div>
+                    <div class="announcement-meta">${metaHTML}</div>
+                    <div class="announcement-actions">
+                        <button class="action-button ${item.pinned ? "unpin-button" : "pin-button"}" data-action="pin" data-id="${escapeHTML(item.id)}">
+                            ${item.pinned ? "📌 Lepas Sematan" : "📌 Sematkan"}
+                        </button>
+                        <button class="action-button delete-button" data-action="delete" data-id="${escapeHTML(item.id)}" data-title="${escapeHTML(item.title)}">
+                            🗑️ Hapus
+                        </button>
+                    </div>
+                `;
+                announcementList.appendChild(element);
+            });
+
+            announcementList.querySelectorAll("[data-action='pin']").forEach(btn => {
+                btn.addEventListener("click", function() { togglePin(this.dataset.id); });
+            });
+            announcementList.querySelectorAll("[data-action='delete']").forEach(btn => {
+                btn.addEventListener("click", function() { openDeleteModal(this.dataset.id, this.dataset.title); });
+            });
+        }
+
+        async function togglePin(id) {
+            try {
+                const { data: currentItem, error: findError } = await supabaseClient
+                    .from("announcements").select("id, pinned").eq("id", id).maybeSingle();
+                
+                if (findError) throw findError;
+                if (!currentItem) throw new Error("Informasi tidak ditemukan.");
+
+                if (currentItem.pinned) {
+                    const { error } = await supabaseClient.from("announcements").update({ pinned: false }).eq("id", id);
+                    if (error) throw error;
+                    showStatus("✅ Sematan informasi berhasil dilepas.");
+                } else {
+                    const { error: unpinError } = await supabaseClient.from("announcements").update({ pinned: false }).eq("pinned", true);
+                    if (unpinError) throw unpinError;
+                    const { error: pinError } = await supabaseClient.from("announcements").update({ pinned: true }).eq("id", id);
+                    if (pinError) throw pinError;
+                    showStatus("✅ Informasi disematkan menjadi informasi utama Member.");
+                }
+                await loadAnnouncements();
+            } catch (error) {
+                showStatus("❌ Gagal mengubah status sematan: " + error.message, true);
+            }
+        }
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const type = document.getElementById("type").value;
+            const subject = document.getElementById("subject").value.trim();
+            const title = document.getElementById("title").value.trim();
+            const message = document.getElementById("message").value.trim();
+            const deadline = document.getElementById("deadline").value;
+
+            if (!title || !message) { showStatus("❌ Judul dan isi informasi wajib diisi.", true); return; }
+
+            saveButton.disabled = true;
+            saveButton.innerHTML = `Menyimpan <span style="letter-spacing: 2px;">...</span>`;
+
+            try {
+                const { error } = await supabaseClient.from("announcements").insert({
+                    title: title, message: message, type: type, subject: subject || null, deadline: deadline || null,
+                    active: true, pinned: false, created_by: currentAdminId
+                });
+                if (error) throw error;
+                
+                form.reset();
+                showStatus("✅ Informasi berhasil dipublikasikan.");
+                await loadAnnouncements();
+            } catch (error) {
+                showStatus("❌ Gagal menyimpan informasi: " + error.message, true);
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = "📢 Publikasikan Informasi";
+            }
+        });
+
+        function openDeleteModal(id, title) {
+            deleteTargetId = id;
+            deleteModalText.textContent = `Informasi "${title}" akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.`;
+            deleteModal.classList.add("show");
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            deleteModal.classList.remove("show");
+        }
+
+        cancelDeleteButton.addEventListener("click", closeDeleteModal);
+
+        confirmDeleteButton.addEventListener("click", async function() {
+            if (!deleteTargetId) return;
+            confirmDeleteButton.disabled = true;
+            confirmDeleteButton.textContent = "⏳ Menghapus...";
+
+            try {
+                const { error } = await supabaseClient.from("announcements").delete().eq("id", deleteTargetId);
+                if (error) throw error;
+                closeDeleteModal();
+                showStatus("✅ Informasi berhasil dihapus.");
+                await loadAnnouncements();
+            } catch (error) {
+                closeDeleteModal();
+                showStatus("❌ Gagal menghapus informasi: " + error.message, true);
+            } finally {
+                confirmDeleteButton.disabled = false;
+                confirmDeleteButton.textContent = "🗑️ Ya, Hapus";
+            }
+        });
+
+        deleteModal.addEventListener("click", (e) => { if (e.target === deleteModal) closeDeleteModal(); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDeleteModal(); });
+
+        supabaseClient.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") navigateTo("login-admin.html"); });
+
+        async function start() {
+            const profile = await checkAdmin();
+            if (!profile) return;
+            showStatus("✅ Admin terverifikasi. Siap mengelola pengumuman.");
+            await loadAnnouncements();
+        }
+
+        start();
+    </script>
+</body>
+</html>

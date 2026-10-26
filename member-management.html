@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Member - Portal Pembelajaran</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================
+           RESET & GLOBALS
+        ========================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =========================
+           AMBIENT BACKGROUND ORBS
+        ========================= */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: #8b5cf6;
+            top: -150px;
+            right: -100px;
+            animation: orbFloat1 25s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 450px;
+            height: 450px;
+            background: #3b82f6;
+            bottom: -150px;
+            left: -100px;
+            animation: orbFloat2 20s ease-in-out infinite alternate;
+        }
+
+        /* =========================
+           HEADER & NAV
+        ========================= */
+        header {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateX(-3px);
+        }
+
+        .back:active {
+            transform: translateX(0) scale(0.96);
+        }
+
+        header strong {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        /* =========================
+           CONTAINER & TITLES
+        ========================= */
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 36px 24px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            margin-bottom: 24px;
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .title p {
+            color: #94a3b8;
+            font-size: 14.5px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           MESSAGES & NOTIFICATIONS
+        ========================= */
+        .message {
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            display: none;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            animation: textFade 0.3s ease forwards;
+        }
+
+        /* =========================
+           ADD MEMBER BOX
+        ========================= */
+        .add-box {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 28px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+            margin-bottom: 36px;
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        .add-box h2 {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: #f8fafc;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus {
+            border-color: #8b5cf6;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .add-button {
+            border: none;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 13px 20px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+        }
+
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%);
+        }
+
+        .add-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* =========================
+           MEMBERS LIST & CARDS
+        ========================= */
+        .members {
+            display: grid;
+            gap: 16px;
+        }
+
+        .member-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 22px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: textFade 0.5s ease both;
+        }
+
+        .member-card:hover {
+            background: rgba(30, 41, 59, 0.75);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.3);
+        }
+
+        .member-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .member-name {
+            font-weight: 700;
+            font-size: 17px;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .username {
+            color: #94a3b8;
+            font-size: 13.5px;
+            margin-top: 4px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .open {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .locked {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* =========================
+           ACTION BUTTONS
+        ========================= */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .actions button {
+            border: none;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .edit {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .edit:hover {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .reset {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .reset:hover {
+            background: #a855f7;
+            color: #ffffff;
+            border-color: #a855f7;
+            transform: translateY(-2px);
+        }
+
+        .lock {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fde047;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .lock:hover {
+            background: #f59e0b;
+            color: #ffffff;
+            border-color: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        .unlock {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .unlock:hover {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        .delete {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .delete:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+            transform: translateY(-2px);
+        }
+
+        .actions button:active {
+            transform: translateY(0) scale(0.96);
+        }
+
+        .empty {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 36px 24px;
+            text-align: center;
+            border-radius: 20px;
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        /* =========================
+           MODALS (DARK GLASS)
+        ========================= */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 440px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.92) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.show .modal-box {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .modal-title {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .modal-text {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        .edit-form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: -6px;
+        }
+
+        .password-info {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            margin-top: 4px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            border: none;
+            padding: 13px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .cancel-button {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+        }
+
+        .cancel-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .save-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.5);
+        }
+
+        .confirm-reset {
+            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+            color: white;
+            box-shadow: 0 8px 20px -4px rgba(168, 85, 247, 0.4);
+        }
+
+        .confirm-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(168, 85, 247, 0.5);
+        }
+
+        .confirm-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.4);
+        }
+
+        .confirm-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(239, 68, 68, 0.5);
+        }
+
+        .confirm-lock {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.4);
+        }
+
+        .confirm-lock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(245, 158, 11, 0.5);
+        }
+
+        .confirm-unlock {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+        }
+
+        .confirm-unlock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(16, 185, 129, 0.5);
+        }
+
+        .modal-buttons button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* =========================
+           KEYFRAME ANIMATIONS
+        ========================= */
+        @keyframes pageFadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes containerPop {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes textFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes orbFloat1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-80px, 60px) scale(1.15); }
+        }
+
+        @keyframes orbFloat2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(70px, -50px) scale(1.1); }
+        }
+
+        body.page-exit { pointer-events: none; }
+        body.page-exit .container,
+        body.page-exit header {
+            animation: pageExitAnim 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        @keyframes pageExitAnim {
+            to {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.97);
+                filter: blur(8px);
+            }
+        }
+
+        /* =========================
+           RESPONSIVE DESIGN
+        ========================= */
+        @media (max-width: 600px) {
+            header { padding: 14px 18px; }
+            .container { padding: 24px 16px 40px; }
+            .add-box { padding: 22px; border-radius: 20px; }
+            .member-card { padding: 18px; border-radius: 18px; }
+            .actions { width: 100%; }
+            .actions button { flex: 1; justify-content: center; }
+            .modal-box { padding: 22px; border-radius: 22px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Glowing Background Orbs -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Header / Nav -->
+    <header>
+        <button class="back" onclick="navigateTo('admin.html')">
+            ← Kembali
+        </button>
+        <strong>👥 Kelola Member</strong>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Title Section -->
+        <section class="title">
+            <h1>Kelola Member</h1>
+            <p>Tambahkan dan kelola akun pengguna Portal Pembelajaran.</p>
+        </section>
+
+        <!-- Dynamic System Message -->
+        <div id="message" class="message"></div>
+
+        <!-- Tambah Member Box -->
+        <section class="add-box">
+            <h2>➕ Tambah Member</h2>
+            <form id="addMemberForm">
+                <div class="form-grid">
+                    <input type="text" id="nama" placeholder="Nama lengkap" required>
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" minlength="6" required>
+                    <button type="submit" class="add-button">
+                        Tambah Member
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Daftar Member Section -->
+        <section>
+            <h2 style="margin-bottom:18px; font-size: 20px; font-weight: 700; color: #ffffff;">
+                👤 Daftar Member
+            </h2>
+            <div id="members" class="members">
+                <div class="empty">
+                    ⏳ Memuat data member...
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-icon">✏️</div>
+            <div class="modal-title">Edit Member</div>
+            <div class="modal-text">
+                Admin dapat mengubah nama, username, dan password member.
+            </div>
+
+            <form id="editMemberForm" class="edit-form">
+                <input type="hidden" id="editId">
+
+                <div class="form-label">Nama lengkap</div>
+                <input type="text" id="editNama" placeholder="Nama lengkap" required>
+
+                <div class="form-label">Username</div>
+                <input type="text" id="editUsername" placeholder="Username" required>
+
+                <div class="form-label">Password baru</div>
+                <input type="password" id="editPassword" placeholder="Kosongkan jika tidak diubah" minlength="6">
+
+                <div class="password-info">
+                    🔐 Password member disimpan di Supabase Authentication.
+                    <br><br>
+                    Kosongkan password jika hanya ingin mengubah nama atau username.
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="cancel-button" onclick="closeEditModal()">
+                        Batal
+                    </button>
+                    <button type="submit" class="save-button">
+                        💾 Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ACTION CONFIRMATION MODAL -->
+    <div id="actionModal" class="modal">
+        <div class="modal-box">
+            <div id="modalIcon" class="modal-icon">⚠️</div>
+            <div id="modalTitle" class="modal-title">Konfirmasi</div>
+            <div id="modalText" class="modal-text">Apakah kamu yakin?</div>
+
+            <div class="modal-buttons">
+                <button type="button" class="cancel-button" onclick="closeModal()">
+                    Batal
+                </button>
+                <button type="button" id="modalConfirm" class="confirm-delete">
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUPABASE DEPENDENCIES -->
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        /* =====================================================
+           HELPER: SMOOTH NAVIGATION TRANSITION
+        ===================================================== */
+        function navigateTo(url) {
+            document.body.classList.add("page-exit");
+            setTimeout(function() {
+                window.location.href = url;
+            }, 380);
+        }
+
+        /* =====================================================
+           SUPABASE CLIENT
+        ===================================================== */
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
+
+        const message = document.getElementById("message");
+        const membersContainer = document.getElementById("members");
+
+        /* =====================================================
+           MESSAGE DISPLAY
+        ===================================================== */
+        function showMessage(text, success = false) {
+            message.style.display = "block";
+            message.textContent = text;
+            
+            if (success) {
+                message.style.background = "rgba(16, 185, 129, 0.15)";
+                message.style.border = "1px solid rgba(16, 185, 129, 0.3)";
+                message.style.color = "#6ee7b7";
+            } else {
+                message.style.background = "rgba(239, 68, 68, 0.15)";
+                message.style.border = "1px solid rgba(239, 68, 68, 0.3)";
+                message.style.color = "#fca5a5";
+            }
+        }
+
+        /* =====================================================
+           ESCAPE HTML
+        ===================================================== */
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = value ?? "";
+            return div.innerHTML;
+        }
+
+        /* =====================================================
+           CHECK ADMIN AUTH
+        ===================================================== */
+        async function checkAdmin() {
+            const { data, error } = await supabaseClient.auth.getSession();
+
+            if (error || !data.session) {
+                navigateTo("login-admin.html");
+                return false;
+            }
+
+            const { data: profile, error: profileError } = await supabaseClient
+                .from("profiles")
+                .select("id, role, status")
+                .eq("id", data.session.user.id)
+                .single();
+
+            if (
+                profileError ||
+                !profile ||
+                profile.role !== "admin" ||
+                profile.status !== "open"
+            ) {
+                await supabaseClient.auth.signOut();
+                navigateTo("login-admin.html");
+                return false;
+            }
+
+            return true;
+        }
+
+        /* =====================================================
+           GET ACCESS TOKEN
+        ===================================================== */
+        async function getAccessToken() {
+            const { data, error } = await supabaseClient.auth.getSession();
+            if (error || !data.session) {
+                navigateTo("login-admin.html");
+                return null;
+            }
+            return data.session.access_token;
+        }
+
+        /* =====================================================
+           CALL MANAGE-MEMBER EDGE FUNCTION
+        ===================================================== */
+        async function callManageMember(payload) {
+            const token = await getAccessToken();
+            if (!token) {
+                throw new Error("Sesi admin tidak ditemukan.");
+            }
+
+            const response = await fetch(
+                `${SUPABASE_URL}/functions/v1/manage-member`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                        "apikey": SUPABASE_PUBLISHABLE_KEY
+                    },
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch {
+                result = {};
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error ||
+                    result.message ||
+                    "Gagal menjalankan operasi member."
+                );
+            }
+
+            return result;
+        }
+
+        /* =====================================================
+           LOAD MEMBERS (CASE-INSENSITIVE CHECK)
+        ===================================================== */
+        async function loadMembers() {
+            membersContainer.innerHTML = `
+                <div class="empty">
+                    ⏳ Memuat data member...
+                </div>
+            `;
+
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("id, nama, username, status")
+                .eq("role", "member")
+                .order("nama", { ascending: true });
+
+            if (error) {
+                console.error(error);
+                membersContainer.innerHTML = `
+                    <div class="empty">
+                        ❌ Gagal memuat member.<br><br>
+                        ${escapeHTML(error.message)}
+                    </div>
+                `;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                membersContainer.innerHTML = `
+                    <div class="empty">
+                        👤 Belum ada member.
+                    </div>
+                `;
+                return;
+            }
+
+            membersContainer.innerHTML = "";
+
+            data.forEach(member => {
+                const card = document.createElement("div");
+                card.className = "member-card";
+
+                // Normalisasi status ke huruf kecil untuk mencegah bug kapitalisasi
+                const statusClean = String(member.status || "").trim().toLowerCase();
+                const locked = statusClean === "locked" || statusClean === "kunci";
+
+                console.log(`[DEBUG] Member: ${member.nama} | Status DB: "${member.status}" | locked: ${locked}`);
+
+                card.innerHTML = `
+                    <div class="member-info">
+                        <div class="member-name">
+                            ${escapeHTML(member.nama || "Tanpa nama")}
+                        </div>
+                        <div class="username">
+                            @${escapeHTML(member.username || "-")}
+                        </div>
+                        <span class="status ${locked ? "locked" : "open"}">
+                            ${locked ? "🔴 Terkunci" : "🟢 Terbuka"}
+                        </span>
+                    </div>
+
+                    <div class="actions">
+                        <button class="edit" data-action="edit">
+                            ✏️ Edit
+                        </button>
+                        <button class="reset" data-action="reset">
+                            🔄 Reset Sesi
+                        </button>
+                        <button class="${locked ? "unlock" : "lock"}" data-action="toggle-status">
+                            ${locked ? "🔓 Buka" : "🔒 Kunci"}
+                        </button>
+                        <button class="delete" data-action="delete">
+                            🗑️ Hapus
+                        </button>
+                    </div>
+                `;
+
+                card.querySelector('[data-action="edit"]').addEventListener("click", () => openEditModal(member));
+                card.querySelector('[data-action="reset"]').addEventListener("click", () => resetMemberSession(member.id, member.nama));
+                card.querySelector('[data-action="toggle-status"]').addEventListener("click", () =>
+                    toggleStatus(member.id, member.status, member.nama)
+                );
+                card.querySelector('[data-action="delete"]').addEventListener("click", () =>
+                    deleteMember(member.id, member.nama)
+                );
+
+                membersContainer.appendChild(card);
+            });
+        }
+
+        /* =====================================================
+           EDIT MODAL mechanics
+        ===================================================== */
+        const editModal = document.getElementById("editModal");
+
+        function openEditModal(member) {
+            document.getElementById("editId").value = member.id;
+            document.getElementById("editNama").value = member.nama || "";
+            document.getElementById("editUsername").value = member.username || "";
+            document.getElementById("editPassword").value = "";
+            editModal.classList.add("show");
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove("show");
+            document.getElementById("editMemberForm").reset();
+        }
+
+        editModal.addEventListener("click", event => {
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        });
+
+        /* =====================================================
+           SUBMIT EDIT MEMBER
+        ===================================================== */
+        document.getElementById("editMemberForm").addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const id = document.getElementById("editId").value;
+            const nama = document.getElementById("editNama").value.trim();
+            const username = document.getElementById("editUsername").value.trim().toLowerCase();
+            const password = document.getElementById("editPassword").value;
+
+            if (!id) {
+                showMessage("ID member tidak ditemukan.");
+                return;
+            }
+
+            if (!nama) {
+                showMessage("Nama tidak boleh kosong.");
+                return;
+            }
+
+            if (!username) {
+                showMessage("Username tidak boleh kosong.");
+                return;
+            }
+
+            if (password && password.length < 6) {
+                showMessage("Password minimal 6 karakter.");
+                return;
+            }
+
+            closeEditModal();
+            showMessage("Menyimpan perubahan...");
+
+            try {
+                const payload = {
+                    action: "update",
+                    user_id: id,
+                    nama: nama,
+                    username: username
+                };
+
+                if (password) {
+                    payload.password = password;
+                }
+
+                await callManageMember(payload);
+                showMessage("Data member berhasil diperbarui.", true);
+                await loadMembers();
+
+            } catch (error) {
+                console.error("UPDATE ERROR:", error);
+                showMessage("Gagal mengubah member: " + error.message);
+            }
+        });
+
+        /* =====================================================
+           ACTION MODAL mechanics
+        ===================================================== */
+        const modal = document.getElementById("actionModal");
+        const modalIcon = document.getElementById("modalIcon");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalText = document.getElementById("modalText");
+        const modalConfirm = document.getElementById("modalConfirm");
+        let modalAction = null;
+
+        function openModal(type, name, callback) {
+            modalAction = callback;
+
+            if (type === "delete") {
+                modalIcon.textContent = "🗑️";
+                modalTitle.textContent = "Hapus Member?";
+                modalText.innerHTML = `Yakin ingin menghapus akun <strong>${escapeHTML(name)}</strong>?<br><br>Akun tersebut akan dihapus.`;
+                modalConfirm.textContent = "Hapus";
+                modalConfirm.className = "confirm-delete";
+            }
+
+            if (type === "reset") {
+                modalIcon.textContent = "🔄";
+                modalTitle.textContent = "Reset Sesi Member?";
+                modalText.innerHTML = `Reset status login akun <strong>${escapeHTML(name)}</strong>?<br><br>Pengguna akan dapat masuk kembali jika sebelumnya tertahan di perangkat lain.`;
+                modalConfirm.textContent = "Reset Sesi";
+                modalConfirm.className = "confirm-reset";
+            }
+
+            if (type === "lock") {
+                modalIcon.textContent = "🔒";
+                modalTitle.textContent = "Kunci Member?";
+                modalText.innerHTML = `Akun <strong>${escapeHTML(name)}</strong> akan dikunci dari sistem.`;
+                modalConfirm.textContent = "Kunci";
+                modalConfirm.className = "confirm-lock";
+            }
+
+            if (type === "unlock") {
+                modalIcon.textContent = "🔓";
+                modalTitle.textContent = "Buka Member?";
+                modalText.innerHTML = `Akun <strong>${escapeHTML(name)}</strong> akan dibuka kembali.`;
+                modalConfirm.textContent = "Buka";
+                modalConfirm.className = "confirm-unlock";
+            }
+
+            modal.classList.add("show");
+        }
+
+        function closeModal() {
+            modal.classList.remove("show");
+            modalAction = null;
+        }
+
+        modalConfirm.addEventListener("click", async () => {
+            if (!modalAction) return;
+            const action = modalAction;
+            modalAction = null;
+            modal.classList.remove("show");
+            await action();
+        });
+
+        modal.addEventListener("click", event => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        /* =====================================================
+           RESET MEMBER SESSION (VIA EDGE FUNCTION)
+        ===================================================== */
+        async function resetMemberSession(id, name) {
+            openModal("reset", name, async () => {
+                showMessage("Mereset sesi akun...");
+                try {
+                    await callManageMember({
+                        action: "reset_session",
+                        user_id: id
+                    });
+
+                    showMessage(`Sesi akun ${name} berhasil di-reset! Member sekarang bisa login kembali.`, true);
+                    await loadMembers();
+
+                } catch (error) {
+                    console.error("RESET SESSION ERROR:", error);
+                    showMessage("Gagal mereset sesi: " + (error.message || "Terjadi kesalahan pada server."));
+                }
+            });
+        }
+
+        /* =====================================================
+           TOGGLE STATUS (VIA EDGE FUNCTION)
+        ===================================================== */
+        async function toggleStatus(id, currentStatus, name) {
+            const statusClean = String(currentStatus || "").trim().toLowerCase();
+            const isCurrentlyLocked = statusClean === "locked" || statusClean === "kunci";
+            
+            const newStatus = isCurrentlyLocked ? "open" : "locked";
+            const type = isCurrentlyLocked ? "unlock" : "lock";
+
+            openModal(type, name, async () => {
+                showMessage("Mengubah status akun...");
+                try {
+                    await callManageMember({
+                        action: "status",
+                        user_id: id,
+                        status: newStatus
+                    });
+
+                    showMessage(
+                        newStatus === "locked" ? "Akun berhasil dikunci." : "Akun berhasil dibuka.",
+                        true
+                    );
+                    await loadMembers();
+
+                } catch (error) {
+                    console.error("TOGGLE STATUS ERROR:", error);
+                    showMessage("Gagal mengubah status akun: " + error.message);
+                }
+            });
+        }
+
+        /* =====================================================
+           DELETE MEMBER
+        ===================================================== */
+        async function deleteMember(id, name) {
+            openModal("delete", name, async () => {
+                showMessage("Menghapus member...");
+                try {
+                    await callManageMember({
+                        action: "delete",
+                        user_id: id
+                    });
+
+                    showMessage("Member berhasil dihapus.", true);
+                    await loadMembers();
+
+                } catch (error) {
+                    console.error("DELETE ERROR:", error);
+                    showMessage("Gagal menghapus member: " + error.message);
+                }
+            });
+        }
+
+        /* =====================================================
+           CREATE MEMBER FORM
+        ===================================================== */
+        document.getElementById("addMemberForm").addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const nama = document.getElementById("nama").value.trim();
+            const username = document.getElementById("username").value.trim().toLowerCase();
+            const password = document.getElementById("password").value;
+
+            if (!nama) {
+                showMessage("Nama belum diisi.");
+                return;
+            }
+
+            if (!username) {
+                showMessage("Username belum diisi.");
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage("Password minimal 6 karakter.");
+                return;
+            }
+
+            showMessage("Membuat akun member...");
+
+            try {
+                await callManageMember({
+                    action: "create",
+                    nama: nama,
+                    username: username,
+                    password: password
+                });
+
+                showMessage("Member berhasil dibuat!", true);
+                document.getElementById("addMemberForm").reset();
+                await loadMembers();
+
+            } catch (error) {
+                console.error("CREATE ERROR:", error);
+                showMessage(error.message);
+            }
+        });
+
+        /* =====================================================
+           KEYBOARD SHORTCUT (ESC)
+        ===================================================== */
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                closeModal();
+                closeEditModal();
+            }
+        });
+
+        /* =====================================================
+           AUTH STATE LISTENER
+        ===================================================== */
+        supabaseClient.auth.onAuthStateChange(event => {
+            if (event === "SIGNED_OUT") {
+                navigateTo("login-admin.html");
+            }
+        });
+
+        /* =====================================================
+           INITIALIZATION
+        ===================================================== */
+        async function start() {
+            const admin = await checkAdmin();
+            if (!admin) return;
+            await loadMembers();
+        }
+
+        start();
+    </script>
+</body>
+</html>

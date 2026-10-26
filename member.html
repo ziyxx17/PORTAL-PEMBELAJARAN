@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Member - Portal Pembelajaran</title>
+
+<!-- GOOGLE FONTS (PLUS JAKARTA SANS) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(37, 99, 235, 0.15),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 85%,
+            rgba(124, 58, 237, 0.15),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #070a12,
+            #0f172a,
+            #1e293b
+        );
+    color: #f8fafc;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+header {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+}
+
+.logout {
+    border: none;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logout:hover {
+    background: rgba(239, 68, 68, 0.8);
+    color: #ffffff;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.logout:active {
+    transform: scale(0.96);
+}
+
+.logout:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.welcome {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(124, 58, 237, 0.25));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 70%);
+    pointer-events: none;
+}
+
+.welcome h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.welcome p {
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+.account-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+    animation: pulse 2s infinite;
+}
+
+.section-title {
+    margin: 32px 0 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.member-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.menu-button {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 20px;
+    border-radius: 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #f8fafc;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.menu-button:hover {
+    transform: translateY(-3px);
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 12px 30px -10px rgba(37, 99, 235, 0.25);
+}
+
+.menu-button:active {
+    transform: scale(0.99);
+}
+
+.menu-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.menu-icon {
+    font-size: 26px;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-content {
+    flex: 1;
+}
+
+.menu-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #f8fafc;
+}
+
+.menu-description {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.announcement-featured {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-left: 4px solid #3b82f6;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+}
+
+.announcement-featured.pinned {
+    border-color: rgba(245, 158, 11, 0.4);
+    border-left: 4px solid #f59e0b;
+    background: radial-gradient(circle at top left, rgba(245, 158, 11, 0.1), transparent 60%), rgba(15, 23, 42, 0.75);
+}
+
+.featured-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(37, 99, 235, 0.2);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: 0.03em;
+}
+
+.featured-label.pinned-label {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.featured-title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: #f8fafc;
+}
+
+.featured-message {
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+}
+
+.featured-meta {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.8;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 14px;
+}
+
+.announcement-empty, .announcement-error {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 24px;
+    border-radius: 18px;
+    color: #94a3b8;
+    text-align: center;
+    font-size: 14px;
+}
+
+.announcement-error {
+    background: rgba(127, 29, 29, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.dashboard-info {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 32px;
+    padding: 24px;
+    border-radius: 20px;
+}
+
+.info-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.info-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 12px;
+    font-size: 20px;
+}
+
+.info-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.info-header p {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.system-info {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #a7f3d0;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.locked-message {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 99999;
+}
+
+.locked-message.show {
+    display: flex;
+    animation: lockedFadeIn 0.3s ease forwards;
+}
+
+.locked-box {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 24px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    animation: lockedBoxIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.locked-icon {
+    font-size: 48px;
+    margin-bottom: 14px;
+}
+
+.locked-box h2 {
+    margin-bottom: 8px;
+    color: #fca5a5;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.locked-box p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.locked-box button {
+    width: 100%;
+    border: none;
+    background: #ef4444;
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.locked-box button:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes lockedFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes lockedBoxIn {
+    from { opacity: 0; transform: scale(0.92) translateY(15px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .brand { font-size: 16px; }
+    .logout { padding: 8px 12px; font-size: 12px; }
+    .container { padding: 20px 14px 40px; }
+    .welcome { padding: 24px; }
+    .welcome h1 { font-size: 22px; }
+    .menu-button { padding: 16px; gap: 14px; }
+    .menu-icon { width: 44px; height: 44px; font-size: 22px; }
+    .announcement-featured { padding: 20px; }
+    .featured-title { font-size: 16px; }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">📚 Portal Pembelajaran</div>
+    <button class="logout" id="logoutButton">Keluar</button>
+</header>
+
+<main class="container">
+
+    <section class="welcome">
+        <h1 id="welcomeName">Selamat datang, Member!</h1>
+        <p>Selamat datang di Portal Pembelajaran. Pilih menu yang ingin kamu gunakan untuk mengakses pembelajaran.</p>
+        <div class="account-status">
+            <span class="status-dot"></span>
+            Akun aktif
+        </div>
+    </section>
+
+    <h2 class="section-title">📢 Pengumuman dan Informasi Terbaru</h2>
+    <div id="featuredAnnouncement">
+        <div class="announcement-empty">⏳ Memuat pengumuman dan informasi...</div>
+    </div>
+
+    <section class="member-menu">
+        <button class="menu-button" id="announcementButton">
+            <div class="menu-icon">📢</div>
+            <div class="menu-content">
+                <div class="menu-title">Semua Informasi</div>
+                <div class="menu-description">Lihat semua tugas, pengumuman, informasi, dan batas pengumpulan dari Admin.</div>
+            </div>
+        </button>
+    </section>
+
+    <h2 class="section-title">📚 Menu Pembelajaran</h2>
+    <section class="member-menu">
+
+        <button class="menu-button" id="scheduleButton">
+            <div class="menu-icon">📅</div>
+            <div class="menu-content">
+                <div class="menu-title">Jadwal Pelajaran</div>
+                <div class="menu-description">Lihat jadwal pelajaran, jam belajar, guru, dan ruang kelas.</div>
+            </div>
+        </button>
+
+        <button class="menu-button" id="subjectButton">
+            <div class="menu-icon">📚</div>
+            <div class="menu-content">
+                <div class="menu-title">Mata Pelajaran</div>
+                <div class="menu-description">Lihat semua mata pelajaran dan materi pembelajaran dalam satu halaman.</div>
+            </div>
+        </button>
+
+    </section>
+
+    <h2 class="section-title">👤 Akun</h2>
+    <section class="member-menu">
+        <button class="menu-button" id="accountButton">
+            <div class="menu-icon">👤</div>
+            <div class="menu-content">
+                <div class="menu-title">Informasi Akun</div>
+                <div class="menu-description">Lihat profil, keamanan akun, aktivitas, dan status akun kamu.</div>
+            </div>
+        </button>
+    </section>
+
+    <section class="dashboard-info">
+        <div class="info-header">
+            <div class="info-icon">ℹ️</div>
+            <div>
+                <h3>Informasi Dashboard</h3>
+                <p>Informasi penggunaan Dashboard Member</p>
+            </div>
+        </div>
+
+        <div class="system-info">
+            🟢 Dashboard Member siap digunakan.
+            <br><br>
+            Gunakan menu <strong>Jadwal Pelajaran</strong> untuk melihat jadwal belajar, jam pelajaran, dan guru.
+            <br><br>
+            Gunakan menu <strong>Mata Pelajaran</strong> untuk melihat mata pelajaran dan materi pembelajaran.
+            <br><br>
+            Gunakan menu <strong>Semua Informasi</strong> untuk melihat tugas, pengumuman, informasi, dan batas pengumpulan dari Admin.
+            <br><br>
+            👤 Gunakan menu <strong>Informasi Akun</strong> untuk melihat profil, keamanan, aktivitas, dan status akun.
+            <br><br>
+            🔒 Jika akun dikunci oleh administrator, akses ke Portal Pembelajaran akan dihentikan secara otomatis.
+        </div>
+    </section>
+
+</main>
+
+<div id="lockedMessage" class="locked-message">
+    <div class="locked-box">
+        <div class="locked-icon">🔒</div>
+        <h2>Akun Dikunci</h2>
+        <p>Akun kamu telah dikunci oleh administrator.<br><br>Kamu akan dikeluarkan dari Portal Pembelajaran.</p>
+        <button id="lockedButton">Kembali ke Login</button>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL, 
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+        auth: {
+            storage: window.sessionStorage
+        }
+    }
+);
+
+let currentUserId = null;
+let accountLocked = false;
+let statusChannel = null;
+let statusCheckInterval = null;
+let presenceInterval = null;
+
+function escapeHTML(value) {
+    const div = document.createElement("div");
+    div.textContent = value ?? "";
+    return div.innerHTML;
+}
+
+async function removePresence() {
+    if (!currentUserId) return;
+    try {
+        await supabaseClient
+            .from("user_presence")
+            .delete()
+            .eq("user_id", currentUserId);
+    } catch (error) {
+        console.error("Remove presence exception:", error);
+    }
+}
+
+async function updatePresence() {
+    if (!currentUserId || accountLocked) return;
+    try {
+        await supabaseClient
+            .from("user_presence")
+            .upsert(
+                { 
+                    user_id: currentUserId, 
+                    is_online: true,
+                    last_seen: new Date().toISOString() 
+                },
+                { onConflict: "user_id" }
+            );
+    } catch (error) {
+        console.error("Presence exception:", error);
+    }
+}
+
+async function forceLogout() {
+    if (accountLocked) return;
+    accountLocked = true;
+
+    if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
+    if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
+
+    if (statusChannel) {
+        try { await supabaseClient.removeChannel(statusChannel); }
+        catch (error) { console.error("Remove channel:", error); }
+        statusChannel = null;
+    }
+
+    await removePresence();
+    document.getElementById("lockedMessage").classList.add("show");
+
+    try { await supabaseClient.auth.signOut(); }
+    catch (error) { console.error("Force logout:", error); }
+}
+
+// HANYA CEK APABILA AKUN DIKUNCI ADMIN (status !== open)
+async function checkAccountStatus() {
+    if (!currentUserId || accountLocked) return;
+    try {
+        const { data: profile, error } = await supabaseClient
+            .from("profiles")
+            .select("id, role, status")
+            .eq("id", currentUserId)
+            .maybeSingle(); 
+
+        if (error || !profile) return;
+
+        const role = String(profile.role || "").toLowerCase().trim();
+        const status = String(profile.status || "").toLowerCase().trim();
+
+        if (role !== "member" || status !== "open") {
+            console.warn("Status akun dikunci oleh Admin!");
+            await forceLogout();
+        }
+    } catch (error) {
+        console.error("Check status exception:", error);
+    }
+}
+
+function subscribeAccountStatus() {
+    if (!currentUserId) return;
+    statusChannel = supabaseClient
+        .channel("member-status-" + currentUserId)
+        .on(
+            "postgres_changes",
+            { event: "UPDATE", schema: "public", table: "profiles", filter: "id=eq." + currentUserId },
+            async function(payload) {
+                if (payload.new) {
+                    const status = String(payload.new.status || "").toLowerCase().trim();
+                    const role = String(payload.new.role || "").toLowerCase().trim();
+                    if (status !== "open" || role !== "member") {
+                        await forceLogout();
+                    }
+                }
+            }
+        )
+        .subscribe();
+}
+
+async function checkLogin() {
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+        window.location.href = "login-member.html";
+        return null;
+    }
+
+    currentUserId = session.user.id;
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("id, nama, username, role, status, is_logged_in")
+        .eq("id", currentUserId)
+        .maybeSingle();
+
+    if (error) {
+        document.getElementById("welcomeName").textContent = "Selamat datang, Member!";
+        return { id: currentUserId };
+    }
+
+    if (!profile) {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login-member.html";
+        return null;
+    }
+
+    const role = String(profile.role || "").toLowerCase().trim();
+    const status = String(profile.status || "").toLowerCase().trim();
+
+    if (role !== "member" || status !== "open") {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login-member.html";
+        return null;
+    }
+
+    // Memastikan status login di DB terisi true
+    if (profile.is_logged_in !== true) {
+        await supabaseClient
+            .from("profiles")
+            .update({ is_logged_in: true })
+            .eq("id", currentUserId);
+    }
+
+    const displayName = profile.nama || profile.username || "Member";
+    document.getElementById("welcomeName").textContent = "Selamat datang, " + displayName + "!";
+
+    return profile;
+}
+
+async function loadAnnouncements() {
+    const featured = document.getElementById("featuredAnnouncement");
+    if (!featured) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("announcements")
+            .select("id, title, message, type, subject, deadline, created_at, pinned")
+            .eq("active", true)
+            .order("pinned", { ascending: false, nullsFirst: false })
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (error) {
+            featured.innerHTML = `<div class="announcement-error">❌ Gagal memuat pengumuman dan informasi.</div>`;
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            featured.innerHTML = `<div class="announcement-empty">📭 Belum ada pengumuman atau informasi.</div>`;
+            return;
+        }
+
+        const item = data[0];
+        const isPinned = item.pinned === true;
+
+        let badgeText = "ℹ️ INFORMASI";
+        if (item.type === "tugas") badgeText = "📚 TUGAS";
+        else if (item.type === "pengumuman") badgeText = "📢 PENGUMUMAN";
+
+        let meta = "";
+        if (item.subject) meta += "📚 Mata Pelajaran: " + escapeHTML(item.subject) + "<br>";
+        if (item.deadline) {
+            const deadlineDate = new Date(item.deadline + "T00:00:00");
+            meta += "📅 Batas pengumpulan: " + deadlineDate.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }) + "<br>";
+        }
+        if (item.created_at) meta += "🕒 Dipublikasikan: " + new Date(item.created_at).toLocaleString("id-ID");
+
+        let labelHTML = isPinned ? `
+            <div class="featured-label pinned-label">
+                📌 DISEMATKAN &nbsp;•&nbsp; INFORMASI UTAMA
+            </div>
+        ` : `
+            <div class="featured-label">
+                ${badgeText} &nbsp;•&nbsp; TERBARU
+            </div>
+        `;
+
+        featured.innerHTML = `
+            <div class="announcement-featured ${isPinned ? "pinned" : ""}">
+                ${labelHTML}
+                ${isPinned ? `<div style="font-size:11px; color:#fcd34d; margin-bottom:10px; font-weight:700;">📢 Dipilih oleh Admin sebagai informasi utama</div>` : ""}
+                <div class="featured-title">${escapeHTML(item.title)}</div>
+                <div class="featured-message">${escapeHTML(item.message)}</div>
+                <div class="featured-meta">${meta}</div>
+            </div>
+        `;
+    } catch (error) {
+        featured.innerHTML = `<div class="announcement-error">❌ Terjadi kesalahan saat memuat pengumuman dan informasi.</div>`;
+    }
+}
+
+document.getElementById("scheduleButton").addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "jadwal.html";
+});
+
+document.getElementById("subjectButton").addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "subjects.html";
+});
+
+document.getElementById("announcementButton").addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "announcements.html";
+});
+
+document.getElementById("accountButton").addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "profil-member.html";
+});
+
+// LOGOUT RESMI: RESET IS_LOGGED_IN MENJADI FALSE
+document.getElementById("logoutButton").addEventListener("click", async function() {
+    if (accountLocked) return;
+    const button = document.getElementById("logoutButton");
+    button.disabled = true;
+    button.textContent = "Keluar...";
+
+    if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
+    if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
+    if (statusChannel) {
+        try { await supabaseClient.removeChannel(statusChannel); }
+        catch (error) { console.error("Remove channel:", error); }
+        statusChannel = null;
+    }
+
+    await removePresence();
+
+    // Mengubah status is_logged_in kembali menjadi false
+    if (currentUserId) {
+        try {
+            await supabaseClient.from("profiles").update({ is_logged_in: false }).eq("id", currentUserId);
+        } catch (e) {
+            console.error("Gagal mereset status login:", e);
+        }
+    }
+
+    try { await supabaseClient.auth.signOut(); }
+    catch (error) { console.error("Logout:", error); }
+
+    window.location.href = "login-member.html";
+});
+
+document.getElementById("lockedButton").addEventListener("click", async function() {
+    try { await supabaseClient.auth.signOut(); }
+    catch (error) { console.error("Locked logout:", error); }
+    
+    window.location.href = "login-member.html";
+});
+
+// EVENT VISIBILITY CHANGE (SAAT PINDAH TAB & KEMBALI AKAN TETAP AMAN)
+document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === "visible" && !accountLocked) {
+        updatePresence();
+        checkAccountStatus();
+    }
+});
+
+async function start() {
+    const profile = await checkLogin();
+    if (!profile) return;
+
+    await updatePresence();
+    presenceInterval = setInterval(updatePresence, 10000);
+
+    subscribeAccountStatus();
+    statusCheckInterval = setInterval(checkAccountStatus, 15000);
+
+    await loadAnnouncements();
+}
+
+start();
+
+</script>
+
+</body>
+</html>

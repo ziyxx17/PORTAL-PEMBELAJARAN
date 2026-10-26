@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Status Pengguna - Portal Admin</title>
+
+<!-- GOOGLE FONTS (PLUS JAKARTA SANS) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+/* =====================================================
+   RESET & DARK BASE STYLES
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(37, 99, 235, 0.15),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 85%,
+            rgba(124, 58, 237, 0.15),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #070a12,
+            #0f172a,
+            #1e293b
+        );
+    color: #f8fafc;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.back {
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.back:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.back:active {
+    transform: scale(0.96);
+}
+
+.brand {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+/* =====================================================
+   CONTAINER & PAGE TITLE
+===================================================== */
+
+.container {
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.title {
+    margin-bottom: 24px;
+}
+
+.title h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+}
+
+.title p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =====================================================
+   STATS CARDS
+===================================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.stat {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.stat:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    line-height: 1;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.active-number {
+    color: #4ade80;
+    text-shadow: 0 0 12px rgba(74, 222, 128, 0.25);
+}
+
+.inactive-number {
+    color: #94a3b8;
+}
+
+.locked-number {
+    color: #f87171;
+    text-shadow: 0 0 12px rgba(248, 113, 113, 0.25);
+}
+
+/* =====================================================
+   TOOLBAR & INPUTS
+===================================================== */
+
+.toolbar {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.3);
+    margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+}
+
+.search {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 12px 16px;
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.search::placeholder {
+    color: #64748b;
+}
+
+.search:focus {
+    border-color: #3b82f6;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.refresh {
+    border: none;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    white-space: nowrap;
+}
+
+.refresh:hover {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+
+.refresh:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* =====================================================
+   USERS LIST & CARDS
+===================================================== */
+
+.users {
+    display: grid;
+    gap: 12px;
+}
+
+.user-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 22px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 12px 30px -8px rgba(37, 99, 235, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.user-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.user-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 2px;
+    word-break: break-word;
+}
+
+.username {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+.last-seen {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.user-right {
+    text-align: right;
+    min-width: 115px;
+}
+
+/* =====================================================
+   STATUS BADGES
+===================================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.badge-active {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+.badge-active .dot {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+}
+
+.badge-inactive {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+}
+
+.badge-inactive .dot {
+    background: #64748b;
+}
+
+.badge-locked {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.badge-locked .dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+}
+
+.role {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* =====================================================
+   MESSAGES & EMPTY STATES
+===================================================== */
+
+.empty {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    padding: 32px 20px;
+    text-align: center;
+    color: #94a3b8;
+    border-radius: 18px;
+    font-size: 14px;
+}
+
+.message {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+/* =====================================================
+   MEDIA QUERIES
+===================================================== */
+
+@media (max-width: 600px) {
+    header {
+        padding: 14px 16px;
+    }
+
+    .container {
+        padding: 20px 14px 40px;
+    }
+
+    .title h1 {
+        font-size: 22px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .refresh {
+        width: 100%;
+    }
+
+    .user-card {
+        align-items: flex-start;
+    }
+
+    .user-right {
+        min-width: 95px;
+    }
+
+    .brand {
+        font-size: 16px;
+    }
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+    <button class="back" onclick="location.href='admin.html'">
+        ← Kembali
+    </button>
+
+    <div class="brand">
+        👥 Status Pengguna
+    </div>
+</header>
+
+
+<main class="container">
+
+<section class="title">
+    <h1>👥 Status Pengguna</h1>
+    <p>Pantau member yang sedang aktif, tidak aktif, atau dikunci.</p>
+</section>
+
+
+<div id="message" class="message"></div>
+
+
+<section class="stats">
+
+    <div class="stat">
+        <div id="activeCount" class="stat-number active-number">
+            0
+        </div>
+        <div class="stat-label">
+            🟢 Sedang Online
+        </div>
+    </div>
+
+    <div class="stat">
+        <div id="inactiveCount" class="stat-number inactive-number">
+            0
+        </div>
+        <div class="stat-label">
+            ⚪ Tidak Online
+        </div>
+    </div>
+
+    <div class="stat">
+        <div id="lockedCount" class="stat-number locked-number">
+            0
+        </div>
+        <div class="stat-label">
+            🔒 Dikunci
+        </div>
+    </div>
+
+</section>
+
+
+<section class="toolbar">
+    <input
+        type="search"
+        id="search"
+        class="search"
+        placeholder="🔍 Cari nama atau username..."
+    >
+    <button id="refreshButton" class="refresh">
+        🔄 Refresh
+    </button>
+</section>
+
+
+<section id="users" class="users">
+    <div class="empty">
+        ⏳ Memuat pengguna...
+    </div>
+</section>
+
+</main>
+
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =====================================
+   SUPABASE
+===================================== */
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+/* =====================================
+   VARIABEL
+===================================== */
+
+let allUsers = [];
+let currentAdminId = null;
+
+/*
+   User dianggap online jika
+   last_seen masih dalam 2 menit.
+*/
+const ACTIVE_LIMIT = 2 * 60 * 1000;
+
+
+/* =====================================
+   ESCAPE HTML
+===================================== */
+
+function escapeHTML(value) {
+    const div = document.createElement("div");
+    div.textContent = value ?? "";
+    return div.innerHTML;
+}
+
+
+/* =====================================
+   CEK ADMIN
+===================================== */
+
+async function checkAdmin() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        window.location.href = "login-admin.html";
+        return false;
+    }
+
+    currentAdminId = session.user.id;
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("id, role, status")
+        .eq("id", currentAdminId)
+        .single();
+
+    if (error || !profile) {
+        console.error("ADMIN PROFILE ERROR:", error);
+        window.location.href = "login-admin.html";
+        return false;
+    }
+
+    if (profile.role !== "admin" || profile.status !== "open") {
+        await supabaseClient.auth.signOut();
+        window.location.href = "login-admin.html";
+        return false;
+    }
+
+    return true;
+}
+
+
+/* =====================================
+   LOAD USERS
+===================================== */
+
+async function loadUsers() {
+    const container = document.getElementById("users");
+
+    container.innerHTML = `
+        <div class="empty">
+            ⏳ Memuat pengguna...
+        </div>
+    `;
+
+    /*
+       AMBIL SEMUA MEMBER DARI PROFILES
+    */
+    const { data: profiles, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("id, nama, username, role, status")
+        .eq("role", "member")
+        .order("nama", { ascending: true });
+
+    if (profileError) {
+        console.error("PROFILE ERROR:", profileError);
+        container.innerHTML = `
+            <div class="empty">
+                ❌ Gagal membaca profiles.
+                <br><br>
+                ${escapeHTML(profileError.message)}
+            </div>
+        `;
+        return;
+    }
+
+    /*
+       AMBIL STATUS ONLINE DARI USER_PRESENCE
+    */
+    const { data: presenceData, error: presenceError } = await supabaseClient
+        .from("user_presence")
+        .select("user_id, last_seen");
+
+    if (presenceError) {
+        console.error("PRESENCE ERROR:", presenceError);
+        container.innerHTML = `
+            <div class="empty">
+                ❌ Gagal membaca user_presence.
+                <br><br>
+                ${escapeHTML(presenceError.message)}
+            </div>
+        `;
+        return;
+    }
+
+    /*
+       BUAT MAP PRESENCE
+    */
+    const presenceMap = new Map();
+
+    (presenceData || []).forEach(function(presence) {
+        presenceMap.set(presence.user_id, presence.last_seen);
+    });
+
+    /*
+       GABUNGKAN PROFILES DENGAN USER_PRESENCE
+    */
+    allUsers = (profiles || []).map(function(user) {
+        return {
+            ...user,
+            last_seen: presenceMap.get(user.id) || null
+        };
+    });
+
+    updateStatistics();
+    renderUsers();
+}
+
+
+/* =====================================
+   TENTUKAN STATUS
+===================================== */
+
+function getUserStatus(user) {
+    /*
+       STATUS AKUN DIKUNCI
+    */
+    if (user.status !== "open") {
+        return "locked";
+    }
+
+    /*
+       TIDAK ADA PRESENCE
+    */
+    if (!user.last_seen) {
+        return "inactive";
+    }
+
+    const lastSeen = new Date(user.last_seen).getTime();
+    const difference = Date.now() - lastSeen;
+
+    /*
+       ONLINE
+    */
+    if (difference <= ACTIVE_LIMIT) {
+        return "active";
+    }
+
+    /*
+       OFFLINE
+    */
+    return "inactive";
+}
+
+
+/* =====================================
+   FORMAT LAST SEEN
+===================================== */
+
+function formatLastSeen(date) {
+    if (!date) {
+        return "Belum pernah aktif";
+    }
+
+    const time = new Date(date);
+    const difference = Date.now() - time.getTime();
+
+    if (difference < 60 * 1000) {
+        return "Aktif beberapa detik lalu";
+    }
+
+    const minutes = Math.floor(difference / (60 * 1000));
+    if (minutes < 60) {
+        return "Terakhir aktif " + minutes + " menit lalu";
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+        return "Terakhir aktif " + hours + " jam lalu";
+    }
+
+    const days = Math.floor(hours / 24);
+    if (days < 30) {
+        return "Terakhir aktif " + days + " hari lalu";
+    }
+
+    return time.toLocaleString("id-ID", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+
+/* =====================================
+   STATISTIK
+===================================== */
+
+function updateStatistics() {
+    let active = 0;
+    let inactive = 0;
+    let locked = 0;
+
+    allUsers.forEach(function(user) {
+        const status = getUserStatus(user);
+
+        if (status === "active") {
+            active++;
+        } else if (status === "locked") {
+            locked++;
+        } else {
+            inactive++;
+        }
+    });
+
+    document.getElementById("activeCount").textContent = active;
+    document.getElementById("inactiveCount").textContent = inactive;
+    document.getElementById("lockedCount").textContent = locked;
+}
+
+
+/* =====================================
+   RENDER USER
+===================================== */
+
+function renderUsers() {
+    const container = document.getElementById("users");
+    const search = document.getElementById("search").value.trim().toLowerCase();
+
+    const users = allUsers.filter(function(user) {
+        if (!search) {
+            return true;
+        }
+
+        const nama = (user.nama || "").toLowerCase();
+        const username = (user.username || "").toLowerCase();
+
+        return (nama.includes(search) || username.includes(search));
+    });
+
+    if (users.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                👤 Tidak ada member.
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = "";
+
+    users.forEach(function(user) {
+        const status = getUserStatus(user);
+        const card = document.createElement("div");
+        card.className = "user-card";
+
+        /*
+           AVATAR
+        */
+        const firstLetter = (user.nama || user.username || "?").charAt(0).toUpperCase();
+
+        /*
+           BADGE
+        */
+        let badgeHTML = "";
+
+        if (status === "active") {
+            badgeHTML = `
+                <div class="badge badge-active">
+                    <span class="dot"></span>
+                    Sedang Online
+                </div>
+            `;
+        } else if (status === "locked") {
+            badgeHTML = `
+                <div class="badge badge-locked">
+                    <span class="dot"></span>
+                    Dikunci
+                </div>
+            `;
+        } else {
+            badgeHTML = `
+                <div class="badge badge-inactive">
+                    <span class="dot"></span>
+                    Tidak Online
+                </div>
+            `;
+        }
+
+        /*
+           CARD CONTENT
+        */
+        card.innerHTML = `
+            <div class="user-left">
+                <div class="avatar">
+                    ${escapeHTML(firstLetter)}
+                </div>
+                <div>
+                    <div class="user-name">
+                        ${escapeHTML(user.nama || "Tanpa nama")}
+                    </div>
+                    <div class="username">
+                        @${escapeHTML(user.username || "-")}
+                    </div>
+                    <div class="last-seen">
+                        ${escapeHTML(formatLastSeen(user.last_seen))}
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-right">
+                ${badgeHTML}
+                <div class="role">
+                    Member
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+/* =====================================
+   SEARCH
+===================================== */
+
+document.getElementById("search").addEventListener("input", renderUsers);
+
+
+/* =====================================
+   REFRESH
+===================================== */
+
+document.getElementById("refreshButton").addEventListener("click", async function() {
+    const button = document.getElementById("refreshButton");
+    button.disabled = true;
+    button.textContent = "⏳ Memuat...";
+
+    await loadUsers();
+
+    button.disabled = false;
+    button.textContent = "🔄 Refresh";
+});
+
+
+/* =====================================
+   AUTO REFRESH
+===================================== */
+
+setInterval(async function() {
+    await loadUsers();
+}, 10000);
+
+
+/* =====================================
+   START
+===================================== */
+
+async function start() {
+    const admin = await checkAdmin();
+    if (!admin) return;
+
+    await loadUsers();
+}
+
+start();
+
+</script>
+
+</body>
+</html>

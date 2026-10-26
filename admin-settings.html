@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Admin - Portal Pembelajaran</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================
+           RESET & GLOBALS
+        ========================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =========================
+           AMBIENT BACKGROUND ORBS
+        ========================= */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: #8b5cf6;
+            top: -150px;
+            right: -100px;
+            animation: orbFloat1 25s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 450px;
+            height: 450px;
+            background: #3b82f6;
+            bottom: -150px;
+            left: -100px;
+            animation: orbFloat2 20s ease-in-out infinite alternate;
+        }
+
+        /* =========================
+           HEADER & NAV
+        ========================= */
+        header {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateX(-3px);
+        }
+
+        .back:active {
+            transform: translateX(0) scale(0.96);
+        }
+
+        .brand {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        /* =========================
+           CONTAINER & TITLES
+        ========================= */
+        .container {
+            max-width: 680px;
+            margin: auto;
+            padding: 36px 24px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            margin-bottom: 24px;
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .title p {
+            color: #94a3b8;
+            font-size: 14.5px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           MAIN CARD
+        ========================= */
+        .card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 28px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        /* =========================
+           ADMIN PROFILE INFO
+        ========================= */
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px;
+            margin-bottom: 24px;
+            border-radius: 18px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .admin-info:hover {
+            transform: translateY(-2px);
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .admin-info:hover .avatar {
+            transform: rotate(-4deg) scale(1.05);
+        }
+
+        .admin-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .admin-role {
+            color: #93c5fd;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           MESSAGES & NOTIFICATIONS
+        ========================= */
+        .message {
+            display: none;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            animation: textFade 0.3s ease forwards;
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* =========================
+           FORM ELEMENTS
+        ========================= */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: #f8fafc;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        input:focus {
+            border-color: #8b5cf6;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+
+        .password-input {
+            padding-right: 48px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-password:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .toggle-password:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        /* =========================
+           INFO & WARNING BOXES
+        ========================= */
+        .password-info {
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+            font-size: 12.5px;
+            line-height: 1.6;
+        }
+
+        .warning {
+            margin-top: 20px;
+            padding: 14px 16px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fde047;
+            border-radius: 14px;
+            font-size: 12.5px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           BUTTONS & ANIMATIONS
+        ========================= */
+        button {
+            font-family: inherit;
+        }
+
+        .save-button {
+            width: 100%;
+            border: none;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%);
+        }
+
+        .save-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .save-button:disabled {
+            background: rgba(148, 163, 184, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #64748b;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 4px;
+        }
+
+        .loading-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: white;
+            animation: loadingDot 1s infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes loadingDot {
+            0%, 80%, 100% { opacity: 0.35; transform: translateY(0); }
+            40% { opacity: 1; transform: translateY(-3px); }
+        }
+
+        @keyframes pageFadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes containerPop {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes textFade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes orbFloat1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-80px, 60px) scale(1.15); }
+        }
+
+        @keyframes orbFloat2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(70px, -50px) scale(1.1); }
+        }
+
+        /* Page Exit Transition */
+        body.page-exit { pointer-events: none; }
+        body.page-exit .container,
+        body.page-exit header {
+            animation: pageExitAnim 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        @keyframes pageExitAnim {
+            to {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.97);
+                filter: blur(8px);
+            }
+        }
+
+        /* =========================
+           RESPONSIVE DESIGN
+        ========================= */
+        @media (max-width: 600px) {
+            header { padding: 14px 18px; }
+            .brand { font-size: 15.5px; }
+            .container { padding: 24px 16px 40px; }
+            .title h1 { font-size: 23px; }
+            .card { padding: 20px; border-radius: 20px; }
+            .admin-info { padding: 14px; }
+            .avatar { width: 48px; height: 48px; min-width: 48px; font-size: 19px; }
+            .back { padding: 8px 12px; font-size: 12.5px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Glowing Background Orbs -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Header / Nav -->
+    <header>
+        <button class="back" onclick="navigateTo('admin.html')">
+            ← Kembali
+        </button>
+        <div class="brand">⚙️ Pengaturan Admin</div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Page Title -->
+        <section class="title">
+            <h1>⚙️ Pengaturan Admin</h1>
+            <p>Kelola informasi profil dan keamanan akun administrator.</p>
+        </section>
+
+        <!-- Main Card -->
+        <section class="card">
+
+            <!-- Admin Profile Header -->
+            <div class="admin-info">
+                <div class="avatar" id="avatar">A</div>
+                <div>
+                    <div class="admin-name" id="currentName">Memuat...</div>
+                    <div class="admin-role">🛡️ Administrator</div>
+                </div>
+            </div>
+
+            <!-- Dynamic System Message -->
+            <div id="message" class="message"></div>
+
+            <!-- Nama Admin -->
+            <div class="form-group">
+                <label for="nama">👤 Nama Admin</label>
+                <input type="text" id="nama" placeholder="Masukkan nama admin" autocomplete="name">
+            </div>
+
+            <!-- Username Admin -->
+            <div class="form-group">
+                <label for="username">🆔 Username Admin</label>
+                <input type="text" id="username" placeholder="Masukkan username" autocomplete="username">
+            </div>
+
+            <!-- Password Info Box -->
+            <div class="password-info">
+                🔐 <strong>Keamanan Password</strong><br>
+                Password baru hanya akan diproses jika kolom password diisi.<br>
+                Password tidak disimpan sebagai teks biasa di tabel <b>profiles</b>.
+            </div>
+
+            <!-- Password Baru -->
+            <div class="form-group">
+                <label for="password">🔑 Password Baru</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" class="password-input" placeholder="Kosongkan jika tidak diubah" autocomplete="new-password">
+                    <button type="button" class="toggle-password" data-target="password">👁️</button>
+                </div>
+            </div>
+
+            <!-- Konfirmasi Password Baru -->
+            <div class="form-group">
+                <label for="confirmPassword">🔑 Konfirmasi Password Baru</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirmPassword" class="password-input" placeholder="Ulangi password baru" autocomplete="new-password">
+                    <button type="button" class="toggle-password" data-target="confirmPassword">👁️</button>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button id="saveButton" class="save-button">
+                💾 Simpan Perubahan
+            </button>
+
+            <!-- Warning Box -->
+            <div class="warning">
+                ⚠️ Setelah mengganti password, sesi login dapat diperbarui oleh Supabase.<br><br>
+                Jika diminta login kembali, gunakan password yang baru.
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- SUPABASE DEPENDENCIES -->
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        /* =====================================================
+           HELPER: SMOOTH NAVIGATION TRANSITION
+        ===================================================== */
+        function navigateTo(url) {
+            document.body.classList.add("page-exit");
+            setTimeout(function() {
+                window.location.href = url;
+            }, 380);
+        }
+
+        /* =====================================================
+           SUPABASE CLIENT
+        ===================================================== */
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
+
+        /* =====================================================
+           VARIABLES & ELEMENTS
+        ===================================================== */
+        let currentAdminId = null;
+        let currentProfile = null;
+
+        const namaInput = document.getElementById("nama");
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const saveButton = document.getElementById("saveButton");
+        const message = document.getElementById("message");
+
+        /* =====================================================
+           SHOW MESSAGE
+        ===================================================== */
+        function showMessage(text, type) {
+            message.className = "message " + type;
+            message.textContent = text;
+        }
+
+        /* =====================================================
+           TRANSLATE ERROR MESSAGE
+        ===================================================== */
+        function translateErrorMessage(errorMessage) {
+            if (!errorMessage) return "Terjadi kesalahan.";
+
+            const text = errorMessage.toLowerCase().trim();
+
+            if (text.includes("new password should be different from the old password")) {
+                return "Password baru harus berbeda dengan password lama.";
+            }
+            if (text.includes("password should be at least") || text.includes("password must be at least")) {
+                return "Password baru terlalu pendek. Gunakan minimal 6 karakter.";
+            }
+            if (text.includes("passwords do not match")) {
+                return "Password baru dan konfirmasi password tidak sama.";
+            }
+            if (text.includes("email already registered") || text.includes("user already registered")) {
+                return "Akun dengan data tersebut sudah terdaftar.";
+            }
+            if (text.includes("invalid email")) {
+                return "Format email tidak valid.";
+            }
+            if (text.includes("jwt expired") || text.includes("session expired")) {
+                return "Sesi login telah berakhir. Silakan login kembali.";
+            }
+            if (text.includes("permission denied")) {
+                return "Anda tidak memiliki izin untuk melakukan perubahan ini.";
+            }
+            if (text.includes("duplicate") || text.includes("already exists")) {
+                return "Data tersebut sudah digunakan.";
+            }
+            if (text.includes("unique")) {
+                return "Data tersebut sudah digunakan oleh akun lain.";
+            }
+
+            return errorMessage;
+        }
+
+        /* =====================================================
+           CHECK ADMIN AUTH
+        ===================================================== */
+        async function checkAdmin() {
+            try {
+                const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+                if (sessionError) {
+                    console.error(sessionError);
+                    showMessage("❌ Gagal memeriksa sesi login.", "error");
+                    return null;
+                }
+
+                if (!session) {
+                    navigateTo("login-admin.html");
+                    return null;
+                }
+
+                currentAdminId = session.user.id;
+
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from("profiles")
+                    .select("id, nama, username, role, status")
+                    .eq("id", currentAdminId)
+                    .maybeSingle();
+
+                if (profileError) {
+                    console.error(profileError);
+                    showMessage("❌ Gagal mengambil data admin: " + translateErrorMessage(profileError.message), "error");
+                    return null;
+                }
+
+                if (!profile) {
+                    showMessage("❌ Data profil admin tidak ditemukan.", "error");
+                    return null;
+                }
+
+                if (profile.role !== "admin") {
+                    showMessage("❌ Akun ini bukan akun administrator.", "error");
+                    return null;
+                }
+
+                if (profile.status !== "open") {
+                    showMessage("❌ Akun admin sedang dikunci.", "error");
+                    return null;
+                }
+
+                currentProfile = profile;
+                return profile;
+
+            } catch (error) {
+                console.error(error);
+                showMessage("❌ Terjadi kesalahan saat memeriksa admin.", "error");
+                return null;
+            }
+        }
+
+        /* =====================================================
+           DISPLAY PROFILE
+        ===================================================== */
+        function displayProfile(profile) {
+            namaInput.value = profile.nama || "";
+            usernameInput.value = profile.username || "";
+
+            document.getElementById("currentName").textContent = profile.nama || "Admin";
+
+            const firstLetter = (profile.nama || profile.username || "A")
+                .trim()
+                .charAt(0)
+                .toUpperCase();
+
+            document.getElementById("avatar").textContent = firstLetter || "A";
+        }
+
+        /* =====================================================
+           VALIDATE USERNAME FORMAT
+        ===================================================== */
+        function validUsername(username) {
+            return /^[a-zA-Z0-9._-]+$/.test(username);
+        }
+
+        /* =====================================================
+           SAVE SETTINGS
+        ===================================================== */
+        async function saveSettings() {
+            if (!currentAdminId) {
+                showMessage("❌ Admin belum terdeteksi.", "error");
+                return;
+            }
+
+            const nama = namaInput.value.trim();
+            const username = usernameInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            /* Validation: Nama */
+            if (!nama) {
+                showMessage("❌ Nama admin tidak boleh kosong.", "error");
+                namaInput.focus();
+                return;
+            }
+
+            if (nama.length < 2) {
+                showMessage("❌ Nama admin minimal 2 karakter.", "error");
+                namaInput.focus();
+                return;
+            }
+
+            /* Validation: Username */
+            if (!username) {
+                showMessage("❌ Username admin tidak boleh kosong.", "error");
+                usernameInput.focus();
+                return;
+            }
+
+            if (username.length < 3) {
+                showMessage("❌ Username minimal 3 karakter.", "error");
+                usernameInput.focus();
+                return;
+            }
+
+            if (!validUsername(username)) {
+                showMessage("❌ Username hanya boleh berisi huruf, angka, titik, garis bawah, atau tanda minus.", "error");
+                usernameInput.focus();
+                return;
+            }
+
+            /* Validation: Password */
+            if (password) {
+                if (password.length < 6) {
+                    showMessage("❌ Password minimal 6 karakter.", "error");
+                    passwordInput.focus();
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showMessage("❌ Konfirmasi password tidak sama.", "error");
+                    confirmPasswordInput.focus();
+                    return;
+                }
+            }
+
+            /* Loading State */
+            saveButton.disabled = true;
+            saveButton.innerHTML = `
+                Menyimpan
+                <span class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            `;
+
+            try {
+                /* Cek Username Unik */
+                const { data: existingUsers, error: usernameError } = await supabaseClient
+                    .from("profiles")
+                    .select("id")
+                    .ilike("username", username)
+                    .neq("id", currentAdminId)
+                    .limit(1);
+
+                if (usernameError) throw usernameError;
+
+                if (existingUsers && existingUsers.length > 0) {
+                    throw new Error("Username tersebut sudah digunakan oleh akun lain.");
+                }
+
+                /* Update Profile */
+                const { data: updatedProfile, error: profileError } = await supabaseClient
+                    .from("profiles")
+                    .update({
+                        nama: nama,
+                        username: username
+                    })
+                    .eq("id", currentAdminId)
+                    .select("id, nama, username, role, status")
+                    .single();
+
+                if (profileError) throw profileError;
+
+                if (!updatedProfile) {
+                    throw new Error("Data profil admin tidak berhasil diperbarui.");
+                }
+
+                /* Update Password */
+                if (password) {
+                    const { data: passwordData, error: passwordError } = await supabaseClient.auth.updateUser({
+                        password: password
+                    });
+
+                    if (passwordError) throw passwordError;
+                }
+
+                /* Update Local State UI */
+                currentProfile = updatedProfile;
+                displayProfile(updatedProfile);
+
+                passwordInput.value = "";
+                confirmPasswordInput.value = "";
+
+                showMessage(
+                    password
+                        ? "✅ Nama, username, dan password berhasil diperbarui."
+                        : "✅ Nama dan username berhasil diperbarui.",
+                    "success"
+                );
+
+            } catch (error) {
+                console.error("SAVE SETTINGS ERROR:", error);
+                let errorMessage = error?.message || "Terjadi kesalahan.";
+                errorMessage = translateErrorMessage(errorMessage);
+
+                if (errorMessage.toLowerCase().includes("duplicate") || errorMessage.toLowerCase().includes("unique")) {
+                    errorMessage = "Username tersebut sudah digunakan.";
+                }
+
+                showMessage("❌ Gagal menyimpan: " + errorMessage, "error");
+
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = "💾 Simpan Perubahan";
+            }
+        }
+
+        /* =====================================================
+           PASSWORD TOGGLE MECHANIC
+        ===================================================== */
+        document.querySelectorAll(".toggle-password").forEach(function(button) {
+            button.addEventListener("click", function() {
+                const target = document.getElementById(this.dataset.target);
+
+                if (target.type === "password") {
+                    target.type = "text";
+                    this.textContent = "🙈";
+                } else {
+                    target.type = "password";
+                    this.textContent = "👁️";
+                }
+            });
+        });
+
+        /* =====================================================
+           EVENT LISTENERS & SHORTCUTS
+        ===================================================== */
+        saveButton.addEventListener("click", saveSettings);
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                if (!saveButton.disabled) {
+                    saveSettings();
+                }
+            }
+        });
+
+        /* =====================================================
+           AUTH STATE LISTENER
+        ===================================================== */
+        supabaseClient.auth.onAuthStateChange(event => {
+            if (event === "SIGNED_OUT") {
+                navigateTo("login-admin.html");
+            }
+        });
+
+        /* =====================================================
+           INITIALIZATION
+        ===================================================== */
+        async function start() {
+            const profile = await checkAdmin();
+            if (!profile) return;
+            displayProfile(profile);
+        }
+
+        start();
+    </script>
+</body>
+</html>

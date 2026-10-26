@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informasi Akun - Portal Pembelajaran</title>
+
+<!-- GOOGLE FONTS (PLUS JAKARTA SANS) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+/* =====================================================
+   RESET & DARK BASE STYLES
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(37, 99, 235, 0.15),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 85%,
+            rgba(124, 58, 237, 0.15),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #070a12,
+            #0f172a,
+            #1e293b
+        );
+    color: #f8fafc;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.back {
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.back:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.header-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+/* =====================================================
+   CONTAINER & PAGE TITLE
+===================================================== */
+
+.container {
+    width: 100%;
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.page-title {
+    margin-bottom: 28px;
+}
+
+.page-title h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+}
+
+.page-title p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =====================================================
+   PROFILE CARD
+===================================================== */
+
+.profile-card {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(124, 58, 237, 0.3));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 28px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 70%);
+    pointer-events: none;
+}
+
+.profile-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.profile-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.profile-username {
+    color: #93c5fd;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.active-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(34, 197, 94, 0.18);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #86efac;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.active-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+    animation: pulse 2s infinite;
+}
+
+/* =====================================================
+   ACCOUNT CARD & SECTION CARDS
+===================================================== */
+
+.account-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(37, 99, 235, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.card-subtitle {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* =====================================================
+   INFO ROW & BADGES
+===================================================== */
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.info-value {
+    font-weight: 700;
+    color: #f8fafc;
+    text-align: right;
+    word-break: break-word;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-active {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+.status-safe {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+}
+
+/* =====================================================
+   SYSTEM & SECURITY BOXES
+===================================================== */
+
+.security-info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.system-info {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #a7f3d0;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 16px;
+}
+
+/* =====================================================
+   LOGOUT BUTTON
+===================================================== */
+
+.logout-button {
+    width: 100%;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 12px;
+}
+
+.logout-button:hover {
+    background: rgba(239, 68, 68, 0.85);
+    color: #ffffff;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+}
+
+.logout-button:active {
+    transform: scale(0.98);
+}
+
+.logout-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* =====================================================
+   LOCKED MESSAGE MODAL
+===================================================== */
+
+.locked-message {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 99999;
+}
+
+.locked-message.show {
+    display: flex;
+    animation: lockedFadeIn 0.3s ease forwards;
+}
+
+.locked-box {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 24px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    animation: lockedBoxIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.locked-icon {
+    font-size: 48px;
+    margin-bottom: 14px;
+}
+
+.locked-box h2 {
+    margin-bottom: 8px;
+    color: #fca5a5;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.locked-box p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.locked-box button {
+    width: 100%;
+    border: none;
+    background: #ef4444;
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.locked-box button:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* =====================================================
+   ANIMATIONS & MEDIA QUERIES
+===================================================== */
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes lockedFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes lockedBoxIn {
+    from { opacity: 0; transform: scale(0.92) translateY(15px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .container { padding: 20px 14px 40px; }
+    .page-title h1 { font-size: 22px; }
+    .profile-card { padding: 20px; }
+    .profile-name { font-size: 18px; }
+    .account-card { padding: 18px; }
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .info-value { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <button class="back" id="backButton">← Kembali</button>
+    <strong class="header-title">👤 Informasi Akun</strong>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="container">
+
+    <!-- PAGE TITLE -->
+    <section class="page-title">
+        <h1>👤 Informasi Akun</h1>
+        <p>Lihat profil, keamanan, aktivitas, dan status akun kamu.</p>
+    </section>
+
+    <!-- PROFILE CARD -->
+    <section class="profile-card">
+        <div class="profile-top">
+            <div class="profile-icon">👤</div>
+            <div>
+                <div class="profile-name" id="profileNameTop">Memuat...</div>
+                <div class="profile-username" id="profileUsernameTop">-</div>
+            </div>
+        </div>
+        <div class="active-badge">
+            <span class="active-dot"></span>
+            Akun aktif
+        </div>
+    </section>
+
+    <!-- PROFIL SAYA -->
+    <section class="account-card">
+        <div class="card-header">
+            <div class="card-icon">👤</div>
+            <div>
+                <div class="card-title">Profil Saya</div>
+                <div class="card-subtitle">Informasi dasar akun</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Nama</span>
+            <span class="info-value" id="profileName">-</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Username</span>
+            <span class="info-value" id="profileUsername">-</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Role</span>
+            <span class="info-value">Member</span>
+        </div>
+    </section>
+
+    <!-- KEAMANAN AKUN -->
+    <section class="account-card">
+        <div class="card-header">
+            <div class="card-icon">🔐</div>
+            <div>
+                <div class="card-title">Keamanan Akun</div>
+                <div class="card-subtitle">Status keamanan sesi login</div>
+            </div>
+        </div>
+
+        <div class="security-info">
+            🔒 Sesi login kamu sedang aktif dan terhubung dengan sistem Portal Pembelajaran.
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Status Sesi</span>
+            <span class="info-value status-badge status-safe" id="sessionStatus">🟢 Aman</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Sistem Login</span>
+            <span class="info-value">Portal Pembelajaran</span>
+        </div>
+
+        <button class="logout-button" id="logoutButton">🚪 Keluar dari Akun</button>
+    </section>
+
+    <!-- AKTIVITAS -->
+    <section class="account-card">
+        <div class="card-header">
+            <div class="card-icon">📊</div>
+            <div>
+                <div class="card-title">Aktivitas Saya</div>
+                <div class="card-subtitle">Aktivitas sederhana akun kamu</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Status Aktivitas</span>
+            <span class="info-value status-badge status-active">🟢 Sedang aktif</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Terakhir Mengakses</span>
+            <span class="info-value" id="lastAccess">Memuat...</span>
+        </div>
+    </section>
+
+    <!-- STATUS AKUN -->
+    <section class="account-card">
+        <div class="card-header">
+            <div class="card-icon">🛡️</div>
+            <div>
+                <div class="card-title">Status Akun</div>
+                <div class="card-subtitle">Status akses ke portal</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Status Akun</span>
+            <span class="info-value status-badge status-active" id="accountStatus">🟢 Aktif</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Role</span>
+            <span class="info-value">Member</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Akses Portal</span>
+            <span class="info-value status-badge status-active" id="accessStatus">🟢 Diizinkan</span>
+        </div>
+
+        <div class="system-info">
+            🟢 Akun kamu sedang aktif dan dapat menggunakan Portal Pembelajaran.
+        </div>
+    </section>
+
+</main>
+
+<!-- LOCKED MESSAGE MODAL -->
+<div id="lockedMessage" class="locked-message">
+    <div class="locked-box">
+        <div class="locked-icon">🔒</div>
+        <h2>Akun Dikunci</h2>
+        <p>Akun kamu telah dikunci oleh administrator.<br><br>Kamu akan dikeluarkan dari Portal Pembelajaran.</p>
+        <button id="lockedButton">Kembali ke Login</button>
+    </div>
+</div>
+
+<!-- SUPABASE & SCRIPTS -->
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* =====================================================
+   SUPABASE CLIENT & GLOBAL VARIABLES
+===================================================== */
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let currentUserId = null;
+let accountLocked = false;
+let statusChannel = null;
+
+/* =====================================================
+   ELEMENT REFERENCES
+===================================================== */
+const backButton = document.getElementById("backButton");
+const logoutButton = document.getElementById("logoutButton");
+const lockedMessage = document.getElementById("lockedMessage");
+
+/* =====================================================
+   FORMAT DATE
+===================================================== */
+function formatDateTime(date) {
+    return new Date(date).toLocaleString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+/* =====================================================
+   FORCE LOGOUT
+===================================================== */
+async function forceLogout() {
+    if (accountLocked) return;
+    accountLocked = true;
+
+    if (statusChannel) {
+        try {
+            await supabaseClient.removeChannel(statusChannel);
+        } catch (error) {
+            console.error("Remove channel error:", error);
+        }
+        statusChannel = null;
+    }
+
+    const accountStatusElem = document.getElementById("accountStatus");
+    accountStatusElem.textContent = "🔴 Dikunci";
+    accountStatusElem.className = "info-value status-badge";
+
+    const accessStatusElem = document.getElementById("accessStatus");
+    accessStatusElem.textContent = "🔴 Ditolak";
+    accessStatusElem.className = "info-value status-badge";
+
+    lockedMessage.classList.add("show");
+
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (error) {
+        console.error("Logout error:", error);
+    }
+}
+
+/* =====================================================
+   CHECK ACCOUNT STATUS
+===================================================== */
+async function checkAccountStatus() {
+    if (!currentUserId || accountLocked) return;
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("id, role, status")
+        .eq("id", currentUserId)
+        .single();
+
+    if (error || !profile) {
+        console.error("STATUS ERROR:", error);
+        await forceLogout();
+        return;
+    }
+
+    if (profile.role !== "member" || profile.status !== "open") {
+        await forceLogout();
+    }
+}
+
+/* =====================================================
+   REALTIME STATUS
+===================================================== */
+function subscribeAccountStatus() {
+    if (!currentUserId) return;
+
+    statusChannel = supabaseClient
+        .channel("member-profile-status-" + currentUserId)
+        .on(
+            "postgres_changes",
+            {
+                event: "UPDATE",
+                schema: "public",
+                table: "profiles",
+                filter: "id=eq." + currentUserId
+            },
+            async function(payload) {
+                console.log("PROFILE UPDATE:", payload);
+                if (payload.new.status !== "open" || payload.new.role !== "member") {
+                    await forceLogout();
+                }
+            }
+        )
+        .subscribe(function(status) {
+            console.log("REALTIME STATUS:", status);
+        });
+}
+
+/* =====================================================
+   CHECK LOGIN
+===================================================== */
+async function checkLogin() {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+    if (error || !session) {
+        window.location.href = "login-member.html";
+        return null;
+    }
+
+    currentUserId = session.user.id;
+
+    const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("id, nama, username, role, status")
+        .eq("id", currentUserId)
+        .single();
+
+    if (profileError || !profile || profile.role !== "member" || profile.status !== "open") {
+        console.error("PROFILE ERROR:", profileError);
+        await supabaseClient.auth.signOut();
+        window.location.href = "login-member.html";
+        return null;
+    }
+
+    return profile;
+}
+
+/* =====================================================
+   DISPLAY PROFILE
+===================================================== */
+function displayProfile(profile) {
+    const name = profile.nama || profile.username || "Member";
+    const username = profile.username ? "@" + profile.username : "-";
+
+    document.getElementById("profileNameTop").textContent = name;
+    document.getElementById("profileUsernameTop").textContent = username;
+    document.getElementById("profileName").textContent = profile.nama || "-";
+    document.getElementById("profileUsername").textContent = username;
+    document.getElementById("accountStatus").textContent = "🟢 Aktif";
+    document.getElementById("accessStatus").textContent = "🟢 Diizinkan";
+}
+
+/* =====================================================
+   LAST ACCESS
+===================================================== */
+function updateLastAccess() {
+    const now = new Date();
+    const key = "portal_last_access_" + currentUserId;
+    const previous = localStorage.getItem(key);
+
+    if (previous) {
+        document.getElementById("lastAccess").textContent = formatDateTime(previous);
+    } else {
+        document.getElementById("lastAccess").textContent = "Baru pertama kali";
+    }
+
+    localStorage.setItem(key, now.toISOString());
+}
+
+/* =====================================================
+   EVENT LISTENERS
+===================================================== */
+backButton.addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "member.html";
+});
+
+logoutButton.addEventListener("click", async function() {
+    if (accountLocked) return;
+
+    logoutButton.disabled = true;
+    logoutButton.textContent = "🚪 Keluar...";
+
+    if (statusChannel) {
+        try {
+            await supabaseClient.removeChannel(statusChannel);
+        } catch (error) {
+            console.error(error);
+        }
+        statusChannel = null;
+    }
+
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (error) {
+        console.error("Logout:", error);
+    }
+
+    localStorage.removeItem("portal_user");
+    window.location.href = "login-member.html";
+});
+
+document.getElementById("lockedButton").addEventListener("click", async function() {
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (error) {
+        console.error(error);
+    }
+    window.location.href = "login-member.html";
+});
+
+supabaseClient.auth.onAuthStateChange(function(event) {
+    console.log("AUTH EVENT:", event);
+    if (event === "SIGNED_OUT" && !accountLocked) {
+        window.location.href = "login-member.html";
+    }
+});
+
+document.addEventListener("visibilitychange", function() {
+    if (document.visibilityState === "visible") {
+        checkAccountStatus();
+    }
+});
+
+/* =====================================================
+   INITIALIZATION
+===================================================== */
+async function start() {
+    console.log("INFORMASI AKUN MEMBER START");
+    const profile = await checkLogin();
+    if (!profile) return;
+
+    displayProfile(profile);
+    updateLastAccess();
+    subscribeAccountStatus();
+    console.log("INFORMASI AKUN SIAP");
+}
+
+start();
+
+</script>
+
+</body>
+</html>

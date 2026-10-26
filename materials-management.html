@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manajemen Materi - Portal Pembelajaran</title>
+
+<!-- GOOGLE FONTS (PLUS JAKARTA SANS) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+/* =====================================================
+   RESET & DARK BASE STYLES
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(37, 99, 235, 0.15),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 85%,
+            rgba(124, 58, 237, 0.15),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #070a12,
+            #0f172a,
+            #1e293b
+        );
+    color: #f8fafc;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.back-btn {
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateX(-3px);
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+}
+
+/* =====================================================
+   MAIN CONTAINER & CONTROLS
+===================================================== */
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.action-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.search-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex: 1;
+    max-width: 650px;
+}
+
+.search-input,
+.filter-select {
+    padding: 11px 16px;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    background: rgba(30, 41, 59, 0.6);
+    color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.search-input {
+    flex: 2;
+    min-width: 200px;
+}
+
+.filter-select {
+    flex: 1;
+    min-width: 160px;
+    cursor: pointer;
+}
+
+.search-input::placeholder {
+    color: #64748b;
+}
+
+.search-input:focus,
+.filter-select:focus {
+    border-color: #3b82f6;
+    background: rgba(30, 41, 59, 0.9);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.btn-primary {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.5);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -4px rgba(37, 99, 235, 0.6);
+}
+
+/* =====================================================
+   MATERIALS TABLE & CARDS
+===================================================== */
+
+.card-container {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+th, td {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+th {
+    background: rgba(30, 41, 59, 0.5);
+    color: #94a3b8;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.badge-materi { background: rgba(37, 99, 235, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge-soal { background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.3); }
+.badge-jawaban { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.btn-edit:hover { background: rgba(59, 130, 246, 0.3); }
+
+.btn-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.btn-delete:hover { background: rgba(239, 68, 68, 0.3); }
+
+/* =====================================================
+   MODAL DIALOG (DARK GLASS)
+===================================================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    border-radius: 20px;
+    overflow-y: auto;
+    padding: 28px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-btn:hover { color: #ffffff; }
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.form-control {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    background: rgba(30, 41, 59, 0.6);
+    color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+textarea.form-control {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-secondary {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+
+/* STATE UTILITY */
+
+.loading-state, .empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+@media (max-width: 600px) {
+    .action-bar { flex-direction: column; align-items: stretch; }
+    .search-filter-group { flex-direction: column; }
+    .container { padding: 20px 12px; }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="header-left">
+        <!-- DIPERBAIKI: Mengarahkan ke admin.html agar tidak terpental -->
+        <a href="admin.html" class="back-btn">← Kembali</a>
+        <div class="brand">⚙️ Kelola Materi</div>
+    </div>
+</header>
+
+<!-- MAIN CONTAINER -->
+<main class="container">
+
+    <!-- ACTION & FILTER BAR -->
+    <div class="action-bar">
+        <div class="search-filter-group">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari judul atau isi materi...">
+            <select id="subjectFilter" class="filter-select">
+                <option value="">Semua Mapel</option>
+            </select>
+        </div>
+        <button class="btn-primary" onclick="openModal()">
+            ➕ Tambah Materi
+        </button>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="card-container">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Judul Materi</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Kelengkapan</th>
+                        <th style="width: 100px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="materialsTableBody">
+                    <tr>
+                        <td colspan="4" class="loading-state">Memuat materi...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- MODAL TAMBAH / EDIT -->
+<div class="modal-overlay" id="materialModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalTitle">Tambah Materi Baru</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="materialForm">
+            <input type="hidden" id="materialId">
+            
+            <div class="form-group">
+                <label for="subjectSelect">Mata Pelajaran</label>
+                <select id="subjectSelect" class="form-control" required>
+                    <option value="">-- Pilih Mata Pelajaran --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="materialTitle">Judul Materi</label>
+                <input type="text" id="materialTitle" class="form-control" placeholder="Contoh: Pengenalan Aljabar" required>
+            </div>
+
+            <div class="form-group">
+                <label for="materialIsi">Isi Materi</label>
+                <textarea id="materialIsi" class="form-control" placeholder="Tuliskan materi pembelajaran..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="materialSoal">Soal / Pertanyaan</label>
+                <textarea id="materialSoal" class="form-control" placeholder="Tuliskan soal latihan (opsional)..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="materialJawaban">Jawaban Soal</label>
+                <textarea id="materialJawaban" class="form-control" placeholder="Tuliskan kunci jawaban (opsional)..."></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
+                <button type="submit" class="btn-primary" id="saveButton">Simpan Materi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* =====================================================
+   SUPABASE CLIENT & STATE
+===================================================== */
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let materialsData = [];
+let subjectsData = [];
+
+/* =====================================================
+   FETCH DATA
+===================================================== */
+async function loadSubjects() {
+    const { data, error } = await supabaseClient.from("subjects").select("id, nama").order("nama");
+    if (error) {
+        console.error("Gagal memuat mata pelajaran:", error);
+        return;
+    }
+    subjectsData = data || [];
+    populateSubjectDropdowns();
+}
+
+function populateSubjectDropdowns() {
+    const filter = document.getElementById("subjectFilter");
+    const select = document.getElementById("subjectSelect");
+
+    filter.innerHTML = '<option value="">Semua Mapel</option>';
+    select.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
+
+    subjectsData.forEach(sub => {
+        filter.innerHTML += `<option value="${sub.id}">${escapeHTML(sub.nama)}</option>`;
+        select.innerHTML += `<option value="${sub.id}">${escapeHTML(sub.nama)}</option>`;
+    });
+}
+
+async function loadMaterials() {
+    const tableBody = document.getElementById("materialsTableBody");
+    tableBody.innerHTML = `<tr><td colspan="4" class="loading-state">Memuat materi...</td></tr>`;
+
+    const { data, error } = await supabaseClient
+        .from("materials")
+        .select("id, subject_id, judul, isi, soal, jawaban")
+        .order("id", { ascending: false });
+
+    if (error) {
+        console.error("Gagal memuat materi:", error);
+        tableBody.innerHTML = `<tr><td colspan="4" class="loading-state" style="color:#f87171;">Gagal memuat data materi.</td></tr>`;
+        return;
+    }
+
+    materialsData = data || [];
+    renderMaterialsTable();
+}
+
+/* =====================================================
+   RENDER TABLE
+===================================================== */
+function renderMaterialsTable() {
+    const tableBody = document.getElementById("materialsTableBody");
+    const searchValue = document.getElementById("searchInput").value.toLowerCase().trim();
+    const filterSubjectId = document.getElementById("subjectFilter").value;
+
+    const filtered = materialsData.filter(item => {
+        const matchesSearch = item.judul.toLowerCase().includes(searchValue) || 
+                              (item.isi && item.isi.toLowerCase().includes(searchValue));
+        const matchesSubject = !filterSubjectId || String(item.subject_id) === String(filterSubjectId);
+        return matchesSearch && matchesSubject;
+    });
+
+    if (filtered.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" class="empty-state">Tidak ada materi ditemukan.</td></tr>`;
+        return;
+    }
+
+    tableBody.innerHTML = filtered.map(item => {
+        const subjectObj = subjectsData.find(s => String(s.id) === String(item.subject_id));
+        const subjectName = subjectObj ? subjectObj.nama : "-";
+
+        const hasIsi = item.isi && item.isi.trim() !== "";
+        const hasSoal = item.soal && item.soal.trim() !== "";
+        const hasJawaban = item.jawaban && item.jawaban.trim() !== "";
+
+        return `
+            <tr>
+                <td><strong>${escapeHTML(item.judul)}</strong></td>
+                <td><span style="color:#94a3b8;">${escapeHTML(subjectName)}</span></td>
+                <td>
+                    ${hasIsi ? '<span class="badge badge-materi">📘 Materi</span>' : ''}
+                    ${hasSoal ? '<span class="badge badge-soal">❓ Soal</span>' : ''}
+                    ${hasJawaban ? '<span class="badge badge-jawaban">💡 Jawaban</span>' : ''}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon btn-edit" onclick="editMaterial(${item.id})" title="Edit">✏️</button>
+                        <button class="btn-icon btn-delete" onclick="deleteMaterial(${item.id})" title="Hapus">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+/* =====================================================
+   MODAL & CRUD ACTIONS
+===================================================== */
+function openModal(isEdit = false) {
+    const modal = document.getElementById("materialModal");
+    const modalTitle = document.getElementById("modalTitle");
+    
+    if (!isEdit) {
+        document.getElementById("materialForm").reset();
+        document.getElementById("materialId").value = "";
+        modalTitle.textContent = "Tambah Materi Baru";
+    } else {
+        modalTitle.textContent = "Edit Materi";
+    }
+    
+    modal.classList.add("active");
+}
+
+function closeModal() {
+    document.getElementById("materialModal").classList.remove("active");
+}
+
+function editMaterial(id) {
+    const item = materialsData.find(m => m.id === id);
+    if (!item) return;
+
+    document.getElementById("materialId").value = item.id;
+    document.getElementById("subjectSelect").value = item.subject_id;
+    document.getElementById("materialTitle").value = item.judul || "";
+    document.getElementById("materialIsi").value = item.isi || "";
+    document.getElementById("materialSoal").value = item.soal || "";
+    document.getElementById("materialJawaban").value = item.jawaban || "";
+
+    openModal(true);
+}
+
+document.getElementById("materialForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const saveBtn = document.getElementById("saveButton");
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Menyimpan...";
+
+    const id = document.getElementById("materialId").value;
+    const payload = {
+        subject_id: document.getElementById("subjectSelect").value,
+        judul: document.getElementById("materialTitle").value.trim(),
+        isi: document.getElementById("materialIsi").value.trim(),
+        soal: document.getElementById("materialSoal").value.trim(),
+        jawaban: document.getElementById("materialJawaban").value.trim()
+    };
+
+    let error = null;
+    if (id) {
+        const res = await supabaseClient.from("materials").update(payload).eq("id", id);
+        error = res.error;
+    } else {
+        const res = await supabaseClient.from("materials").insert([payload]);
+        error = res.error;
+    }
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Simpan Materi";
+
+    if (error) {
+        alert("Gagal menyimpan materi: " + error.message);
+        return;
+    }
+
+    closeModal();
+    loadMaterials();
+});
+
+async function deleteMaterial(id) {
+    if (!confirm("Apakah Anda yakin ingin menghapus materi ini?")) return;
+
+    const { error } = await supabaseClient.from("materials").delete().eq("id", id);
+    if (error) {
+        alert("Gagal menghapus materi: " + error.message);
+        return;
+    }
+    loadMaterials();
+}
+
+/* UTILITY ESCAPE HTML */
+function escapeHTML(str) {
+    if (!str) return "";
+    return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
+}
+
+/* LISTENERS FOR SEARCH & FILTER */
+document.getElementById("searchInput").addEventListener("input", renderMaterialsTable);
+document.getElementById("subjectFilter").addEventListener("change", renderMaterialsTable);
+
+/* INITIALIZATION */
+async function init() {
+    await loadSubjects();
+    await loadMaterials();
+}
+
+init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pembelajaran</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================
+           RESET & GLOBALS
+        ========================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            overflow-x: hidden;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =========================
+           AMBIENT BACKGROUND ORBS
+        ========================= */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.5;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 350px;
+            height: 350px;
+            background: #3b82f6;
+            top: -100px;
+            left: -100px;
+            animation: orbFloat1 18s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: #8b5cf6;
+            bottom: -120px;
+            right: -120px;
+            animation: orbFloat2 22s ease-in-out infinite alternate;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: #06b6d4;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbFloat3 15s ease-in-out infinite alternate;
+        }
+
+        /* =========================
+           CONTAINER
+        ========================= */
+        .container {
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 32px;
+            text-align: center;
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 32px;
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1;
+            transform: translateY(20px) scale(0.96);
+            animation: containerPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =========================
+           LOGO 3D GLASSMORPHIC
+        ========================= */
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 24px;
+            background: radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.35), rgba(99, 102, 241, 0.15));
+            border: 1.5px solid rgba(192, 132, 252, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 14px 28px rgba(168, 85, 247, 0.3),
+                inset 0 2px 3px rgba(255, 255, 255, 0.35),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+            animation: float3D 4s ease-in-out infinite;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .logo img {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover .logo {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .container:hover .logo img {
+            transform: scale(1.1) rotate(4deg);
+        }
+
+        /* =========================
+           TYPOGRAPHY
+        ========================= */
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            animation: textFade 0.6s ease 0.25s both;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.5;
+            font-size: 14px;
+            font-weight: 400;
+            animation: textFade 0.6s ease 0.35s both;
+        }
+
+        /* =========================
+           PORTAL CARDS
+        ========================= */
+        .portal-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .portal {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            padding: 16px 20px;
+            border-radius: 22px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: 
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                background 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        .portal.member { animation: textFade 0.6s ease 0.45s both; }
+        .portal.admin { animation: textFade 0.6s ease 0.55s both; }
+
+        /* Glossy shine animation */
+        .portal::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.12),
+                transparent
+            );
+            transform: skewX(-25deg);
+            transition: left 0.75s ease;
+        }
+
+        .portal:hover::before {
+            left: 150%;
+        }
+
+        .portal:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .portal:active {
+            transform: translateY(-1px) scale(0.98);
+            transition: transform 0.1s ease;
+        }
+
+        /* Portal Themes */
+        .portal.member:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.25);
+        }
+
+        .portal.admin:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.25);
+        }
+
+        /* =========================
+           ICON BOX 3D
+        ========================= */
+        .icon-box {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .icon-box img {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+            transition: transform 0.3s ease;
+        }
+
+        .member .icon-box {
+            background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.3), rgba(6, 182, 212, 0.15));
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            box-shadow: 
+                0 6px 16px rgba(59, 130, 246, 0.25),
+                inset 0 1px 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .admin .icon-box {
+            background: radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.15));
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            box-shadow: 
+                0 6px 16px rgba(139, 92, 246, 0.25),
+                inset 0 1px 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .portal:hover .icon-box {
+            transform: scale(1.1) rotate(-4deg);
+        }
+
+        .portal:hover .icon-box img {
+            transform: scale(1.08);
+        }
+
+        /* =========================
+           CONTENT & ARROW
+        ========================= */
+        .portal-content {
+            flex: 1;
+            min-width: 0;
+            z-index: 1;
+        }
+
+        .portal-title {
+            display: block;
+            font-weight: 600;
+            font-size: 15px;
+            color: #f8fafc;
+            margin-bottom: 2px;
+        }
+
+        .portal-description {
+            display: block;
+            font-size: 12.5px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
+            stroke: #64748b;
+            stroke-width: 2.2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: transform 0.3s ease, stroke 0.3s ease;
+            z-index: 1;
+        }
+
+        .portal:hover .arrow-icon {
+            transform: translateX(5px);
+            stroke: #ffffff;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+        .footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+            animation: textFade 0.6s ease 0.65s both;
+        }
+
+        /* =========================
+           KEYFRAME ANIMATIONS
+        ========================= */
+        @keyframes pageFadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes containerPop {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes float3D {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(1.5deg); }
+        }
+
+        @keyframes textFade {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes orbFloat1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(80px, 60px) scale(1.2); }
+        }
+
+        @keyframes orbFloat2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-70px, -50px) scale(1.15); }
+        }
+
+        @keyframes orbFloat3 {
+            0% { transform: translate(-50%, -50%) scale(0.9); }
+            100% { transform: translate(-40%, -60%) scale(1.1); }
+        }
+
+        /* =========================
+           PAGE EXIT ANIMATION
+        ========================= */
+        body.page-exit {
+            pointer-events: none;
+        }
+
+        body.page-exit .container {
+            animation: containerExit 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
+
+        body.page-exit .orb {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        @keyframes containerExit {
+            to {
+                opacity: 0;
+                transform: translateY(-25px) scale(0.95);
+                filter: blur(8px);
+            }
+        }
+
+        /* =========================
+           RESPONSIVE DESIGN
+        ========================= */
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 20px;
+                border-radius: 26px;
+            }
+
+            .logo {
+                width: 72px;
+                height: 72px;
+            }
+
+            .logo img {
+                width: 42px;
+                height: 42px;
+            }
+
+            h1 { font-size: 23px; }
+            .subtitle { font-size: 13px; }
+            .portal { padding: 15px 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient Glowing Orbs Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Main Card Container -->
+    <main class="container">
+
+        <!-- Logo Utama 3D Buku/Portal -->
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Books.png" alt="Portal Pembelajaran 3D">
+        </div>
+
+        <h1>Portal Pembelajaran</h1>
+        <p class="subtitle">Selamat datang! Silakan pilih portal yang ingin kamu akses.</p>
+
+        <div class="portal-group">
+            <!-- Portal Member -->
+            <a href="login-member.html" class="portal member">
+                <div class="icon-box">
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Bust%20in%20Silhouette.png" alt="Member 3D">
+                </div>
+                <div class="portal-content">
+                    <span class="portal-title">Portal Member</span>
+                    <span class="portal-description">Masuk sebagai siswa atau member</span>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <!-- Portal Admin -->
+            <a href="login-admin.html" class="portal admin">
+                <div class="icon-box">
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Shield.png" alt="Admin 3D">
+                </div>
+                <div class="portal-content">
+                    <span class="portal-title">Portal Admin</span>
+                    <span class="portal-description">Masuk ke halaman pengelolaan admin</span>
+                </div>
+                <svg class="arrow-icon" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="footer">
+            © 2026 Portal Pembelajaran
+        </div>
+
+    </main>
+
+    <!-- Page Transition Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const links = document.querySelectorAll(".portal");
+
+            links.forEach(function (link) {
+                link.addEventListener("click", function (event) {
+                    if (event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const target = this.href;
+
+                    document.body.classList.add("page-exit");
+
+                    setTimeout(function () {
+                        window.location.href = target;
+                    }, 380);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

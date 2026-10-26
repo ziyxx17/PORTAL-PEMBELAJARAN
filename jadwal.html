@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Pelajaran - Portal Pembelajaran</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================
+           RESET & GLOBALS
+        ========================= */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* =========================
+           AMBIENT BACKGROUND ORBS
+        ========================= */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.25;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #3b82f6;
+            top: -100px;
+            right: -50px;
+            animation: float 20s ease-in-out infinite alternate;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: #8b5cf6;
+            bottom: -100px;
+            left: -50px;
+            animation: float 18s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-50px, 50px) scale(1.1); }
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+        header {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.45s ease both;
+        }
+
+        header strong { font-size: 17px; font-weight: 700; }
+
+        .back {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 9px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .back:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-3px);
+        }
+
+        /* =========================
+           CONTAINER & PAGE TITLE
+        ========================= */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+            padding: 30px 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-title { margin-bottom: 24px; animation: slideUp 0.55s ease both; }
+        .page-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .page-title p { color: #94a3b8; font-size: 14.5px; line-height: 1.6; }
+
+        /* =========================
+           INFO BOX (GLASS)
+        ========================= */
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+            padding: 18px 20px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: slideUp 0.6s ease 0.08s both;
+        }
+        .info-box strong { color: #bfdbfe; }
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            animation: slideUp 0.6s ease 0.12s both;
+        }
+        .toolbar-title { font-size: 19px; font-weight: 700; color: #f8fafc; }
+
+        .refresh {
+            border: none;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+        .refresh:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
+        .refresh:active { transform: scale(0.95); }
+        .refresh:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* =========================
+           WEEK SECTIONS
+        ========================= */
+        .week-section { margin-bottom: 36px; animation: slideUp 0.6s ease both; }
+        
+        .week-header {
+            padding: 16px 20px;
+            border-radius: 18px;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .week-header::after {
+            content: "";
+            position: absolute;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            right: -30px; top: -40px;
+        }
+
+        .week-a-header {
+            background: rgba(37, 99, 235, 0.15);
+            color: #93c5fd;
+            border-left: 5px solid #3b82f6;
+            border-right: 1px solid rgba(59, 130, 246, 0.2);
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .week-b-header {
+            background: rgba(124, 58, 237, 0.15);
+            color: #c4b5fd;
+            border-left: 5px solid #8b5cf6;
+            border-right: 1px solid rgba(139, 92, 246, 0.2);
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        /* =========================
+           DAY BOX & SCHEDULE ROW (GLASS)
+        ========================= */
+        .day-box {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+        .day-box:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .day-header {
+            padding: 14px 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 15.5px;
+            font-weight: 700;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schedule-row {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 16px;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease, padding-left 0.2s ease;
+        }
+        .schedule-row:hover { background: rgba(255, 255, 255, 0.03); padding-left: 24px; }
+        .schedule-row:last-child { border-bottom: none; }
+
+        /* =========================
+           CONTENT ITEMS
+        ========================= */
+        .schedule-time {
+            color: #93c5fd;
+            font-size: 13.5px;
+            font-weight: 700;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 8px;
+            height: fit-content;
+            text-align: center;
+        }
+
+        .subject { font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+        .teacher { color: #94a3b8; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;}
+        .note {
+            color: #cbd5e1;
+            font-size: 12px;
+            margin-top: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 10px;
+        }
+
+        /* =========================
+           STATES (EMPTY/LOADING)
+        ========================= */
+        .day-empty { padding: 16px 20px; color: #64748b; font-size: 13.5px; font-style: italic; }
+        
+        .schedule-empty {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            padding: 40px 20px;
+            border-radius: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14.5px;
+            animation: fadeIn 0.4s ease both;
+        }
+
+        .schedule-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 24px;
+            border-radius: 18px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: fadeIn 0.4s ease both;
+        }
+
+        /* =========================
+           ADMIN NOTE (GLASS)
+        ========================= */
+        .admin-note-section {
+            margin-top: 32px;
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 20px;
+            overflow: hidden;
+            animation: slideUp 0.6s ease both;
+        }
+        .admin-note-header {
+            padding: 16px 20px;
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            font-size: 16px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .admin-note-content {
+            padding: 20px;
+            color: #fde68a;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .admin-note-empty { color: #b45309; font-style: italic; }
+
+        /* =========================
+           LOCKED MODAL
+        ========================= */
+        .locked-message {
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center;
+            padding: 20px; z-index: 99999;
+        }
+        .locked-message.show { display: flex; animation: fadeIn 0.3s ease both; }
+        
+        .locked-box {
+            width: 100%; max-width: 400px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px; padding: 32px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            animation: slideUp 0.35s ease both;
+        }
+        .locked-icon { font-size: 48px; margin-bottom: 16px; }
+        .locked-box h2 { color: #f8fafc; font-size: 22px; margin-bottom: 12px; }
+        .locked-box p { color: #94a3b8; font-size: 14.5px; line-height: 1.6; margin-bottom: 24px; }
+        
+        .locked-box button {
+            width: 100%; border: none;
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white; padding: 14px; border-radius: 14px;
+            font-weight: 700; font-size: 14.5px; cursor: pointer;
+            transition: all 0.2s ease; font-family: inherit;
+        }
+        .locked-box button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); }
+
+        /* =========================
+           ANIMATIONS
+        ========================= */
+        @keyframes pageFadeIn { to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .loading-dot {
+            display: inline-block; width: 6px; height: 6px; margin-left: 4px;
+            border-radius: 50%; background: #94a3b8; animation: pulse 1s infinite;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+        @media (max-width: 600px) {
+            header { padding: 14px 20px; }
+            .container { padding: 20px 16px 45px; }
+            .page-title h1 { font-size: 24px; }
+            .toolbar-title { font-size: 17px; }
+            .week-header { font-size: 16px; padding: 14px 18px; }
+            .schedule-row { grid-template-columns: 85px 1fr; gap: 12px; padding: 14px 16px; }
+            .schedule-time { font-size: 12px; padding: 6px 4px; }
+            .subject { font-size: 15px; }
+            .teacher { font-size: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <button class="back" id="backButton">← Kembali</button>
+        <strong>📅 Jadwal Pelajaran</strong>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <section class="page-title">
+            <h1>📅 Jadwal Pelajaran</h1>
+            <p>Berikut adalah jadwal pelajaran yang telah dibuat dan diatur oleh administrator.</p>
+        </section>
+
+        <div class="info-box">
+            ℹ️ Jadwal dibagi menjadi <strong>Minggu A</strong> dan <strong>Minggu B</strong>.<br>
+            Jam, mata pelajaran, dan guru dapat berbeda antara Minggu A dan Minggu B.
+        </div>
+
+        <div id="message" style="display:none;"></div>
+
+        <div class="toolbar">
+            <div class="toolbar-title">📋 Daftar Jadwal</div>
+            <button class="refresh" id="refreshButton">🔄 Refresh</button>
+        </div>
+
+        <div id="scheduleContainer" class="schedule-container">
+            <div class="schedule-empty">
+                ⏳ Memuat jadwal pelajaran <span class="loading-dot"></span>
+            </div>
+        </div>
+
+        <section id="adminNoteSection" class="admin-note-section">
+            <div class="admin-note-header">📝 Catatan Admin</div>
+            <div id="adminNoteContent" class="admin-note-content">
+                ⏳ Memuat catatan <span class="loading-dot"></span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Locked Modal -->
+    <div id="lockedMessage" class="locked-message">
+        <div class="locked-box">
+            <div class="locked-icon">🔒</div>
+            <h2>Akun Dikunci</h2>
+            <p>Akun kamu telah dikunci oleh administrator.<br><br>Kamu akan dikeluarkan dari Portal Pembelajaran.</p>
+            <button id="lockedButton">Kembali ke Login</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        /* =====================================================
+           SUPABASE INIT
+        ===================================================== */
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+        let currentUserId = null;
+        let accountLocked = false;
+        let statusChannel = null;
+
+        /* =====================================================
+           DOM ELEMENTS
+        ===================================================== */
+        const scheduleContainer = document.getElementById("scheduleContainer");
+        const refreshButton = document.getElementById("refreshButton");
+        const adminNoteContent = document.getElementById("adminNoteContent");
+
+        /* =====================================================
+           HELPERS
+        ===================================================== */
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = value ?? "";
+            return div.innerHTML;
+        }
+
+        function formatTime(value) {
+            return value ? String(value).substring(0, 5) : "-";
+        }
+
+        /* =====================================================
+           AUTH & LOCK LOGIC
+        ===================================================== */
+        async function checkLogin() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (error || !session) {
+                window.location.href = "login-member.html";
+                return null;
+            }
+
+            currentUserId = session.user.id;
+            const { data: profile, error: profileError } = await supabaseClient
+                .from("profiles")
+                .select("id, nama, username, role, status")
+                .eq("id", currentUserId)
+                .single();
+
+            if (profileError || !profile || profile.role !== "member" || profile.status !== "open") {
+                await supabaseClient.auth.signOut();
+                window.location.href = "login-member.html";
+                return null;
+            }
+            return profile;
+        }
+
+        async function forceLogout() {
+            if (accountLocked) return;
+            accountLocked = true;
+
+            if (statusChannel) {
+                try { await supabaseClient.removeChannel(statusChannel); } catch (e) { console.error(e); }
+                statusChannel = null;
+            }
+
+            document.getElementById("lockedMessage").classList.add("show");
+            try { await supabaseClient.auth.signOut(); } catch (e) { console.error(e); }
+        }
+
+        async function checkAccountStatus() {
+            if (!currentUserId || accountLocked) return;
+            const { data: profile, error } = await supabaseClient.from("profiles").select("id, role, status").eq("id", currentUserId).single();
+            if (error || !profile || profile.role !== "member" || profile.status !== "open") {
+                await forceLogout();
+            }
+        }
+
+        function subscribeAccountStatus() {
+            if (!currentUserId) return;
+            statusChannel = supabaseClient.channel("member-jadwal-status-" + currentUserId)
+                .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: "id=eq." + currentUserId },
+                async function(payload) {
+                    if (payload.new.status !== "open" || payload.new.role !== "member") {
+                        await forceLogout();
+                    }
+                })
+                .subscribe();
+        }
+
+        /* =====================================================
+           RENDER UI
+        ===================================================== */
+        function createDayBox(day, schedules) {
+            let html = `<section class="day-box"><div class="day-header">📅 ${escapeHTML(day)}</div>`;
+
+            if (!schedules || schedules.length === 0) {
+                html += `<div class="day-empty">Tidak ada jadwal.</div>`;
+            } else {
+                schedules.forEach(item => {
+                    const start = formatTime(item.jam_mulai);
+                    const end = formatTime(item.jam_selesai);
+                    const subject = item.mata_pelajaran || "-";
+                    const teacher = item.guru || item.guru_mp_1 || "-";
+                    
+                    let noteHtml = item.keterangan ? `<div class="note">📝 ${escapeHTML(item.keterangan)}</div>` : "";
+
+                    html += `
+                        <div class="schedule-row">
+                            <div class="schedule-time">${escapeHTML(start)} - ${escapeHTML(end)}</div>
+                            <div class="schedule-content">
+                                <div class="subject">📚 ${escapeHTML(subject)}</div>
+                                <div class="teacher">👨‍🏫 Guru: ${escapeHTML(teacher)}</div>
+                                ${noteHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `</section>`;
+            return html;
+        }
+
+        function createWeekSection(data, week) {
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+            const weekName = week === "A" ? "MINGGU A" : "MINGGU B";
+            const headerClass = week === "A" ? "week-a-header" : "week-b-header";
+            const icon = week === "A" ? "🔵" : "🟣";
+
+            let html = `<section class="week-section"><div class="week-header ${headerClass}">${icon} ${weekName}</div>`;
+            let hasSchedule = false;
+
+            days.forEach(day => {
+                const daySchedules = data.filter(item => String(item.minggu || "A").toUpperCase() === week && item.hari === day);
+                
+                if (daySchedules.length > 0) {
+                    hasSchedule = true;
+                    daySchedules.sort((a, b) => String(a.jam_mulai || "").localeCompare(String(b.jam_mulai || "")));
+                    html += createDayBox(day, daySchedules);
+                }
+            });
+
+            if (!hasSchedule) html += `<div class="schedule-empty">📅 Belum ada jadwal untuk ${weekName}.</div>`;
+            html += `</section>`;
+            
+            return html;
+        }
+
+        /* =====================================================
+           LOAD DATA
+        ===================================================== */
+        async function loadSchedule() {
+            if (accountLocked) return;
+
+            scheduleContainer.innerHTML = `<div class="schedule-empty">⏳ Memuat jadwal pelajaran <span class="loading-dot"></span></div>`;
+            refreshButton.disabled = true;
+
+            try {
+                const { data, error } = await supabaseClient.from("jadwal_pelajaran")
+                    .select("id, minggu, hari, jam_mulai, jam_selesai, mata_pelajaran, guru, guru_mp_1, keterangan");
+
+                if (error) {
+                    scheduleContainer.innerHTML = `<div class="schedule-error">❌ Gagal memuat jadwal.<br><br>${escapeHTML(error.message)}</div>`;
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    scheduleContainer.innerHTML = `<div class="schedule-empty">📅 Belum ada jadwal pelajaran yang dibuat oleh Admin.</div>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    item.minggu = String(item.minggu || "A").toUpperCase();
+                    item.guru = item.guru || item.guru_mp_1 || "-";
+                });
+
+                let html = createWeekSection(data, "A") + createWeekSection(data, "B");
+                scheduleContainer.innerHTML = html;
+
+            } catch (error) {
+                scheduleContainer.innerHTML = `<div class="schedule-error">❌ Terjadi kesalahan saat memuat jadwal.<br><br>${escapeHTML(error.message)}</div>`;
+            } finally {
+                refreshButton.disabled = false;
+            }
+        }
+
+        async function loadAdminNote() {
+            if (accountLocked) return;
+            adminNoteContent.innerHTML = `⏳ Memuat catatan <span class="loading-dot"></span>`;
+
+            try {
+                const { data, error } = await supabaseClient.from("catatan_jadwal").select("id, catatan, updated_at").eq("id", 1).maybeSingle();
+                
+                if (error) {
+                    adminNoteContent.innerHTML = `<div class="admin-note-empty">Catatan belum dapat dimuat.</div>`;
+                    return;
+                }
+
+                if (!data || !data.catatan || !data.catatan.trim()) {
+                    adminNoteContent.innerHTML = `<div class="admin-note-empty">Belum ada catatan dari Admin.</div>`;
+                    return;
+                }
+                adminNoteContent.textContent = data.catatan;
+            } catch (error) {
+                adminNoteContent.innerHTML = `<div class="admin-note-empty">Catatan belum dapat dimuat.</div>`;
+            }
+        }
+
+        /* =====================================================
+           EVENTS
+        ===================================================== */
+        refreshButton.addEventListener("click", async () => {
+            if (accountLocked) return;
+            await loadSchedule();
+            await loadAdminNote();
+        });
+
+        document.getElementById("backButton").addEventListener("click", async () => {
+            if (statusChannel) {
+                try { await supabaseClient.removeChannel(statusChannel); } catch(e) {}
+                statusChannel = null;
+            }
+            window.location.href = "member.html";
+        });
+
+        document.getElementById("lockedButton").addEventListener("click", async () => {
+            try { await supabaseClient.auth.signOut(); } catch(e) {}
+            window.location.href = "login-member.html";
+        });
+
+        supabaseClient.auth.onAuthStateChange((event) => {
+            if (event === "SIGNED_OUT" && !accountLocked) window.location.href = "login-member.html";
+        });
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                checkAccountStatus();
+                loadSchedule();
+                loadAdminNote();
+            }
+        });
+
+        /* =====================================================
+           INIT
+        ===================================================== */
+        async function start() {
+            const profile = await checkLogin();
+            if (!profile) return;
+
+            subscribeAccountStatus();
+            await loadSchedule();
+            await loadAdminNote();
+        }
+
+        start();
+    </script>
+</body>
+</html>
