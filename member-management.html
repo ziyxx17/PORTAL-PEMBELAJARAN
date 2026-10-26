@@ -833,6 +833,17 @@
         }
 
         /* =====================================================
+           VALIDASI USERNAME (dipakai sebagai email internal)
+        ===================================================== */
+        function usernameError(u) {
+            if (u.length < 3 || u.length > 30 || !/^[a-z0-9]+([._-][a-z0-9]+)*$/.test(u)) {
+                return "Username hanya boleh huruf kecil, angka, titik, garis bawah, dan strip " +
+                       "(3-30 karakter), tanpa spasi atau tanda @. Contoh: budi123";
+            }
+            return "";
+        }
+
+        /* =====================================================
            CHECK ADMIN AUTH
         ===================================================== */
         async function checkAdmin() {
@@ -1055,6 +1066,11 @@
                 return;
             }
 
+            if (usernameError(username)) {
+                showMessage(usernameError(username));
+                return;
+            }
+
             if (password && password.length < 6) {
                 showMessage("Password minimal 6 karakter.");
                 return;
@@ -1245,6 +1261,11 @@
 
             if (!username) {
                 showMessage("Username belum diisi.");
+                return;
+            }
+
+            if (usernameError(username)) {
+                showMessage(usernameError(username));
                 return;
             }
 
