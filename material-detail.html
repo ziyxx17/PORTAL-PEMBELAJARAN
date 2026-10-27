@@ -5,7 +5,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Detail Materi - Portal Pembelajaran</title>
+<title>Mata Pelajaran - Portal Pembelajaran</title>
 
 <!-- GOOGLE FONTS (PLUS JAKARTA SANS) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,27 +50,6 @@ body {
 }
 
 /* =====================================================
-   KEYFRAME ANIMATIONS
-===================================================== */
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* =====================================================
    HEADER
 ===================================================== */
 
@@ -109,233 +88,398 @@ header {
 .back:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.25);
-    transform: translateX(-3px);
+    transform: translateY(-2px);
 }
 
 .back:active {
     transform: scale(0.96);
 }
 
-.brand {
+header strong {
     font-size: 16px;
     font-weight: 700;
     color: #f8fafc;
-    letter-spacing: -0.01em;
 }
 
 /* =====================================================
-   CONTAINER
+   CONTAINER & PAGE TITLE
 ===================================================== */
 
 .container {
     width: 100%;
-    max-width: 860px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 32px 20px 60px;
 }
 
-/* =====================================================
-   LOADING STATE
-===================================================== */
-
-.loading {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 48px 24px;
-    border-radius: 20px;
-    text-align: center;
-    color: #94a3b8;
-    box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.3);
-    font-weight: 600;
-}
-
-.spinner {
-    width: 36px;
-    height: 36px;
-    border: 3.5px solid rgba(255, 255, 255, 0.1);
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    margin: 0 auto 14px;
-    animation: spin 0.8s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
-}
-
-/* =====================================================
-   CONTENT CARD
-===================================================== */
-
-.content-card {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 32px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
-    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* SUBJECT BADGE */
-
-.subject {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #60a5fa;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 16px;
-}
-
-/* TITLE & DIVIDER */
-
 .title {
-    font-size: 28px;
+    margin-bottom: 24px;
+}
+
+.title h1 {
+    font-size: 26px;
     font-weight: 800;
     color: #ffffff;
-    line-height: 1.35;
+    margin-bottom: 6px;
     letter-spacing: -0.02em;
-    margin-bottom: 20px;
 }
 
-.divider {
-    height: 1px;
+.title p {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =====================================================
+   ROLE INFO & MESSAGES
+===================================================== */
+
+.role-info {
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+    padding: 14px 18px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    line-height: 1.6;
+    backdrop-filter: blur(10px);
+}
+
+.message {
+    padding: 14px 18px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    display: none;
+    font-size: 13px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+/* =====================================================
+   GLASS BOX & FORMS
+===================================================== */
+
+.box {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 24px;
+    border-radius: 22px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 28px;
+}
+
+.box h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+}
+
+.form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+input::placeholder {
+    color: #64748b;
+}
+
+input:focus {
+    border-color: #3b82f6;
     background: rgba(255, 255, 255, 0.08);
-    margin: 24px 0;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
-/* SECTION MATERI */
-
-.section {
-    margin-top: 24px;
+.add-button {
+    border: none;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
 }
 
-.label {
+.add-button:hover {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+
+.add-button:active {
+    transform: scale(0.96);
+}
+
+/* =====================================================
+   SUBJECTS LIST & CARDS
+===================================================== */
+
+.subjects {
+    display: grid;
+    gap: 12px;
+}
+
+.subject-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 22px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.subject-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 12px 30px -8px rgba(37, 99, 235, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.subject-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.subject-name {
     font-size: 16px;
     font-weight: 700;
     color: #f8fafc;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
-.content {
-    color: #e2e8f0;
-    line-height: 1.8;
-    white-space: pre-line;
-    font-size: 15px;
-    background: rgba(255, 255, 255, 0.03);
-    padding: 20px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+.subject-number {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
 }
 
-/* SOAL BOX */
-
-.question-box {
-    margin-top: 24px;
-    padding: 22px;
-    background: rgba(249, 115, 22, 0.08);
-    border: 1px solid rgba(249, 115, 22, 0.2);
-    border-left: 4px solid #f97316;
-    border-radius: 14px;
-    animation: fadeUp 0.5s ease;
+.subject-open {
+    color: #64748b;
+    font-size: 24px;
+    font-weight: 300;
+    transition: all 0.2s ease;
 }
 
-.question-label {
-    font-weight: 700;
-    color: #fb923c;
-    margin-bottom: 10px;
-    font-size: 15px;
-}
-
-.question {
-    color: #ffedd5;
-    line-height: 1.8;
-    white-space: pre-line;
-    font-size: 15px;
-}
-
-/* JAWABAN BOX */
-
-.answer-box {
-    margin-top: 20px;
-    padding: 22px;
-    background: rgba(34, 197, 94, 0.08);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    border-left: 4px solid #22c55e;
-    border-radius: 14px;
-    animation: fadeUp 0.6s ease;
-}
-
-.answer-label {
-    font-weight: 700;
-    color: #4ade80;
-    margin-bottom: 10px;
-    font-size: 15px;
-}
-
-.answer {
-    color: #dcfce7;
-    line-height: 1.8;
-    white-space: pre-line;
-    font-size: 15px;
-}
-
-/* INFO BOX */
-
-.info-box {
-    margin-top: 24px;
-    padding: 16px 20px;
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-left: 4px solid #3b82f6;
-    border-radius: 14px;
-    color: #93c5fd;
-    line-height: 1.6;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* ERROR STATE */
-
-.error {
-    background: rgba(239, 68, 68, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    padding: 44px 24px;
-    border-radius: 20px;
-    text-align: center;
-    color: #fca5a5;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
-}
-
-.error-icon {
-    font-size: 42px;
-    margin-bottom: 12px;
-}
-
-.error h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fca5a5;
-}
-
-.error p {
-    color: #f87171;
-    font-size: 14px;
-    margin-top: 6px;
+.subject-card:hover .subject-open {
+    color: #60a5fa;
+    transform: translateX(4px);
 }
 
 /* =====================================================
-   RESPONSIVE (MOBILE)
+   ACTIONS (EDIT / DELETE)
+===================================================== */
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.actions button {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.edit {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+}
+
+.edit:hover {
+    background: rgba(59, 130, 246, 0.25);
+    color: #bfdbfe;
+}
+
+.delete {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.delete:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fecdd3;
+}
+
+/* =====================================================
+   EMPTY & LOADING STATES
+===================================================== */
+
+.empty, .loading {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    padding: 32px 20px;
+    text-align: center;
+    border-radius: 18px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* =====================================================
+   MODAL OVERLAY & CARD
+===================================================== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 10, 18, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    padding: 26px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+}
+
+.edit-icon {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.delete-icon {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.modal h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.modal p {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+}
+
+.delete-name {
+    color: #fca5a5;
+    font-weight: 700;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancel-button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+}
+
+.cancel-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.save-button {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.save-button:hover {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.confirm-delete {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+}
+
+.confirm-delete:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* =====================================================
+   MEDIA QUERIES
 ===================================================== */
 
 @media (max-width: 600px) {
@@ -343,7 +487,7 @@ header {
         padding: 14px 16px;
     }
 
-    .brand {
+    header strong {
         font-size: 15px;
     }
 
@@ -351,101 +495,282 @@ header {
         padding: 20px 14px 40px;
     }
 
-    .content-card {
-        padding: 22px 18px;
-        border-radius: 16px;
-    }
-
-    .title {
+    .title h1 {
         font-size: 22px;
     }
 
-    .content,
-    .question,
-    .answer {
-        font-size: 14px;
+    .form {
+        flex-direction: column;
+    }
+
+    input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .add-button {
+        width: 100%;
+    }
+
+    .subject-card {
+        align-items: center;
+    }
+
+    .actions {
+        width: 100%;
+    }
+
+    .actions button {
+        flex: 1;
+    }
+
+    .subject-open {
+        font-size: 26px;
+    }
+
+    .modal {
+        padding: 20px;
+        border-radius: 18px;
     }
 }
 
 </style>
+
 </head>
+
 
 <body>
 
-<!-- HEADER -->
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
 <header>
-    <button class="back" onclick="goBack()">
-        ← Kembali
-    </button>
-    <div class="brand">
-        📚 Portal Pembelajaran
-    </div>
+    <button class="back" id="backButton">← Kembali</button>
+    <strong>📚 Mata Pelajaran</strong>
 </header>
 
-<!-- MAIN CONTAINER -->
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
 <main class="container">
-    <div id="detail">
-        <div class="loading">
-            <div class="spinner"></div>
-            Memuat konten...
-        </div>
+
+    <section class="title">
+        <h1>📚 Mata Pelajaran</h1>
+        <p>Pilih mata pelajaran untuk melihat materi, catatan, dan soal.</p>
+    </section>
+
+    <!-- ROLE -->
+    <div id="roleInfo" class="role-info">
+        ⏳ Memeriksa akun...
     </div>
+
+    <!-- MESSAGE -->
+    <div id="message" class="message">
+    </div>
+
+    <!-- =================================================
+         TAMBAH SUBJECT ADMIN
+    ================================================= -->
+
+    <section id="adminAddBox" class="box" style="display:none;">
+        <h2>➕ Tambah Mata Pelajaran</h2>
+        <form id="addSubjectForm" class="form">
+            <input
+                type="text"
+                id="nama"
+                placeholder="Nama mata pelajaran"
+                required
+            >
+            <button type="submit" class="add-button">
+                Tambah
+            </button>
+        </form>
+    </section>
+
+    <!-- =================================================
+         DAFTAR
+    ================================================= -->
+
+    <section>
+        <h2 style="margin-bottom:16px; font-size:20px; font-weight:800; color:#ffffff;">
+            📋 Daftar Mata Pelajaran
+        </h2>
+
+        <div id="subjects" class="subjects">
+            <div class="loading">
+                ⏳ Memuat data mata pelajaran...
+            </div>
+        </div>
+    </section>
+
 </main>
 
-<!-- SCRIPTS -->
+
+<!-- =====================================================
+     EDIT MODAL
+===================================================== -->
+
+<div id="editModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-icon edit-icon">
+            ✏️
+        </div>
+        <h3>Edit Mata Pelajaran</h3>
+        <p>Ubah nama mata pelajaran sesuai yang kamu inginkan.</p>
+        <input
+            type="text"
+            id="editInput"
+            class="modal-input"
+            placeholder="Nama mata pelajaran"
+        >
+        <div class="modal-buttons">
+            <button type="button" class="cancel-button" onclick="closeEditModal()">
+                Batal
+            </button>
+            <button type="button" class="save-button" onclick="saveEdit()">
+                💾 Simpan
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================
+     DELETE MODAL
+===================================================== -->
+
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-icon delete-icon">
+            🗑️
+        </div>
+        <h3>Hapus Mata Pelajaran?</h3>
+        <p>
+            Kamu yakin ingin menghapus mata pelajaran <span id="deleteSubjectName" class="delete-name"></span>?
+            <br><br>
+            Data yang sudah dihapus tidak dapat dikembalikan.
+        </p>
+        <div class="modal-buttons">
+            <button type="button" class="cancel-button" onclick="closeDeleteModal()">
+                Batal
+            </button>
+            <button type="button" class="confirm-delete" onclick="confirmDelete()">
+                🗑️ Hapus
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================
+     SUPABASE
+===================================================== -->
+
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* =========================
-   SUPABASE CLIENT
-========================= */
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
 
-/* =========================
-   AMBIL ID URL
-========================= */
-const params = new URLSearchParams(window.location.search);
-const materialId = params.get("id");
+/* =====================================================
+   SUPABASE
+===================================================== */
 
-/* =========================
-   NAVIGASI KEMBALI
-========================= */
-function goBack() {
-    if (document.referrer) {
-        history.back();
-    } else {
-        location.href = "member.html";
-    }
+const supabaseClient =
+    SingleSession.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let currentUser = null;
+let currentProfile = null;
+let isAdmin = false;
+let editId = null;
+let editOldName = "";
+let deleteId = null;
+
+
+/* =====================================================
+   ELEMENT
+===================================================== */
+
+const message = document.getElementById("message");
+const subjectsContainer = document.getElementById("subjects");
+const roleInfo = document.getElementById("roleInfo");
+const adminAddBox = document.getElementById("adminAddBox");
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(text, success = false) {
+    message.style.display = "block";
+    message.textContent = text;
+    message.style.background = success ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)";
+    message.style.color = success ? "#86efac" : "#fca5a5";
+    message.style.border = success ? "1px solid rgba(34, 197, 94, 0.3)" : "1px solid rgba(239, 68, 68, 0.3)";
 }
 
-/* =========================
-   VERIFIKASI LOGIN
-========================= */
-async function checkLogin() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
 
-    if (!session) {
+/* =====================================================
+   CEK LOGIN
+===================================================== */
+
+async function checkLogin() {
+    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
         location.href = "login-member.html";
         return false;
     }
 
+    currentUser = session.user;
+
     const { data: profile, error } = await supabaseClient
         .from("profiles")
-        .select("id, nama, username, role, status")
+        .select("id, role, status")
         .eq("id", session.user.id)
         .single();
 
-    if (
-        error ||
-        !profile ||
-        profile.role !== "member" ||
-        profile.status !== "open"
-    ) {
-        await supabaseClient.auth.signOut();
+    if (error || !profile) {
+        console.error("PROFILE ERROR:", error);
+        await supabaseClient.auth.signOut({ scope: "local" });
+        location.href = "login-member.html";
+        return false;
+    }
+
+    currentProfile = profile;
+
+    if (profile.status !== "open") {
+        await supabaseClient.auth.signOut({ scope: "local" });
+        alert("Akun kamu sedang dikunci atau tidak aktif.");
+        location.href = "login-member.html";
+        return false;
+    }
+
+    if (profile.role === "admin") {
+        isAdmin = true;
+        roleInfo.innerHTML =
+            "👑 <strong>Mode Admin</strong><br>" +
+            "Klik mata pelajaran untuk melihat materi. Kamu juga dapat mengelola mata pelajaran.";
+        adminAddBox.style.display = "block";
+    } else if (profile.role === "member") {
+        isAdmin = false;
+        roleInfo.innerHTML =
+            "👤 <strong>Mode Member</strong><br>" +
+            "Klik mata pelajaran untuk melihat materi, catatan, dan soal.";
+    } else {
+        await supabaseClient.auth.signOut({ scope: "local" });
+        alert("Role akun tidak dikenali.");
         location.href = "login-member.html";
         return false;
     }
@@ -453,145 +778,350 @@ async function checkLogin() {
     return true;
 }
 
-/* =========================
-   LOAD CONTENT MATERI
-========================= */
-async function loadMaterial() {
-    const detail = document.getElementById("detail");
 
-    if (!materialId) {
-        showError(
-            "Konten tidak ditemukan.",
-            "ID konten tidak tersedia."
-        );
-        return;
-    }
+/* =====================================================
+   LOAD SUBJECT
+===================================================== */
 
-    /* AMBIL DATA MATERIALS */
-    const { data: material, error } = await supabaseClient
-        .from("materials")
-        .select("id, subject_id, judul, isi, soal, jawaban")
-        .eq("id", materialId)
-        .single();
+async function loadSubjects() {
+    subjectsContainer.innerHTML = `
+        <div class="loading">
+            ⏳ Memuat data mata pelajaran...
+        </div>
+    `;
 
-    if (error || !material) {
-        console.error("MATERIAL ERROR:", error);
-        showError(
-            "Gagal memuat konten.",
-            error ? error.message : "Konten tidak ditemukan."
-        );
-        return;
-    }
-
-    /* LOAD NAMA SUBJECT */
-    const { data: subject } = await supabaseClient
+    const { data, error } = await supabaseClient
         .from("subjects")
-        .select("nama")
-        .eq("id", material.subject_id)
-        .single();
+        .select("id, nama")
+        .order("id", { ascending: true });
 
-    const subjectName = subject ? subject.nama : "Mata Pelajaran";
-
-    /* CEK KETERSEDIAAN KONTEN */
-    const adaMateri = typeof material.isi === "string" && material.isi.trim() !== "";
-    const adaSoal = typeof material.soal === "string" && material.soal.trim() !== "";
-    const adaJawaban = typeof material.jawaban === "string" && material.jawaban.trim() !== "";
-
-    /* MATERI HTML */
-    let materiHTML = "";
-    if (adaMateri) {
-        materiHTML = `
-        <div class="section">
-            <div class="label">📘 Materi</div>
-            <div class="content">${escapeHTML(material.isi)}</div>
-        </div>
+    if (error) {
+        console.error("LOAD SUBJECT ERROR:", error);
+        subjectsContainer.innerHTML = `
+            <div class="empty">
+                ❌ Gagal memuat data.
+                <br><br>
+                ${escapeHTML(error.message)}
+            </div>
         `;
+        return;
     }
 
-    /* SOAL HTML */
-    let soalHTML = "";
-    if (adaSoal) {
-        soalHTML = `
-        <div class="question-box">
-            <div class="question-label">❓ Soal / Pertanyaan</div>
-            <div class="question">${escapeHTML(material.soal)}</div>
-        </div>
+    if (!data || data.length === 0) {
+        subjectsContainer.innerHTML = `
+            <div class="empty">
+                📭 Belum ada mata pelajaran.
+            </div>
         `;
+        return;
     }
 
-    /* JAWABAN HTML */
-    let jawabanHTML = "";
-    if (adaJawaban) {
-        jawabanHTML = `
-        <div class="answer-box">
-            <div class="answer-label">💡 Jawaban</div>
-            <div class="answer">${escapeHTML(material.jawaban)}</div>
-        </div>
-        `;
-    }
+    subjectsContainer.innerHTML = "";
 
-    /* INFO HTML */
-    let infoHTML = "";
-    if (adaMateri && !adaSoal) {
-        infoHTML = `<div class="info-box">📘 Ini adalah materi pembelajaran.</div>`;
-    }
-    if (!adaMateri && adaSoal && adaJawaban) {
-        infoHTML = `<div class="info-box">📝 Silakan pelajari soal dan perhatikan jawabannya.</div>`;
-    }
-    if (adaMateri && adaSoal && adaJawaban) {
-        infoHTML = `<div class="info-box">📚 Materi, soal, dan jawaban tersedia pada konten ini.</div>`;
-    }
-    if (!adaMateri && !adaSoal && !adaJawaban) {
-        infoHTML = `<div class="info-box">📭 Konten ini belum memiliki isi pembelajaran.</div>`;
-    }
+    data.forEach(function(subject, index) {
+        const card = document.createElement("div");
+        card.className = "subject-card";
 
-    /* RENDER TAMPILAN */
-    detail.innerHTML = `
-    <article class="content-card">
-        <div class="subject">📚 ${escapeHTML(subjectName)}</div>
-        <h1 class="title">${escapeHTML(material.judul)}</h1>
-        <div class="divider"></div>
-        ${materiHTML}
-        ${soalHTML}
-        ${jawabanHTML}
-        ${infoHTML}
-    </article>
-    `;
+        card.addEventListener("click", function() {
+            window.location.href = "materials.html?subject_id=" + encodeURIComponent(subject.id);
+        });
+
+        const info = document.createElement("div");
+        info.className = "subject-info";
+
+        const name = document.createElement("div");
+        name.className = "subject-name";
+        name.textContent = "📘 " + subject.nama;
+
+        const number = document.createElement("div");
+        number.className = "subject-number";
+        number.textContent = "Mata pelajaran #" + (index + 1);
+
+        info.appendChild(name);
+        info.appendChild(number);
+        card.appendChild(info);
+
+        const openIcon = document.createElement("div");
+        openIcon.className = "subject-open";
+        openIcon.textContent = "›";
+        card.appendChild(openIcon);
+
+        if (isAdmin) {
+            const actions = document.createElement("div");
+            actions.className = "actions";
+
+            const editButton = document.createElement("button");
+            editButton.className = "edit";
+            editButton.textContent = "✏️ Edit";
+            editButton.addEventListener("click", function(event) {
+                event.stopPropagation();
+                editSubject(subject.id, subject.nama);
+            });
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete";
+            deleteButton.textContent = "🗑️ Hapus";
+            deleteButton.addEventListener("click", function(event) {
+                event.stopPropagation();
+                deleteSubject(subject.id, subject.nama);
+            });
+
+            actions.appendChild(editButton);
+            actions.appendChild(deleteButton);
+            card.appendChild(actions);
+        }
+
+        subjectsContainer.appendChild(card);
+    });
 }
 
-/* =========================
-   FUNGSI TAMPILKAN ERROR
-========================= */
-function showError(title, message) {
-    const detail = document.getElementById("detail");
-    detail.innerHTML = `
-    <div class="error">
-        <div class="error-icon">❌</div>
-        <h2>${escapeHTML(title)}</h2>
-        <p>${escapeHTML(message)}</p>
-    </div>
-    `;
+
+/* =====================================================
+   TAMBAH SUBJECT
+===================================================== */
+
+document.getElementById("addSubjectForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    if (!isAdmin) {
+        showMessage("Kamu tidak memiliki izin.");
+        return;
+    }
+
+    const input = document.getElementById("nama");
+    const nama = input.value.trim();
+
+    if (!nama) {
+        showMessage("Nama mata pelajaran belum diisi.");
+        return;
+    }
+
+    showMessage("Menambahkan mata pelajaran...");
+
+    const { error } = await supabaseClient
+        .from("subjects")
+        .insert({ nama: nama });
+
+    if (error) {
+        showMessage("Gagal menambahkan: " + error.message);
+        return;
+    }
+
+    input.value = "";
+    showMessage("Mata pelajaran berhasil ditambahkan!", true);
+    await loadSubjects();
+});
+
+
+/* =====================================================
+   EDIT
+===================================================== */
+
+function editSubject(id, oldName) {
+    if (!isAdmin) return;
+
+    editId = id;
+    editOldName = oldName;
+
+    const input = document.getElementById("editInput");
+    input.value = oldName;
+
+    document.getElementById("editModal").classList.add("show");
+
+    setTimeout(function() {
+        input.focus();
+        input.select();
+    }, 100);
 }
 
-/* =========================
-   UTILITY ESCAPE HTML
-========================= */
+
+/* =====================================================
+   CLOSE EDIT
+===================================================== */
+
+function closeEditModal() {
+    document.getElementById("editModal").classList.remove("show");
+}
+
+
+/* =====================================================
+   SAVE EDIT
+===================================================== */
+
+async function saveEdit() {
+    if (!isAdmin) return;
+
+    const nama = document.getElementById("editInput").value.trim();
+
+    if (!editId) {
+        showMessage("ID tidak ditemukan.");
+        return;
+    }
+
+    if (!nama) {
+        showMessage("Nama tidak boleh kosong.");
+        return;
+    }
+
+    if (nama === editOldName) {
+        closeEditModal();
+        return;
+    }
+
+    closeEditModal();
+    showMessage("Menyimpan perubahan...");
+
+    const { error } = await supabaseClient
+        .from("subjects")
+        .update({ nama: nama })
+        .eq("id", editId);
+
+    if (error) {
+        showMessage("Gagal mengubah: " + error.message);
+        return;
+    }
+
+    editId = null;
+    editOldName = "";
+
+    showMessage("Mata pelajaran berhasil diubah!", true);
+    await loadSubjects();
+}
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+function deleteSubject(id, name) {
+    if (!isAdmin) return;
+
+    deleteId = id;
+    document.getElementById("deleteSubjectName").textContent = `"${name}"`;
+    document.getElementById("deleteModal").classList.add("show");
+}
+
+
+/* =====================================================
+   CLOSE DELETE
+===================================================== */
+
+function closeDeleteModal() {
+    document.getElementById("deleteModal").classList.remove("show");
+}
+
+
+/* =====================================================
+   CONFIRM DELETE
+===================================================== */
+
+async function confirmDelete() {
+    if (!isAdmin) return;
+
+    if (!deleteId) {
+        showMessage("ID tidak ditemukan.");
+        return;
+    }
+
+    closeDeleteModal();
+    showMessage("Menghapus mata pelajaran...");
+
+    const { error } = await supabaseClient
+        .from("subjects")
+        .delete()
+        .eq("id", deleteId);
+
+    if (error) {
+        showMessage("Gagal menghapus: " + error.message);
+        return;
+    }
+
+    deleteId = null;
+    showMessage("Mata pelajaran berhasil dihapus!", true);
+    await loadSubjects();
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
 function escapeHTML(value) {
     const div = document.createElement("div");
     div.textContent = value ?? "";
     return div.innerHTML;
 }
 
-/* =========================
-   INITIALIZATION
-========================= */
+
+/* =====================================================
+   BACK
+===================================================== */
+
+document.getElementById("backButton").addEventListener("click", function() {
+    if (isAdmin) {
+        location.href = "admin.html";
+    } else {
+        location.href = "member.html";
+    }
+});
+
+
+/* =====================================================
+   MODAL CLICK OUTSIDE
+===================================================== */
+
+document.getElementById("editModal").addEventListener("click", function(event) {
+    if (event.target === this) {
+        closeEditModal();
+    }
+});
+
+document.getElementById("deleteModal").addEventListener("click", function(event) {
+    if (event.target === this) {
+        closeDeleteModal();
+    }
+});
+
+
+/* =====================================================
+   ESC
+===================================================== */
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        closeEditModal();
+        closeDeleteModal();
+    }
+});
+
+
+/* =====================================================
+   AUTH
+===================================================== */
+
+supabaseClient.auth.onAuthStateChange(function(event) {
+    if (event === "SIGNED_OUT") {
+        location.href = "login-member.html";
+    }
+});
+
+
+/* =====================================================
+   START
+===================================================== */
+
 async function start() {
-    const login = await checkLogin();
-    if (!login) return;
-    await loadMaterial();
+    const loggedIn = await checkLogin();
+    if (!loggedIn) return;
+
+    // Batasan 1 sesi hanya berlaku untuk member, bukan admin
+    if (!isAdmin && !(await SingleSession.guard(supabaseClient))) return;
+
+    await loadSubjects();
 }
 
 start();
+
 </script>
 
 </body>
