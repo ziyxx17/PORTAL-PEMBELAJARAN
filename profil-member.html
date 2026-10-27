@@ -645,7 +645,7 @@ header {
 /* =====================================================
    SUPABASE CLIENT & GLOBAL VARIABLES
 ===================================================== */
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 
 let currentUserId = null;
 let accountLocked = false;
@@ -696,9 +696,10 @@ async function forceLogout() {
     accessStatusElem.className = "info-value status-badge";
 
     lockedMessage.classList.add("show");
+    await SingleSession.release(supabaseClient);
 
     try {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
     } catch (error) {
         console.error("Logout error:", error);
     }
@@ -776,7 +777,7 @@ async function checkLogin() {
 
     if (profileError || !profile || profile.role !== "member" || profile.status !== "open") {
         console.error("PROFILE ERROR:", profileError);
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         window.location.href = "login-member.html";
         return null;
     }
@@ -838,8 +839,10 @@ logoutButton.addEventListener("click", async function() {
         statusChannel = null;
     }
 
+    await SingleSession.release(supabaseClient); // lepas klaim sesi
+
     try {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
     } catch (error) {
         console.error("Logout:", error);
     }
@@ -850,7 +853,7 @@ logoutButton.addEventListener("click", async function() {
 
 document.getElementById("lockedButton").addEventListener("click", async function() {
     try {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
     } catch (error) {
         console.error(error);
     }
@@ -877,6 +880,7 @@ async function start() {
     console.log("INFORMASI AKUN MEMBER START");
     const profile = await checkLogin();
     if (!profile) return;
+    if (!(await SingleSession.guard(supabaseClient))) return;
 
     displayProfile(profile);
     updateLastAccess();
