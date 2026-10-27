@@ -680,7 +680,7 @@ input:focus {
 ===================================================== */
 
 const supabaseClient =
-    window.supabase.createClient(
+    SingleSession.createClient(
         SUPABASE_URL,
         SUPABASE_PUBLISHABLE_KEY
     );
@@ -743,7 +743,7 @@ async function checkLogin() {
 
     if (error || !profile) {
         console.error("PROFILE ERROR:", error);
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         location.href = "login-member.html";
         return false;
     }
@@ -751,7 +751,7 @@ async function checkLogin() {
     currentProfile = profile;
 
     if (profile.status !== "open") {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         alert("Akun kamu sedang dikunci atau tidak aktif.");
         location.href = "login-member.html";
         return false;
@@ -769,7 +769,7 @@ async function checkLogin() {
             "👤 <strong>Mode Member</strong><br>" +
             "Klik mata pelajaran untuk melihat materi, catatan, dan soal.";
     } else {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         alert("Role akun tidak dikenali.");
         location.href = "login-member.html";
         return false;
@@ -1113,6 +1113,9 @@ supabaseClient.auth.onAuthStateChange(function(event) {
 async function start() {
     const loggedIn = await checkLogin();
     if (!loggedIn) return;
+
+    // Batasan 1 sesi hanya berlaku untuk member, bukan admin
+    if (!isAdmin && !(await SingleSession.guard(supabaseClient))) return;
 
     await loadSubjects();
 }
