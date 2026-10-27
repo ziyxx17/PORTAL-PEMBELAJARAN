@@ -487,7 +487,7 @@
         /* =====================================================
            SUPABASE INIT
         ===================================================== */
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 
         let currentUserId = null;
         let accountLocked = false;
@@ -531,7 +531,7 @@
                 .single();
 
             if (profileError || !profile || profile.role !== "member" || profile.status !== "open") {
-                await supabaseClient.auth.signOut();
+                await supabaseClient.auth.signOut({ scope: "local" });
                 window.location.href = "login-member.html";
                 return null;
             }
@@ -548,7 +548,8 @@
             }
 
             document.getElementById("lockedMessage").classList.add("show");
-            try { await supabaseClient.auth.signOut(); } catch (e) { console.error(e); }
+            await SingleSession.release(supabaseClient);
+            try { await supabaseClient.auth.signOut({ scope: "local" }); } catch (e) { console.error(e); }
         }
 
         async function checkAccountStatus() {
@@ -707,7 +708,7 @@
         });
 
         document.getElementById("lockedButton").addEventListener("click", async () => {
-            try { await supabaseClient.auth.signOut(); } catch(e) {}
+            try { await supabaseClient.auth.signOut({ scope: "local" }); } catch(e) {}
             window.location.href = "login-member.html";
         });
 
@@ -729,6 +730,7 @@
         async function start() {
             const profile = await checkLogin();
             if (!profile) return;
+            if (!(await SingleSession.guard(supabaseClient))) return;
 
             subscribeAccountStatus();
             await loadSchedule();
