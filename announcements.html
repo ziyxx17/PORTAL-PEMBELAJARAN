@@ -488,7 +488,7 @@
         /* =====================================================
            SUPABASE & VARIABLES
         ===================================================== */
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
         
         let currentUserId = null;
         let accountLocked = false;
@@ -539,7 +539,8 @@
             }
             
             document.getElementById("lockedMessage").classList.add("show");
-            try { await supabaseClient.auth.signOut(); } catch (error) { console.error("Logout error:", error); }
+            await SingleSession.release(supabaseClient);
+            try { await supabaseClient.auth.signOut({ scope: "local" }); } catch (error) { console.error("Logout error:", error); }
         }
 
         async function checkLogin() {
@@ -553,13 +554,13 @@
             const { data: profile, error } = await supabaseClient.from("profiles").select("id, role, status").eq("id", currentUserId).single();
             
             if (error || !profile || profile.role !== "member") {
-                await supabaseClient.auth.signOut();
+                await supabaseClient.auth.signOut({ scope: "local" });
                 window.location.href = "login-member.html";
                 return false;
             }
             
             if (profile.status !== "open") {
-                await supabaseClient.auth.signOut();
+                await supabaseClient.auth.signOut({ scope: "local" });
                 window.location.href = "login-member.html";
                 return false;
             }
@@ -700,7 +701,7 @@
         });
 
         document.getElementById("lockedButton").addEventListener("click", async function() {
-            try { await supabaseClient.auth.signOut(); } catch (e) {}
+            try { await supabaseClient.auth.signOut({ scope: "local" }); } catch (e) {}
             window.location.href = "login-member.html";
         });
 
@@ -720,6 +721,7 @@
         async function start() {
             const loggedIn = await checkLogin();
             if (!loggedIn) return;
+            if (!(await SingleSession.guard(supabaseClient))) return;
             subscribeAccountStatus();
             await loadAnnouncements();
         }
