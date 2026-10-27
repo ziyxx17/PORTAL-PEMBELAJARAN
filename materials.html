@@ -359,7 +359,7 @@ header {
 /* =====================================================
    SUPABASE CLIENT & URL PARAMETERS
 ===================================================== */
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabaseClient = SingleSession.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const params = new URLSearchParams(window.location.search);
 const subjectId = params.get("subject_id");
 
@@ -403,23 +403,26 @@ async function checkLogin() {
         .single();
 
     if (profileError || !profile) {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         location.href = "login-member.html";
         return false;
     }
 
     if (profile.status !== "open") {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         alert("Akun kamu sedang dikunci atau tidak aktif.");
         location.href = "login-member.html";
         return false;
     }
 
     if (profile.role !== "member" && profile.role !== "admin") {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: "local" });
         location.href = "login-member.html";
         return false;
     }
+
+    // Batasan 1 sesi hanya berlaku untuk member, bukan admin
+    if (profile.role === "member" && !(await SingleSession.guard(supabaseClient))) return false;
 
     return true;
 }
