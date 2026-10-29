@@ -519,7 +519,7 @@
         async function checkLogin() {
             const { data: { session }, error } = await supabaseClient.auth.getSession();
             if (error || !session) {
-                window.location.href = "login-member.html";
+                window.location.href = "index.html";
                 return null;
             }
 
@@ -532,7 +532,7 @@
 
             if (profileError || !profile || profile.role !== "member" || profile.status !== "open") {
                 await supabaseClient.auth.signOut({ scope: "local" });
-                window.location.href = "login-member.html";
+                window.location.href = "index.html";
                 return null;
             }
             return profile;
@@ -709,11 +709,11 @@
 
         document.getElementById("lockedButton").addEventListener("click", async () => {
             try { await supabaseClient.auth.signOut({ scope: "local" }); } catch(e) {}
-            window.location.href = "login-member.html";
+            window.location.href = "index.html";
         });
 
         supabaseClient.auth.onAuthStateChange((event) => {
-            if (event === "SIGNED_OUT" && !accountLocked) window.location.href = "login-member.html";
+            if (event === "SIGNED_OUT" && !accountLocked) window.location.href = "index.html";
         });
 
         document.addEventListener("visibilitychange", () => {
