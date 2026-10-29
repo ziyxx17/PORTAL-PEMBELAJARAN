@@ -763,7 +763,7 @@ async function checkLogin() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
 
     if (error || !session) {
-        window.location.href = "login-member.html";
+        window.location.href = "index.html";
         return null;
     }
 
@@ -778,7 +778,7 @@ async function checkLogin() {
     if (profileError || !profile || profile.role !== "member" || profile.status !== "open") {
         console.error("PROFILE ERROR:", profileError);
         await supabaseClient.auth.signOut({ scope: "local" });
-        window.location.href = "login-member.html";
+        window.location.href = "index.html";
         return null;
     }
 
@@ -848,7 +848,7 @@ logoutButton.addEventListener("click", async function() {
     }
 
     localStorage.removeItem("portal_user");
-    window.location.href = "login-member.html";
+    window.location.href = "index.html";
 });
 
 document.getElementById("lockedButton").addEventListener("click", async function() {
@@ -857,13 +857,13 @@ document.getElementById("lockedButton").addEventListener("click", async function
     } catch (error) {
         console.error(error);
     }
-    window.location.href = "login-member.html";
+    window.location.href = "index.html";
 });
 
 supabaseClient.auth.onAuthStateChange(function(event) {
     console.log("AUTH EVENT:", event);
     if (event === "SIGNED_OUT" && !accountLocked) {
-        window.location.href = "login-member.html";
+        window.location.href = "index.html";
     }
 });
 
