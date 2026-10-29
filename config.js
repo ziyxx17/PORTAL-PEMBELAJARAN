@@ -113,11 +113,8 @@ window.SingleSession = (function () {
     // Untuk halaman yang dipakai member DAN admin (subjects, materials):
     // tab member (punya token) pakai sessionStorage, admin tetap pakai localStorage.
     function createClient(url, key) {
-        const memberTab = !!getToken();
-        return window.supabase.createClient(
-            url, key,
-            memberTab ? { auth: { storage: window.sessionStorage } } : undefined
-        );
+        // Semua peran memakai sesi per-tab (sessionStorage) supaya antar tab tidak saling mengganggu
+        return window.supabase.createClient(url, key, { auth: { storage: window.sessionStorage } });
     }
 
     return { claim, release, isValid, guard, getToken, createClient };
@@ -137,4 +134,110 @@ window.Perm = (function () {
         return cache[key];
     }
     return { allow };
+})();
+
+
+/* SESI STAFF (Admin & Moderator): kehadiran (presence), 1 sesi untuk Moderator, keluar resmi.
+   Berjalan otomatis di halaman admin tanpa mengubah kode halaman. */
+window.StaffSession = (function () {
+    const PAGES = ["admin", "member-management", "kelola-jadwal", "announcements-admin", "statistics",
+                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "subjects", "materials"];
+    const ref = (function () { try { return new URL(SUPABASE_URL).hostname.split(".")[0]; } catch (e) { return ""; } })();
+    const STORE_KEY = "sb-" + ref + "-auth-token";
+    let ended = false;
+
+    function pageName() { return (window.location.pathname.split("/").pop() || "").replace(".html", ""); }
+    function readSession() {
+        try {
+            const j = JSON.parse(sessionStorage.getItem(STORE_KEY) || "null");
+            return j && j.access_token && j.user ? j : null;
+        } catch (e) { return null; }
+    }
+    function api(path, session, opts) {
+        opts = opts || {};
+        return fetch(SUPABASE_URL + "/rest/v1/" + path, {
+            method: opts.method || "GET",
+            headers: Object.assign({
+                apikey: SUPABASE_PUBLISHABLE_KEY,
+                Authorization: "Bearer " + session.access_token,
+                "Content-Type": "application/json"
+            }, opts.headers || {}),
+            body: opts.body ? JSON.stringify(opts.body) : undefined
+        });
+    }
+    async function getRole(session) {
+        try {
+            const r = await api("profiles?select=role,status&id=eq." + session.user.id, session);
+            const rows = await r.json();
+            return Array.isArray(rows) && rows[0] ? String(rows[0].role || "").toLowerCase() : "";
+        } catch (e) { return ""; }
+    }
+    async function beat(session) {
+        try {
+            await api("user_presence?on_conflict=user_id", session, {
+                method: "POST",
+                headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+                body: { user_id: session.user.id, is_online: true, last_seen: new Date().toISOString() }
+            });
+        } catch (e) {}
+    }
+    async function tokenValid(session) {
+        try {
+            const r = await api("rpc/check_login", session, { method: "POST", body: { p_token: SingleSession.getToken() } });
+            if (!r.ok) return true;              // gangguan: jangan tendang
+            return (await r.json()) === true;
+        } catch (e) { return true; }
+    }
+    function kick(why) {
+        if (ended) return;
+        ended = true;
+        sessionStorage.removeItem(STORE_KEY);
+        sessionStorage.removeItem("portal_session_token");
+        window.location.href = "index.html?reason=session&why=" + why + "&from=" + encodeURIComponent(pageName());
+    }
+
+    async function start() {
+        if (PAGES.indexOf(pageName()) < 0) return;
+        const first = readSession();
+        if (!first) return;
+        const role = await getRole(first);
+        if (role !== "admin" && role !== "moderator") return;   // member ditangani halamannya sendiri
+
+        const tick = function () {
+            const s = readSession();
+            if (s && !ended && document.visibilityState === "visible") beat(s);
+        };
+        tick();
+        setInterval(tick, 30000);
+
+        if (role === "moderator") {
+            const guardTick = async function () {
+                if (ended) return;
+                const s = readSession();
+                if (!s) return;
+                if (!SingleSession.getToken()) { kick("no_token"); return; }
+                if (!(await tokenValid(s))) kick("revoked");
+            };
+            guardTick();
+            setInterval(guardTick, 10000);
+            document.addEventListener("visibilitychange", function () {
+                if (document.visibilityState === "visible") guardTick();
+            });
+        }
+    }
+
+    // Dipanggil tombol Keluar di dashboard: lepas klaim (Moderator) + hapus kehadiran
+    async function leave(client) {
+        ended = true;
+        try {
+            const { data } = await client.auth.getSession();
+            if (data && data.session) {
+                await client.from("user_presence").delete().eq("user_id", data.session.user.id);
+            }
+        } catch (e) {}
+        try { await SingleSession.release(client); } catch (e) {}
+    }
+
+    window.addEventListener("load", function () { setTimeout(start, 800); });
+    return { leave };
 })();
