@@ -843,10 +843,7 @@
         /* =====================================================
            SUPABASE CLIENT
         ===================================================== */
-        const supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
-        );
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 
         const message = document.getElementById("message");
         const membersContainer = document.getElementById("members");
