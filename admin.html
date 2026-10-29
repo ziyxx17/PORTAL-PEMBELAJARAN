@@ -577,10 +577,7 @@
         /* =====================================================
            SUPABASE CLIENT & LOGIC
         ===================================================== */
-        const supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
-        );
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 
         let currentAdminId = null;
         let currentAdminProfile = null;
@@ -698,7 +695,8 @@
                 button.disabled = true;
                 button.textContent = "Keluar...";
 
-                const { error } = await supabaseClient.auth.signOut();
+                await StaffSession.leave(supabaseClient);
+                const { error } = await supabaseClient.auth.signOut({ scope: "local" });
                 if (error) console.error("LOGOUT ERROR:", error);
 
                 localStorage.removeItem("portal_user");
