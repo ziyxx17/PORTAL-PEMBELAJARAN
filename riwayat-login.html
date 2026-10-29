@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Login - Portal Pembelajaran</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .ambient-bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; will-change: transform; }
+        .orb-1 { width: 500px; height: 500px; background: #8b5cf6; top: -150px; right: -100px; animation: orbFloat1 25s ease-in-out infinite alternate; }
+        .orb-2 { width: 450px; height: 450px; background: #3b82f6; bottom: -150px; left: -100px; animation: orbFloat2 20s ease-in-out infinite alternate; }
+
+        header {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .back:hover { background: rgba(255, 255, 255, 0.15); transform: translateX(-3px); }
+        header strong { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+
+        .container { max-width: 1100px; margin: auto; padding: 36px 24px 60px; position: relative; z-index: 1; }
+
+        .title { margin-bottom: 24px; }
+        .title h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+        .title p { color: #94a3b8; font-size: 14.5px; line-height: 1.6; }
+
+        .message { padding: 14px 18px; border-radius: 14px; margin-bottom: 20px; display: none; font-size: 14px; font-weight: 600; line-height: 1.5; }
+        .message.error { display: block; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .message.success { display: block; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+
+        /* KARTU STATISTIK */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+        .stat {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px 20px;
+        }
+        .stat .num { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+        .stat .lbl { color: #94a3b8; font-size: 13px; margin-top: 4px; font-weight: 500; }
+
+        /* FILTER */
+        .filters {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+        .filters label { display: block; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; }
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: #f8fafc;
+        }
+        select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        select option { background: #1e293b; color: #f8fafc; }
+
+        .btn {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.07);
+            color: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13.5px;
+            font-family: inherit;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn:hover { background: rgba(255, 255, 255, 0.16); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn.primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-color: transparent; }
+        .btn.danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+        .btn.danger:hover { background: #ef4444; color: #fff; }
+
+        /* DAFTAR RIWAYAT */
+        .list-head, .row {
+            display: grid;
+            grid-template-columns: 190px 1.3fr 140px 1.2fr 130px;
+            gap: 14px;
+            align-items: center;
+            padding: 14px 20px;
+        }
+        .list-head { color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding-bottom: 8px; }
+        .rows { display: grid; gap: 10px; }
+        .row {
+            background: rgba(30, 41, 59, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            font-size: 13.5px;
+            animation: textFade 0.35s ease both;
+        }
+        .row:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(255, 255, 255, 0.16); }
+        .time b { display: block; font-weight: 700; }
+        .time span { color: #94a3b8; font-size: 12px; }
+        .who b { display: block; font-weight: 700; }
+        .who span { color: #94a3b8; font-size: 12.5px; }
+        .dev { color: #cbd5e1; }
+        .by { color: #94a3b8; font-size: 12.5px; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .b-login  { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .b-logout { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+        .b-reset  { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .b-kunci  { background: rgba(245, 158, 11, 0.15); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .b-buka   { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .empty {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 36px 24px;
+            text-align: center;
+            border-radius: 20px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .more-wrap { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+        .footer-note { color: #64748b; font-size: 12.5px; text-align: center; margin-top: 18px; line-height: 1.6; }
+
+        @keyframes pageFadeIn { to { opacity: 1; } }
+        @keyframes textFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes orbFloat1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-80px, 60px) scale(1.15); } }
+        @keyframes orbFloat2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(70px, -50px) scale(1.1); } }
+
+        body.page-exit { pointer-events: none; }
+        body.page-exit .container, body.page-exit header { animation: pageExitAnim 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
+        @keyframes pageExitAnim { to { opacity: 0; transform: translateY(-20px) scale(0.97); filter: blur(8px); } }
+
+        /* PONSEL: baris jadi kartu bertumpuk */
+        @media (max-width: 860px) {
+            .list-head { display: none; }
+            .row { grid-template-columns: 1fr; gap: 6px; padding: 16px; }
+            header { padding: 14px 18px; }
+            .container { padding: 24px 16px 40px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <header>
+        <button class="back" onclick="navigateTo('admin.html')">← Kembali</button>
+        <strong>📜 Riwayat Login</strong>
+    </header>
+
+    <main class="container">
+
+        <section class="title">
+            <h1>Riwayat Login Member</h1>
+            <p>Catatan kapan member masuk dan keluar, serta tindakan admin (reset sesi, kunci, buka akun).</p>
+        </section>
+
+        <div id="message" class="message"></div>
+
+        <!-- Ringkasan -->
+        <section class="stats">
+            <div class="stat"><div class="num" id="statToday">-</div><div class="lbl">Login hari ini</div></div>
+            <div class="stat"><div class="num" id="statActive">-</div><div class="lbl">Sedang login sekarang</div></div>
+            <div class="stat"><div class="num" id="statShown">-</div><div class="lbl">Catatan ditampilkan</div></div>
+        </section>
+
+        <!-- Filter -->
+        <section class="filters">
+            <div>
+                <label for="fUser">Member</label>
+                <select id="fUser"><option value="">Semua member</option></select>
+            </div>
+            <div>
+                <label for="fAction">Jenis catatan</label>
+                <select id="fAction">
+                    <option value="">Semua</option>
+                    <option value="login">Masuk</option>
+                    <option value="logout">Keluar</option>
+                    <option value="reset">Reset sesi oleh admin</option>
+                    <option value="kunci">Dikunci admin</option>
+                    <option value="buka">Dibuka admin</option>
+                </select>
+            </div>
+            <div>
+                <label for="fPeriod">Periode</label>
+                <select id="fPeriod">
+                    <option value="">Semua waktu</option>
+                    <option value="today">Hari ini</option>
+                    <option value="7">7 hari terakhir</option>
+                    <option value="30">30 hari terakhir</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn primary" id="btnRefresh">🔄 Segarkan</button>
+                <button class="btn" id="btnCsv">⬇️ Unduh CSV</button>
+            </div>
+        </section>
+
+        <!-- Daftar -->
+        <div class="list-head">
+            <div>Waktu</div><div>Member</div><div>Catatan</div><div>Perangkat</div><div>Oleh</div>
+        </div>
+        <div id="rows" class="rows">
+            <div class="empty">⏳ Memuat riwayat...</div>
+        </div>
+
+        <div class="more-wrap">
+            <button class="btn" id="btnMore" style="display:none;">Muat lebih banyak</button>
+            <button class="btn danger" id="btnClean">🗑️ Bersihkan riwayat lebih dari 90 hari</button>
+        </div>
+
+        <p class="footer-note">Daftar disegarkan otomatis tiap 30 detik. Perangkat diambil dari browser saat member login.</p>
+
+    </main>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        /* ---------- Navigasi halus ---------- */
+        function navigateTo(url) {
+            document.body.classList.add("page-exit");
+            setTimeout(function () { window.location.href = url; }, 380);
+        }
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+        const PAGE_SIZE = 50;
+        let page = 0;            // halaman yang sudah dimuat (0 = belum)
+        let items = [];          // seluruh catatan yang sudah dimuat
+        let hasMore = false;
+        let loading = false;
+
+        const elRows = document.getElementById("rows");
+        const elMessage = document.getElementById("message");
+
+        /* ---------- Util ---------- */
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = value == null ? "" : String(value);
+            return div.innerHTML;
+        }
+
+        function showMessage(text, ok) {
+            elMessage.className = "message " + (ok ? "success" : "error");
+            elMessage.textContent = text;
+        }
+        function clearMessage() { elMessage.className = "message"; elMessage.textContent = ""; }
+
+        const AKSI = {
+            login:  { label: "🟢 Masuk",          cls: "b-login" },
+            logout: { label: "⚪ Keluar",         cls: "b-logout" },
+            reset:  { label: "🔄 Reset sesi",     cls: "b-reset" },
+            kunci:  { label: "🔒 Dikunci admin",  cls: "b-kunci" },
+            buka:   { label: "🔓 Dibuka admin",   cls: "b-buka" }
+        };
+
+        function ringkasPerangkat(ua) {
+            if (!ua) return "-";
+            let browser = "Browser";
+            if (/Edg\//.test(ua)) browser = "Edge";
+            else if (/OPR\//.test(ua) || /Opera/.test(ua)) browser = "Opera";
+            else if (/SamsungBrowser/.test(ua)) browser = "Samsung Internet";
+            else if (/Firefox\//.test(ua)) browser = "Firefox";
+            else if (/Chrome\//.test(ua) || /CriOS/.test(ua)) browser = "Chrome";
+            else if (/Safari\//.test(ua)) browser = "Safari";
+
+            let os = "Perangkat lain";
+            if (/Windows/.test(ua)) os = "Windows";
+            else if (/Android/.test(ua)) os = "Android";
+            else if (/iPhone/.test(ua)) os = "iPhone";
+            else if (/iPad/.test(ua)) os = "iPad";
+            else if (/Mac OS X|Macintosh/.test(ua)) os = "Mac";
+            else if (/Linux/.test(ua)) os = "Linux";
+            return browser + " • " + os;
+        }
+
+        function waktuRelatif(date) {
+            const detik = Math.floor((Date.now() - date.getTime()) / 1000);
+            if (detik < 60) return "baru saja";
+            const menit = Math.floor(detik / 60);
+            if (menit < 60) return menit + " menit lalu";
+            const jam = Math.floor(menit / 60);
+            if (jam < 24) return jam + " jam lalu";
+            const hari = Math.floor(jam / 24);
+            return hari + " hari lalu";
+        }
+
+        function formatWaktu(iso) {
+            const d = new Date(iso);
+            return {
+                tanggal: d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }),
+                jam: d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                relatif: waktuRelatif(d)
+            };
+        }
+
+        function periodeMulai() {
+            const v = document.getElementById("fPeriod").value;
+            if (!v) return null;
+            const d = new Date();
+            if (v === "today") { d.setHours(0, 0, 0, 0); return d; }
+            d.setDate(d.getDate() - Number(v));
+            return d;
+        }
+
+        /* ---------- Admin check ---------- */
+        async function checkAdmin() {
+            const { data, error } = await supabaseClient.auth.getSession();
+            if (error || !data.session) { navigateTo("index.html"); return false; }
+
+            const { data: profile, error: profileError } = await supabaseClient
+                .from("profiles").select("id, role, status")
+                .eq("id", data.session.user.id).single();
+
+            if (profileError || !profile || !(await Perm.allow(supabaseClient, profile.role, "lihat_riwayat")) || profile.status !== "open") {
+                await supabaseClient.auth.signOut({ scope: "local" });
+                navigateTo("index.html");
+                return false;
+            }
+            return true;
+        }
+
+        /* ---------- Ringkasan ---------- */
+        async function loadStats() {
+            try {
+                const awalHari = new Date(); awalHari.setHours(0, 0, 0, 0);
+
+                const r1 = await supabaseClient.from("login_history")
+                    .select("id", { count: "exact", head: true })
+                    .eq("action", "login").gte("created_at", awalHari.toISOString());
+                document.getElementById("statToday").textContent = r1.error ? "-" : (r1.count ?? 0);
+
+                const r2 = await supabaseClient.from("profiles")
+                    .select("id", { count: "exact", head: true })
+                    .eq("role", "member").eq("is_logged_in", true);
+                document.getElementById("statActive").textContent = r2.error ? "-" : (r2.count ?? 0);
+            } catch (e) {
+                console.error("STAT ERROR:", e);
+            }
+        }
+
+        /* ---------- Daftar member untuk filter ---------- */
+        async function loadMembersFilter() {
+            const { data, error } = await supabaseClient
+                .from("profiles").select("id, nama, username")
+                .eq("role", "member").order("nama", { ascending: true });
+            if (error || !data) { console.error(error); return; }
+
+            const sel = document.getElementById("fUser");
+            data.forEach(function (m) {
+                const opt = document.createElement("option");
+                opt.value = m.id;
+                opt.dataset.username = m.username || "";
+                opt.textContent = (m.nama || "Tanpa nama") + " (@" + (m.username || "-") + ")";
+                sel.appendChild(opt);
+            });
+
+            // ?u=username dari tombol Riwayat di halaman Kelola Member
+            const u = new URLSearchParams(window.location.search).get("u");
+            if (u) {
+                const target = Array.from(sel.options).find(function (o) { return o.dataset.username === u; });
+                if (target) sel.value = target.value;
+            }
+        }
+
+        /* ---------- Muat catatan ---------- */
+        async function loadHistory(reset, silent) {
+            if (loading) return;
+            loading = true;
+
+            if (reset) { page = 0; items = []; }
+            if (reset && !silent) elRows.innerHTML = '<div class="empty">⏳ Memuat riwayat...</div>';
+
+            const from = page * PAGE_SIZE;
+            const to = from + PAGE_SIZE - 1;
+
+            let q = supabaseClient.from("login_history").select("*")
+                .order("created_at", { ascending: false }).range(from, to);
+
+            const fUser = document.getElementById("fUser").value;
+            const fAction = document.getElementById("fAction").value;
+            const since = periodeMulai();
+            if (fUser) q = q.eq("user_id", fUser);
+            if (fAction) q = q.eq("action", fAction);
+            if (since) q = q.gte("created_at", since.toISOString());
+
+            const { data, error } = await q;
+            loading = false;
+
+            if (error) {
+                console.error("HISTORY ERROR:", error);
+                if (!silent) {
+                    elRows.innerHTML = '<div class="empty">❌ Gagal memuat riwayat.<br><br>' + escapeHTML(error.message) +
+                        '<br><br>Pastikan file riwayat-login.sql sudah dijalankan di Supabase.</div>';
+                }
+                return;
+            }
+
+            clearMessage();
+            const batch = data || [];
+            items = items.concat(batch);
+            hasMore = batch.length === PAGE_SIZE;
+            page += 1;
+            render();
+        }
+
+        function render() {
+            document.getElementById("statShown").textContent = items.length;
+            document.getElementById("btnMore").style.display = hasMore ? "" : "none";
+
+            if (items.length === 0) {
+                elRows.innerHTML = '<div class="empty">📭 Belum ada catatan untuk filter ini.</div>';
+                return;
+            }
+
+            elRows.innerHTML = "";
+            items.forEach(function (it) {
+                const w = formatWaktu(it.created_at);
+                const a = AKSI[it.action] || { label: it.action, cls: "b-logout" };
+                const adminAction = it.action === "reset" || it.action === "kunci" || it.action === "buka";
+
+                const row = document.createElement("div");
+                row.className = "row";
+                row.innerHTML =
+                    '<div class="time"><b>' + escapeHTML(w.tanggal) + ' ' + escapeHTML(w.jam) + '</b><span>' + escapeHTML(w.relatif) + '</span></div>' +
+                    '<div class="who"><b>' + escapeHTML(it.nama || "Tanpa nama") + '</b><span>@' + escapeHTML(it.username || "-") + '</span></div>' +
+                    '<div><span class="badge ' + a.cls + '">' + escapeHTML(a.label) + '</span></div>' +
+                    '<div class="dev">' + (adminAction ? '<span class="by">-</span>' : escapeHTML(ringkasPerangkat(it.device))) + '</div>' +
+                    '<div class="by">' + (it.actor_username ? 'admin: ' + escapeHTML(it.actor_username) : '-') + '</div>';
+                elRows.appendChild(row);
+            });
+        }
+
+        /* ---------- CSV ---------- */
+        function csvCell(v) {
+            const s = v == null ? "" : String(v);
+            return '"' + s.replace(/"/g, '""') + '"';
+        }
+
+        function unduhCsv() {
+            if (items.length === 0) { showMessage("Belum ada data untuk diunduh.", false); return; }
+            const head = ["Waktu", "Nama", "Username", "Catatan", "Perangkat", "Admin"];
+            const lines = [head.map(csvCell).join(",")];
+            items.forEach(function (it) {
+                const a = AKSI[it.action] ? AKSI[it.action].label.replace(/^\S+\s/, "") : it.action;
+                lines.push([
+                    new Date(it.created_at).toLocaleString("id-ID"),
+                    it.nama, it.username, a, ringkasPerangkat(it.device), it.actor_username
+                ].map(csvCell).join(","));
+            });
+            const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "riwayat-login-" + new Date().toISOString().slice(0, 10) + ".csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        /* ---------- Bersihkan riwayat lama ---------- */
+        async function bersihkanLama() {
+            if (!confirm("Hapus semua catatan yang lebih lama dari 90 hari? Tindakan ini tidak bisa dibatalkan.")) return;
+            const batas = new Date(); batas.setDate(batas.getDate() - 90);
+
+            const { error } = await supabaseClient.from("login_history")
+                .delete().lt("created_at", batas.toISOString());
+
+            if (error) { showMessage("Gagal membersihkan: " + error.message, false); return; }
+            showMessage("Catatan lebih dari 90 hari sudah dibersihkan.", true);
+            await loadHistory(true);
+            loadStats();
+        }
+
+        /* ---------- Event ---------- */
+        ["fUser", "fAction", "fPeriod"].forEach(function (id) {
+            document.getElementById(id).addEventListener("change", function () { loadHistory(true); });
+        });
+        document.getElementById("btnRefresh").addEventListener("click", function () { loadHistory(true); loadStats(); });
+        document.getElementById("btnMore").addEventListener("click", function () { loadHistory(false); });
+        document.getElementById("btnCsv").addEventListener("click", unduhCsv);
+        document.getElementById("btnClean").addEventListener("click", bersihkanLama);
+
+        window.addEventListener("pageshow", function (event) {
+            document.body.classList.remove("page-exit");
+            if (event.persisted) checkAdmin();
+        });
+
+        supabaseClient.auth.onAuthStateChange(function (event) {
+            if (event === "SIGNED_OUT") navigateTo("index.html");
+        });
+
+        /* ---------- Mulai ---------- */
+        async function start() {
+            const ok = await checkAdmin();
+            if (!ok) return;
+
+            await loadMembersFilter();
+            await loadHistory(true);
+            loadStats();
+
+            // Segarkan otomatis (hanya jika tab terlihat dan belum memuat halaman tambahan)
+            setInterval(function () {
+                if (document.visibilityState === "visible" && page <= 1) {
+                    loadHistory(true, true);
+                    loadStats();
+                }
+            }, 30000);
+        }
+
+        start();
+    </script>
+</body>
+</html>
