@@ -14,7 +14,7 @@ window.SingleSession = (function () {
     const ENFORCE = true;
 
     const KEY = "portal_session_token";
-    const LOGIN_PAGE = "login-member.html";
+    const LOGIN_PAGE = "index.html";
     let timer = null;
     let ended = false;
 
@@ -35,7 +35,7 @@ window.SingleSession = (function () {
         return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
     }
 
-    // Dipanggil di login-member.js SETELAH signIn berhasil.
+    // Dipanggil di login.js SETELAH signIn berhasil.
     // Mengembalikan kode dari database:
     //   "ok" = sesi berhasil diklaim
     //   "active" = akun masih aktif di tab/perangkat lain
@@ -44,7 +44,7 @@ window.SingleSession = (function () {
     async function claim(client) {
         if (!ENFORCE) { sessionStorage.setItem(KEY, "off"); return "ok"; }
         const token = makeUUID();
-        const { data, error } = await client.rpc("claim_login", { p_token: token });
+        const { data, error } = await client.rpc("claim_login", { p_token: token, p_device: (navigator.userAgent || "").slice(0, 300) });
         if (error) throw error;
         if (data === "ok") sessionStorage.setItem(KEY, token);
         return data;
@@ -123,3 +123,18 @@ window.SingleSession = (function () {
     return { claim, release, isValid, guard, getToken, createClient };
 })();
 
+
+/* IZIN PERAN: admin selalu boleh; moderator mengikuti pengaturan admin (tabel role_permissions) */
+window.Perm = (function () {
+    const cache = {};
+    async function allow(client, role, key) {
+        role = String(role || "").toLowerCase();
+        if (role === "admin") return true;
+        if (role !== "moderator") return false;
+        if (Object.prototype.hasOwnProperty.call(cache, key)) return cache[key];
+        const { data, error } = await client.rpc("has_permission", { p_key: key });
+        cache[key] = !error && data === true;
+        return cache[key];
+    }
+    return { allow };
+})();
