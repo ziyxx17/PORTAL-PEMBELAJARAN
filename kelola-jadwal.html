@@ -1057,7 +1057,7 @@ function escapeHTML(value) {
 async function checkAdmin() {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error || !data || !data.session) {
-        location.href = "login-admin.html";
+        location.href = "index.html";
         return false;
     }
     const session = data.session;
@@ -1067,9 +1067,9 @@ async function checkAdmin() {
         .eq("id", session.user.id)
         .single();
 
-    if (profileError || !profile || profile.role !== "admin" || profile.status !== "open") {
+    if (profileError || !profile || !(await Perm.allow(supabaseClient, profile.role, "kelola_jadwal")) || profile.status !== "open") {
         await supabaseClient.auth.signOut();
-        location.href = "login-admin.html";
+        location.href = "index.html";
         return false;
     }
     return true;
@@ -1468,7 +1468,7 @@ document.addEventListener("keydown", event => {
 
 supabaseClient.auth.onAuthStateChange(event => {
     if (event === "SIGNED_OUT") {
-        location.href = "login-admin.html";
+        location.href = "index.html";
     }
 });
 
