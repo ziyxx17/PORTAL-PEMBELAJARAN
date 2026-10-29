@@ -698,15 +698,15 @@
 
         async function checkAdmin() {
             const { data: { session }, error } = await supabaseClient.auth.getSession();
-            if (error || !session) { navigateTo("login-admin.html"); return null; }
+            if (error || !session) { navigateTo("index.html"); return null; }
             
             currentAdminId = session.user.id;
             const { data: profile, error: profileError } = await supabaseClient
                 .from("profiles").select("id, role, status").eq("id", currentAdminId).maybeSingle();
 
-            if (profileError || !profile || profile.role !== "admin" || profile.status !== "open") {
+            if (profileError || !profile || !(await Perm.allow(supabaseClient, profile.role, "kelola_pengumuman")) || profile.status !== "open") {
                 await supabaseClient.auth.signOut();
-                navigateTo("login-admin.html");
+                navigateTo("index.html");
                 return null;
             }
             return profile;
@@ -876,7 +876,7 @@
         deleteModal.addEventListener("click", (e) => { if (e.target === deleteModal) closeDeleteModal(); });
         document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDeleteModal(); });
 
-        supabaseClient.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") navigateTo("login-admin.html"); });
+        supabaseClient.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") navigateTo("index.html"); });
 
         async function start() {
             const profile = await checkAdmin();
