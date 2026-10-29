@@ -509,6 +509,24 @@
                 </div>
             </button>
 
+            <!-- Riwayat Login -->
+            <button class="menu-button" id="historyButton">
+                <div class="menu-icon">📜</div>
+                <div class="menu-title">Riwayat Login</div>
+                <div class="menu-description">
+                    Lihat kapan member masuk, keluar, dan tindakan reset oleh admin.
+                </div>
+            </button>
+
+            <!-- Pengaturan Akun & Izin Peran (khusus admin) -->
+            <button class="menu-button" id="permButton">
+                <div class="menu-icon">🛡️</div>
+                <div class="menu-title">Pengaturan Akun</div>
+                <div class="menu-description">
+                    Atur apa saja yang boleh dilakukan Moderator.
+                </div>
+            </button>
+
             <!-- Pengaturan Admin -->
             <button class="menu-button" id="adminSettingsButton">
                 <div class="menu-icon">⚙️</div>
@@ -574,13 +592,31 @@
             box.className = error ? "system-error" : "system-status";
         }
 
+        /* Sembunyikan menu yang tidak diizinkan untuk Moderator */
+        async function applyRoleMenu(role) {
+            const map = {
+                memberButton: "kelola_member", subjectButton: "kelola_mapel", scheduleButton: "kelola_jadwal",
+                materialButton: "kelola_materi", announcementButton: "kelola_pengumuman",
+                statisticsButton: "lihat_statistik", historyButton: "lihat_riwayat"
+            };
+            for (const id in map) {
+                const el = document.getElementById(id);
+                if (el && !(await Perm.allow(supabaseClient, role, map[id]))) el.style.display = "none";
+            }
+            if (role !== "admin") {
+                ["adminSettingsButton", "permButton"].forEach(function (id) {
+                    const el = document.getElementById(id); if (el) el.style.display = "none";
+                });
+            }
+        }
+
         async function checkAdmin() {
             try {
                 const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
                 if (sessionError || !session) {
                     console.warn("Session admin tidak ditemukan.");
-                    navigateTo("login-admin.html");
+                    navigateTo("index.html");
                     return null;
                 }
 
@@ -596,25 +632,26 @@
                 if (profileError || !profile) {
                     console.error("PROFILE ERROR:", profileError);
                     await supabaseClient.auth.signOut();
-                    navigateTo("login-admin.html");
+                    navigateTo("index.html");
                     return null;
                 }
 
-                if (profile.role !== "admin") {
+                if (profile.role !== "admin" && profile.role !== "moderator") {
                     console.warn("User bukan admin.");
                     await supabaseClient.auth.signOut();
-                    navigateTo("login-admin.html");
+                    navigateTo("index.html");
                     return null;
                 }
 
                 if (profile.status !== "open") {
                     console.warn("Akun admin sedang dikunci.");
                     await supabaseClient.auth.signOut();
-                    navigateTo("login-admin.html");
+                    navigateTo("index.html");
                     return null;
                 }
 
                 currentAdminProfile = profile;
+                await applyRoleMenu(profile.role);
                 const welcomeName = document.getElementById("welcomeName");
                 if (welcomeName) {
                     welcomeName.textContent = "Selamat datang, " + (profile.nama || profile.username || "Admin") + "!";
@@ -626,7 +663,7 @@
             } catch (error) {
                 console.error("CHECK ADMIN ERROR:", error);
                 showSystemMessage("🔴 Terjadi kesalahan saat memeriksa akun admin.", true);
-                navigateTo("login-admin.html");
+                navigateTo("index.html");
                 return null;
             }
         }
@@ -649,6 +686,8 @@
         document.getElementById("announcementButton").addEventListener("click", announcementMenu);
         document.getElementById("statisticsButton").addEventListener("click", statisticsMenu);
         document.getElementById("adminSettingsButton").addEventListener("click", adminSettingsMenu);
+        document.getElementById("historyButton").addEventListener("click", function () { navigateTo("riwayat-login.html"); });
+        document.getElementById("permButton").addEventListener("click", function () { navigateTo("izin-peran.html"); });
 
         /* =====================================================
            LOGOUT LOGIC
