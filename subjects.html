@@ -729,7 +729,7 @@ async function checkLogin() {
     const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
     if (sessionError || !session) {
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
@@ -744,7 +744,7 @@ async function checkLogin() {
     if (error || !profile) {
         console.error("PROFILE ERROR:", error);
         await supabaseClient.auth.signOut({ scope: "local" });
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
@@ -753,14 +753,14 @@ async function checkLogin() {
     if (profile.status !== "open") {
         await supabaseClient.auth.signOut({ scope: "local" });
         alert("Akun kamu sedang dikunci atau tidak aktif.");
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
-    if (profile.role === "admin") {
+    if (profile.role === "admin" || profile.role === "moderator") {
         isAdmin = true;
         roleInfo.innerHTML =
-            "👑 <strong>Mode Admin</strong><br>" +
+            "👑 <strong>Mode " + (profile.role === "moderator" ? "Moderator" : "Admin") + "</strong><br>" +
             "Klik mata pelajaran untuk melihat materi. Kamu juga dapat mengelola mata pelajaran.";
         adminAddBox.style.display = "block";
     } else if (profile.role === "member") {
@@ -771,7 +771,7 @@ async function checkLogin() {
     } else {
         await supabaseClient.auth.signOut({ scope: "local" });
         alert("Role akun tidak dikenali.");
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
@@ -1101,7 +1101,7 @@ document.addEventListener("keydown", function(event) {
 
 supabaseClient.auth.onAuthStateChange(function(event) {
     if (event === "SIGNED_OUT") {
-        location.href = "login-member.html";
+        location.href = "index.html";
     }
 });
 
