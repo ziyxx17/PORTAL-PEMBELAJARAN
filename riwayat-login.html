@@ -181,6 +181,8 @@
             line-height: 1.6;
         }
 
+        .selbox { width: 18px; height: 18px; margin-right: 8px; vertical-align: middle; accent-color: #ef4444; }
+        #selectBar.on { display: flex !important; }
         .more-wrap { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
         .footer-note { color: #64748b; font-size: 12.5px; text-align: center; margin-top: 18px; line-height: 1.6; }
 
@@ -238,6 +240,14 @@
                 <select id="fUser"><option value="">Semua member</option></select>
             </div>
             <div>
+                <label for="fRole">Peran</label>
+                <select id="fRole">
+                    <option value="">Member &amp; Moderator</option>
+                    <option value="member">Member</option>
+                    <option value="moderator">Moderator</option>
+                </select>
+            </div>
+            <div>
                 <label for="fAction">Jenis catatan</label>
                 <select id="fAction">
                     <option value="">Semua</option>
@@ -263,6 +273,30 @@
             </div>
         </section>
 
+        <!-- Panel pengelolaan riwayat (khusus Admin) -->
+        <section class="filters" id="adminPanel" style="display:none;">
+            <div>
+                <label for="fRetention">🕒 Hapus otomatis riwayat yang lebih lama dari</label>
+                <select id="fRetention">
+                    <option value="0">Tidak dihapus otomatis</option>
+                    <option value="1">1 hari</option>
+                    <option value="7">1 minggu</option>
+                    <option value="14">2 minggu</option>
+                    <option value="30">1 bulan</option>
+                    <option value="90">3 bulan</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn danger" id="btnSelectMode">☑️ Pilih &amp; hapus</button>
+                <button class="btn danger" id="btnDeleteAll">🗑️ Hapus semua</button>
+            </div>
+            <div id="selectBar" style="display:none; grid-column: 1 / -1; gap:10px; flex-wrap:wrap; align-items:center;">
+                <button class="btn" id="btnSelectAll">Pilih semua yang tampil</button>
+                <button class="btn danger" id="btnDeleteSel">Hapus terpilih (0)</button>
+                <button class="btn" id="btnCancelSel">Batal</button>
+            </div>
+        </section>
+
         <!-- Daftar -->
         <div class="list-head">
             <div>Waktu</div><div>Member</div><div>Catatan</div><div>Perangkat</div><div>Oleh</div>
@@ -273,10 +307,9 @@
 
         <div class="more-wrap">
             <button class="btn" id="btnMore" style="display:none;">Muat lebih banyak</button>
-            <button class="btn danger" id="btnClean">🗑️ Bersihkan riwayat lebih dari 90 hari</button>
         </div>
 
-        <p class="footer-note">Daftar disegarkan otomatis tiap 30 detik. Perangkat diambil dari browser saat member login.</p>
+        <p class="footer-note">Daftar disegarkan otomatis tiap 30 detik. Mencatat login Member dan Moderator. Perangkat diambil dari browser saat member login.</p>
 
     </main>
 
@@ -290,13 +323,15 @@
             setTimeout(function () { window.location.href = url; }, 380);
         }
 
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 
         const PAGE_SIZE = 50;
         let page = 0;            // halaman yang sudah dimuat (0 = belum)
         let items = [];          // seluruh catatan yang sudah dimuat
         let hasMore = false;
         let loading = false;
+        let selectMode = false;
+        const selected = new Set();
 
         const elRows = document.getElementById("rows");
         const elMessage = document.getElementById("message");
@@ -385,6 +420,7 @@
                 navigateTo("index.html");
                 return false;
             }
+            window.currentRole = profile.role;
             return true;
         }
 
@@ -400,7 +436,7 @@
 
                 const r2 = await supabaseClient.from("profiles")
                     .select("id", { count: "exact", head: true })
-                    .eq("role", "member").eq("is_logged_in", true);
+                    .in("role", ["member", "moderator"]).eq("is_logged_in", true);
                 document.getElementById("statActive").textContent = r2.error ? "-" : (r2.count ?? 0);
             } catch (e) {
                 console.error("STAT ERROR:", e);
@@ -450,6 +486,8 @@
             const since = periodeMulai();
             if (fUser) q = q.eq("user_id", fUser);
             if (fAction) q = q.eq("action", fAction);
+            const fRole = document.getElementById("fRole").value;
+            if (fRole) q = q.eq("role", fRole);
             if (since) q = q.gte("created_at", since.toISOString());
 
             const { data, error } = await q;
@@ -490,8 +528,8 @@
                 const row = document.createElement("div");
                 row.className = "row";
                 row.innerHTML =
-                    '<div class="time"><b>' + escapeHTML(w.tanggal) + ' ' + escapeHTML(w.jam) + '</b><span>' + escapeHTML(w.relatif) + '</span></div>' +
-                    '<div class="who"><b>' + escapeHTML(it.nama || "Tanpa nama") + '</b><span>@' + escapeHTML(it.username || "-") + '</span></div>' +
+                    '<div class="time">' + (selectMode ? '<input type="checkbox" class="selbox" data-id="' + it.id + '"' + (selected.has(it.id) ? ' checked' : '') + '>' : '') + '<b style="display:inline">' + escapeHTML(w.tanggal) + ' ' + escapeHTML(w.jam) + '</b><span style="display:block">' + escapeHTML(w.relatif) + '</span></div>' +
+                    '<div class="who"><b>' + escapeHTML(it.nama || "Tanpa nama") + '</b><span>@' + escapeHTML(it.username || "-") + (it.role === "moderator" ? " · Moderator" : it.role === "member" ? " · Member" : "") + '</span></div>' +
                     '<div><span class="badge ' + a.cls + '">' + escapeHTML(a.label) + '</span></div>' +
                     '<div class="dev">' + (adminAction ? '<span class="by">-</span>' : escapeHTML(ringkasPerangkat(it.device))) + '</div>' +
                     '<div class="by">' + (it.actor_username ? 'admin: ' + escapeHTML(it.actor_username) : '-') + '</div>';
@@ -527,28 +565,85 @@
             URL.revokeObjectURL(url);
         }
 
-        /* ---------- Bersihkan riwayat lama ---------- */
-        async function bersihkanLama() {
-            if (!confirm("Hapus semua catatan yang lebih lama dari 90 hari? Tindakan ini tidak bisa dibatalkan.")) return;
-            const batas = new Date(); batas.setDate(batas.getDate() - 90);
+        /* ---------- Pengelolaan riwayat (Admin) ---------- */
+        async function loadRetention() {
+            const { data } = await supabaseClient.from("app_settings").select("value").eq("key", "history_retention_days").maybeSingle();
+            document.getElementById("fRetention").value = String((data && data.value) || "0");
+        }
 
-            const { error } = await supabaseClient.from("login_history")
-                .delete().lt("created_at", batas.toISOString());
+        async function saveRetention() {
+            const v = document.getElementById("fRetention").value;
+            const { error } = await supabaseClient.from("app_settings").upsert({ key: "history_retention_days", value: v }, { onConflict: "key" });
+            if (error) { showMessage("Gagal menyimpan pengaturan: " + error.message, false); return; }
+            if (v === "0") { showMessage("Penghapusan otomatis dimatikan.", true); return; }
+            const { data: n } = await supabaseClient.rpc("purge_login_history");
+            showMessage("Tersimpan. Riwayat lebih lama dari " + document.getElementById("fRetention").selectedOptions[0].text + " akan dihapus otomatis." + (n ? " (" + n + " catatan lama dihapus sekarang)" : ""), true);
+            await loadHistory(true); loadStats();
+        }
 
-            if (error) { showMessage("Gagal membersihkan: " + error.message, false); return; }
-            showMessage("Catatan lebih dari 90 hari sudah dibersihkan.", true);
-            await loadHistory(true);
-            loadStats();
+        function updateSelectUi() {
+            document.getElementById("btnDeleteSel").textContent = "Hapus terpilih (" + selected.size + ")";
+            document.getElementById("btnDeleteSel").disabled = selected.size === 0;
+        }
+
+        function setSelectMode(on) {
+            selectMode = on;
+            selected.clear();
+            document.getElementById("selectBar").classList.toggle("on", on);
+            document.getElementById("btnSelectMode").style.display = on ? "none" : "";
+            updateSelectUi();
+            render();
+        }
+
+        async function hapusIds(ids) {
+            for (let i = 0; i < ids.length; i += 100) {
+                const { error } = await supabaseClient.from("login_history").delete().in("id", ids.slice(i, i + 100));
+                if (error) throw error;
+            }
+        }
+
+        async function hapusTerpilih() {
+            if (selected.size === 0) return;
+            if (!confirm("Hapus " + selected.size + " catatan terpilih? Tidak bisa dibatalkan.")) return;
+            try {
+                await hapusIds(Array.from(selected));
+                showMessage(selected.size + " catatan dihapus.", true);
+                setSelectMode(false);
+                await loadHistory(true); loadStats();
+            } catch (e) { showMessage("Gagal menghapus: " + e.message, false); }
+        }
+
+        async function hapusSemua() {
+            if (prompt("Ini akan menghapus SEMUA riwayat login member dan moderator.\nKetik HAPUS untuk melanjutkan:") !== "HAPUS") return;
+            const { error } = await supabaseClient.from("login_history").delete().gt("id", 0);
+            if (error) { showMessage("Gagal menghapus: " + error.message, false); return; }
+            showMessage("Semua riwayat login sudah dihapus.", true);
+            setSelectMode(false);
+            await loadHistory(true); loadStats();
         }
 
         /* ---------- Event ---------- */
-        ["fUser", "fAction", "fPeriod"].forEach(function (id) {
+        ["fUser", "fRole", "fAction", "fPeriod"].forEach(function (id) {
             document.getElementById(id).addEventListener("change", function () { loadHistory(true); });
         });
         document.getElementById("btnRefresh").addEventListener("click", function () { loadHistory(true); loadStats(); });
         document.getElementById("btnMore").addEventListener("click", function () { loadHistory(false); });
         document.getElementById("btnCsv").addEventListener("click", unduhCsv);
-        document.getElementById("btnClean").addEventListener("click", bersihkanLama);
+        document.getElementById("fRetention").addEventListener("change", saveRetention);
+        document.getElementById("btnSelectMode").addEventListener("click", function () { setSelectMode(true); });
+        document.getElementById("btnCancelSel").addEventListener("click", function () { setSelectMode(false); });
+        document.getElementById("btnDeleteSel").addEventListener("click", hapusTerpilih);
+        document.getElementById("btnDeleteAll").addEventListener("click", hapusSemua);
+        document.getElementById("btnSelectAll").addEventListener("click", function () {
+            items.forEach(function (it) { selected.add(it.id); });
+            updateSelectUi(); render();
+        });
+        elRows.addEventListener("change", function (e) {
+            if (!e.target.classList.contains("selbox")) return;
+            const id = Number(e.target.dataset.id);
+            if (e.target.checked) selected.add(id); else selected.delete(id);
+            updateSelectUi();
+        });
 
         window.addEventListener("pageshow", function (event) {
             document.body.classList.remove("page-exit");
@@ -568,9 +663,15 @@
             await loadHistory(true);
             loadStats();
 
+            if (window.currentRole === "admin") {
+                document.getElementById("adminPanel").style.display = "";
+                loadRetention();
+                supabaseClient.rpc("purge_login_history");
+            }
+
             // Segarkan otomatis (hanya jika tab terlihat dan belum memuat halaman tambahan)
             setInterval(function () {
-                if (document.visibilityState === "visible" && page <= 1) {
+                if (document.visibilityState === "visible" && page <= 1 && !selectMode) {
                     loadHistory(true, true);
                     loadStats();
                 }
