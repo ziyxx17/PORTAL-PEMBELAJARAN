@@ -516,6 +516,12 @@ header {
         </div>
 
         <div class="stat-card">
+            <div class="stat-icon">🛠️</div>
+            <div class="stat-number" id="totalModerators">0</div>
+            <div class="stat-label">Total Moderator</div>
+        </div>
+
+        <div class="stat-card">
             <div class="stat-icon">🔓</div>
             <div class="stat-number" id="openAccounts">0</div>
             <div class="stat-label">Akun Aktif</div>
@@ -568,10 +574,7 @@ header {
 ===================================================== */
 
 const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
+    window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
 
 
 /* =====================================================
@@ -767,6 +770,7 @@ async function loadStatistics() {
         const total = profiles?.length || 0;
         const members = (profiles || []).filter(p => p.role === "member").length;
         const admins = (profiles || []).filter(p => p.role === "admin").length;
+        const moderators = (profiles || []).filter(p => p.role === "moderator").length;
         const openAccounts = (profiles || []).filter(p => p.status === "open").length;
         const lockedAccounts = (profiles || []).filter(p => p.status !== "open").length;
 
@@ -786,6 +790,7 @@ async function loadStatistics() {
         document.getElementById("onlineUsers").textContent = online;
         document.getElementById("totalMembers").textContent = members;
         document.getElementById("totalAdmins").textContent = admins;
+        document.getElementById("totalModerators").textContent = moderators;
         document.getElementById("openAccounts").textContent = openAccounts;
         document.getElementById("lockedAccounts").textContent = lockedAccounts;
         document.getElementById("totalSubjects").textContent = subjectCount ?? 0;
