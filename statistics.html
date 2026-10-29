@@ -663,7 +663,7 @@ async function checkAdmin() {
         const { data: { session }, error } = await supabaseClient.auth.getSession();
 
         if (error || !session || !session.user) {
-            window.location.href = "login-admin.html";
+            window.location.href = "index.html";
             return null;
         }
 
@@ -675,17 +675,17 @@ async function checkAdmin() {
             .eq("id", currentAdminId)
             .maybeSingle();
 
-        if (profileError || !profile || profile.role !== "admin" || profile.status !== "open") {
+        if (profileError || !profile || !(await Perm.allow(supabaseClient, profile.role, "lihat_statistik")) || profile.status !== "open") {
             console.error("PROFILE ERROR:", profileError);
             await supabaseClient.auth.signOut();
-            window.location.href = "login-admin.html";
+            window.location.href = "index.html";
             return null;
         }
 
         return profile;
     } catch (error) {
         console.error("CHECK ADMIN ERROR:", error);
-        window.location.href = "login-admin.html";
+        window.location.href = "index.html";
         return null;
     }
 }
