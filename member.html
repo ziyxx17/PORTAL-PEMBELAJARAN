@@ -707,7 +707,7 @@ async function checkLogin() {
     const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
     if (sessionError || !session) {
-        window.location.href = "login-member.html";
+        window.location.href = "index.html";
         return null;
     }
 
@@ -726,7 +726,7 @@ async function checkLogin() {
 
     if (!profile) {
         await supabaseClient.auth.signOut({ scope: "local" });
-        window.location.href = "login-member.html";
+        window.location.href = "index.html";
         return null;
     }
 
@@ -735,7 +735,7 @@ async function checkLogin() {
 
     if (role !== "member" || status !== "open") {
         await supabaseClient.auth.signOut({ scope: "local" });
-        window.location.href = "login-member.html";
+        window.location.href = "index.html";
         return null;
     }
 
@@ -846,14 +846,14 @@ document.getElementById("logoutButton").addEventListener("click", async function
     try { await supabaseClient.auth.signOut({ scope: "local" }); }
     catch (error) { console.error("Logout:", error); }
 
-    window.location.href = "login-member.html";
+    window.location.href = "index.html";
 });
 
 document.getElementById("lockedButton").addEventListener("click", async function() {
     try { await supabaseClient.auth.signOut({ scope: "local" }); }
     catch (error) { console.error("Locked logout:", error); }
     
-    window.location.href = "login-member.html";
+    window.location.href = "index.html";
 });
 
 // EVENT VISIBILITY CHANGE (SAAT PINDAH TAB & KEMBALI AKAN TETAP AMAN)
