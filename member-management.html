@@ -222,6 +222,19 @@
             font-family: inherit;
         }
 
+        select {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: #f8fafc;
+        }
+        select option { background: #1e293b; color: #f8fafc; }
+
         .add-button {
             border: none;
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -404,6 +417,19 @@
             background: #10b981;
             color: #ffffff;
             border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        .history {
+            background: rgba(148, 163, 184, 0.14);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .history:hover {
+            background: #64748b;
+            color: #ffffff;
+            border-color: #64748b;
             transform: translateY(-2px);
         }
 
@@ -717,6 +743,10 @@
                     <input type="text" id="nama" placeholder="Nama lengkap" required>
                     <input type="text" id="username" placeholder="Username" required>
                     <input type="password" id="password" placeholder="Password" minlength="6" required>
+                    <select id="roleNew" style="display:none;">
+                        <option value="member">Peran: Member</option>
+                        <option value="moderator">Peran: Moderator</option>
+                    </select>
                     <button type="submit" class="add-button">
                         Tambah Member
                     </button>
@@ -866,7 +896,7 @@
             const { data, error } = await supabaseClient.auth.getSession();
 
             if (error || !data.session) {
-                navigateTo("login-admin.html");
+                navigateTo("index.html");
                 return false;
             }
 
@@ -879,14 +909,18 @@
             if (
                 profileError ||
                 !profile ||
-                profile.role !== "admin" ||
+                !(await Perm.allow(supabaseClient, profile.role, "kelola_member")) ||
                 profile.status !== "open"
             ) {
                 await supabaseClient.auth.signOut();
-                navigateTo("login-admin.html");
+                navigateTo("index.html");
                 return false;
             }
 
+            window.currentRole = profile.role;
+            window.canDelete = await Perm.allow(supabaseClient, profile.role, "hapus_member");
+            const roleSel = document.getElementById("roleNew");
+            if (roleSel && profile.role === "admin") roleSel.style.display = "";
             return true;
         }
 
@@ -896,7 +930,7 @@
         async function getAccessToken() {
             const { data, error } = await supabaseClient.auth.getSession();
             if (error || !data.session) {
-                navigateTo("login-admin.html");
+                navigateTo("index.html");
                 return null;
             }
             return data.session.access_token;
@@ -956,8 +990,8 @@
 
             const { data, error } = await supabaseClient
                 .from("profiles")
-                .select("id, nama, username, status, is_logged_in")
-                .eq("role", "member")
+                .select("id, nama, username, status, is_logged_in, role")
+                .in("role", window.currentRole === "admin" ? ["member", "moderator"] : ["member"])
                 .order("nama", { ascending: true });
 
             if (error) {
@@ -996,7 +1030,7 @@
                 card.innerHTML = `
                     <div class="member-info">
                         <div class="member-name">
-                            ${escapeHTML(member.nama || "Tanpa nama")}
+                            ${escapeHTML(member.nama || "Tanpa nama")}${member.role === "moderator" ? ' <span style="font-size:11px;font-weight:700;color:#c084fc;border:1px solid rgba(168,85,247,.4);border-radius:12px;padding:2px 8px;margin-left:6px;">Moderator</span>' : ""}
                         </div>
                         <div class="username">
                             @${escapeHTML(member.username || "-")}
@@ -1019,7 +1053,10 @@
                         <button class="${locked ? "unlock" : "lock"}" data-action="toggle-status">
                             ${locked ? "🔓 Buka" : "🔒 Kunci"}
                         </button>
-                        <button class="delete" data-action="delete">
+                        <button class="history" data-action="history">
+                            📜 Riwayat
+                        </button>
+                        <button class="delete" data-action="delete" ${window.canDelete === false ? 'style="display:none"' : ""}>
                             🗑️ Hapus
                         </button>
                     </div>
@@ -1029,6 +1066,9 @@
                 card.querySelector('[data-action="reset"]').addEventListener("click", () => resetMemberSession(member.id, member.nama));
                 card.querySelector('[data-action="toggle-status"]').addEventListener("click", () =>
                     toggleStatus(member.id, member.status, member.nama)
+                );
+                card.querySelector('[data-action="history"]').addEventListener("click", () =>
+                    navigateTo("riwayat-login.html?u=" + encodeURIComponent(member.username || ""))
                 );
                 card.querySelector('[data-action="delete"]').addEventListener("click", () =>
                     deleteMember(member.id, member.nama)
@@ -1301,6 +1341,7 @@
             try {
                 await callManageMember({
                     action: "create",
+                    role: (document.getElementById("roleNew") || {}).value || "member",
                     nama: nama,
                     username: username,
                     password: password
@@ -1331,7 +1372,7 @@
         ===================================================== */
         supabaseClient.auth.onAuthStateChange(event => {
             if (event === "SIGNED_OUT") {
-                navigateTo("login-admin.html");
+                navigateTo("index.html");
             }
         });
 
