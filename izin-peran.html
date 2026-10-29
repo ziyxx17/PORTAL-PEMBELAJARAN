@@ -246,7 +246,7 @@
             document.body.classList.add("page-exit");
             setTimeout(function () { window.location.href = url; }, 380);
         }
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
         const elMessage = document.getElementById("message");
         const elList = document.getElementById("permList");
 
