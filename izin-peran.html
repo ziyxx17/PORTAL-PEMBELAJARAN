@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Akun - Portal Pembelajaran</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            position: relative;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .ambient-bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; will-change: transform; }
+        .orb-1 { width: 500px; height: 500px; background: #8b5cf6; top: -150px; right: -100px; animation: orbFloat1 25s ease-in-out infinite alternate; }
+        .orb-2 { width: 450px; height: 450px; background: #3b82f6; bottom: -150px; left: -100px; animation: orbFloat2 20s ease-in-out infinite alternate; }
+
+        header {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .back:hover { background: rgba(255, 255, 255, 0.15); transform: translateX(-3px); }
+        header strong { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+
+        .container { max-width: 1100px; margin: auto; padding: 36px 24px 60px; position: relative; z-index: 1; }
+
+        .title { margin-bottom: 24px; }
+        .title h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+        .title p { color: #94a3b8; font-size: 14.5px; line-height: 1.6; }
+
+        .message { padding: 14px 18px; border-radius: 14px; margin-bottom: 20px; display: none; font-size: 14px; font-weight: 600; line-height: 1.5; }
+        .message.error { display: block; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .message.success { display: block; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; }
+
+        /* KARTU STATISTIK */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+        .stat {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px 20px;
+        }
+        .stat .num { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+        .stat .lbl { color: #94a3b8; font-size: 13px; margin-top: 4px; font-weight: 500; }
+
+        /* FILTER */
+        .filters {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+        .filters label { display: block; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; }
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            color: #f8fafc;
+        }
+        select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+        select option { background: #1e293b; color: #f8fafc; }
+
+        .btn {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.07);
+            color: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13.5px;
+            font-family: inherit;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn:hover { background: rgba(255, 255, 255, 0.16); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn.primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-color: transparent; }
+        .btn.danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+        .btn.danger:hover { background: #ef4444; color: #fff; }
+
+        /* DAFTAR RIWAYAT */
+        .list-head, .row {
+            display: grid;
+            grid-template-columns: 190px 1.3fr 140px 1.2fr 130px;
+            gap: 14px;
+            align-items: center;
+            padding: 14px 20px;
+        }
+        .list-head { color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding-bottom: 8px; }
+        .rows { display: grid; gap: 10px; }
+        .row {
+            background: rgba(30, 41, 59, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            font-size: 13.5px;
+            animation: textFade 0.35s ease both;
+        }
+        .row:hover { background: rgba(30, 41, 59, 0.8); border-color: rgba(255, 255, 255, 0.16); }
+        .time b { display: block; font-weight: 700; }
+        .time span { color: #94a3b8; font-size: 12px; }
+        .who b { display: block; font-weight: 700; }
+        .who span { color: #94a3b8; font-size: 12.5px; }
+        .dev { color: #cbd5e1; }
+        .by { color: #94a3b8; font-size: 12.5px; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .b-login  { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .b-logout { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+        .b-reset  { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .b-kunci  { background: rgba(245, 158, 11, 0.15); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .b-buka   { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .empty {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 36px 24px;
+            text-align: center;
+            border-radius: 20px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .more-wrap { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+        .footer-note { color: #64748b; font-size: 12.5px; text-align: center; margin-top: 18px; line-height: 1.6; }
+
+        @keyframes pageFadeIn { to { opacity: 1; } }
+        @keyframes textFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes orbFloat1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-80px, 60px) scale(1.15); } }
+        @keyframes orbFloat2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(70px, -50px) scale(1.1); } }
+
+        body.page-exit { pointer-events: none; }
+        body.page-exit .container, body.page-exit header { animation: pageExitAnim 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards; }
+        @keyframes pageExitAnim { to { opacity: 0; transform: translateY(-20px) scale(0.97); filter: blur(8px); } }
+
+        /* PONSEL: baris jadi kartu bertumpuk */
+        @media (max-width: 860px) {
+            .list-head { display: none; }
+            .row { grid-template-columns: 1fr; gap: 6px; padding: 16px; }
+            header { padding: 14px 18px; }
+            .container { padding: 24px 16px 40px; }
+        }
+    
+        .perm-list { display: grid; gap: 12px; }
+        .perm {
+            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+            background: rgba(30, 41, 59, 0.55); backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 16px 20px;
+        }
+        .perm b { display: block; font-size: 15px; }
+        .perm span.d { color: #94a3b8; font-size: 13px; line-height: 1.5; }
+        .switch { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; inset: 0; background: rgba(148, 163, 184, 0.3); border-radius: 30px; cursor: pointer; transition: 0.25s; }
+        .slider::before { content: ""; position: absolute; width: 22px; height: 22px; left: 4px; top: 4px; background: #fff; border-radius: 50%; transition: 0.25s; }
+        .switch input:checked + .slider { background: #10b981; }
+        .switch input:checked + .slider::before { transform: translateX(22px); }
+        .switch input:disabled + .slider { opacity: 0.5; cursor: wait; }
+        .note { background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.25); color: #93c5fd; padding: 14px 18px; border-radius: 14px; font-size: 13.5px; line-height: 1.6; margin-top: 22px; }
+        h2.sec { font-size: 19px; margin: 8px 0 14px; }
+</style>
+</head>
+<body>
+    <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+    <header>
+        <button class="back" onclick="navigateTo('admin.html')">← Kembali</button>
+        <strong>🛡️ Pengaturan Akun</strong>
+    </header>
+    <main class="container">
+        <section class="title">
+            <h1>Izin Peran</h1>
+            <p>Atur apa saja yang boleh dilakukan oleh peran Moderator. Perubahan tersimpan otomatis dan langsung berlaku.</p>
+        </section>
+        <div id="message" class="message"></div>
+
+        <h2 class="sec">🛠️ Moderator</h2>
+        <div id="permList" class="perm-list"><div class="empty">⏳ Memuat pengaturan...</div></div>
+
+        <div class="note">
+            ℹ️ <b>Admin</b> selalu memiliki semua izin dan tidak bisa dibatasi. Menu <b>Pengaturan Akun</b> ini hanya tampil untuk Admin.
+            Pengaturan izin untuk peran <b>Member</b> akan ditambahkan berikutnya.
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        function navigateTo(url) {
+            document.body.classList.add("page-exit");
+            setTimeout(function () { window.location.href = url; }, 380);
+        }
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const elMessage = document.getElementById("message");
+        const elList = document.getElementById("permList");
+
+        const IZIN = [
+            ["kelola_member", "Kelola Member", "Melihat daftar, menambah, mengedit, mengunci/membuka, dan mereset sesi akun member."],
+            ["hapus_member", "Hapus Member", "Menghapus akun member secara permanen."],
+            ["kelola_materi", "Kelola Materi", "Menambah, mengedit, dan menghapus materi pembelajaran."],
+            ["kelola_jadwal", "Kelola Jadwal Pelajaran", "Mengatur jadwal pelajaran dan catatannya."],
+            ["kelola_pengumuman", "Pengumuman & Tugas", "Membuat dan mengelola informasi, tugas, serta pengumuman."],
+            ["kelola_mapel", "Kelola Mata Pelajaran", "Menambah, mengedit, dan menghapus mata pelajaran."],
+            ["lihat_statistik", "Lihat Statistik Penggunaan", "Melihat statistik dan status penggunaan pengguna."],
+            ["lihat_riwayat", "Lihat Riwayat Login", "Melihat riwayat masuk dan keluar member."]
+        ];
+
+        function esc(v) { const d = document.createElement("div"); d.textContent = v == null ? "" : String(v); return d.innerHTML; }
+        function msg(text, ok) { elMessage.className = "message " + (ok ? "success" : "error"); elMessage.textContent = text; }
+
+        async function checkAdmin() {
+            const { data, error } = await supabaseClient.auth.getSession();
+            if (error || !data.session) { navigateTo("index.html"); return false; }
+            const { data: p, error: pe } = await supabaseClient.from("profiles").select("role, status").eq("id", data.session.user.id).single();
+            if (pe || !p || p.role !== "admin" || p.status !== "open") {
+                alert("Halaman ini hanya untuk Admin.");
+                navigateTo("admin.html");
+                return false;
+            }
+            return true;
+        }
+
+        async function load() {
+            const { data, error } = await supabaseClient.from("role_permissions").select("permission, allowed").eq("role", "moderator");
+            if (error) {
+                elList.innerHTML = '<div class="empty">❌ Gagal memuat.<br><br>' + esc(error.message) + '<br><br>Pastikan file 02-izin-peran.sql sudah dijalankan.</div>';
+                return;
+            }
+            const nilai = {};
+            (data || []).forEach(function (r) { nilai[r.permission] = r.allowed === true; });
+
+            elList.innerHTML = "";
+            IZIN.forEach(function (it) {
+                const row = document.createElement("div");
+                row.className = "perm";
+                row.innerHTML = '<div><b>' + esc(it[1]) + '</b><span class="d">' + esc(it[2]) + '</span></div>' +
+                    '<label class="switch"><input type="checkbox" data-key="' + it[0] + '"' + (nilai[it[0]] ? " checked" : "") + '><span class="slider"></span></label>';
+                elList.appendChild(row);
+            });
+
+            elList.querySelectorAll("input[type=checkbox]").forEach(function (cb) {
+                cb.addEventListener("change", async function () {
+                    const key = cb.dataset.key, want = cb.checked;
+                    cb.disabled = true;
+                    const { error: e } = await supabaseClient.from("role_permissions")
+                        .upsert({ role: "moderator", permission: key, allowed: want }, { onConflict: "role,permission" });
+                    cb.disabled = false;
+                    if (e) { cb.checked = !want; msg("Gagal menyimpan: " + e.message, false); }
+                    else { msg("Tersimpan: " + (IZIN.find(function (x) { return x[0] === key; })[1]) + " " + (want ? "diizinkan." : "dinonaktifkan."), true); }
+                });
+            });
+        }
+
+        window.addEventListener("pageshow", function () { document.body.classList.remove("page-exit"); });
+        supabaseClient.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") navigateTo("index.html"); });
+
+        (async function () { if (await checkAdmin()) await load(); })();
+    </script>
+</body>
+</html>
