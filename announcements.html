@@ -546,7 +546,7 @@
         async function checkLogin() {
             const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
             if (sessionError || !session) {
-                window.location.href = "login-member.html";
+                window.location.href = "index.html";
                 return false;
             }
             
@@ -555,13 +555,13 @@
             
             if (error || !profile || profile.role !== "member") {
                 await supabaseClient.auth.signOut({ scope: "local" });
-                window.location.href = "login-member.html";
+                window.location.href = "index.html";
                 return false;
             }
             
             if (profile.status !== "open") {
                 await supabaseClient.auth.signOut({ scope: "local" });
-                window.location.href = "login-member.html";
+                window.location.href = "index.html";
                 return false;
             }
             return true;
@@ -702,12 +702,12 @@
 
         document.getElementById("lockedButton").addEventListener("click", async function() {
             try { await supabaseClient.auth.signOut({ scope: "local" }); } catch (e) {}
-            window.location.href = "login-member.html";
+            window.location.href = "index.html";
         });
 
         supabaseClient.auth.onAuthStateChange(function(event) {
             if (event === "SIGNED_OUT" && !accountLocked) {
-                window.location.href = "login-member.html";
+                window.location.href = "index.html";
             }
         });
 
