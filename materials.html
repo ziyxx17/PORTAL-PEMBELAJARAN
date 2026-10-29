@@ -392,7 +392,7 @@ async function checkLogin() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
 
     if (error || !session) {
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
@@ -404,20 +404,20 @@ async function checkLogin() {
 
     if (profileError || !profile) {
         await supabaseClient.auth.signOut({ scope: "local" });
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
     if (profile.status !== "open") {
         await supabaseClient.auth.signOut({ scope: "local" });
         alert("Akun kamu sedang dikunci atau tidak aktif.");
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
-    if (profile.role !== "member" && profile.role !== "admin") {
+    if (profile.role !== "member" && profile.role !== "admin" && profile.role !== "moderator") {
         await supabaseClient.auth.signOut({ scope: "local" });
-        location.href = "login-member.html";
+        location.href = "index.html";
         return false;
     }
 
@@ -594,7 +594,7 @@ async function loadMaterials() {
 ===================================================== */
 supabaseClient.auth.onAuthStateChange(function(event, session) {
     if (event === "SIGNED_OUT") {
-        location.href = "login-member.html";
+        location.href = "index.html";
     }
 });
 
