@@ -665,7 +665,7 @@
             setTimeout(function() { window.location.href = url; }, 380);
         }
 
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
         let currentAdminId = null;
         let deleteTargetId = null;
 
