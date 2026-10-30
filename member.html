@@ -518,6 +518,14 @@ header {
     <h2 class="section-title">📚 Menu Pembelajaran</h2>
     <section class="member-menu">
 
+        <button class="menu-button" id="attendanceButton">
+            <div class="menu-icon">✅</div>
+            <div class="menu-content">
+                <div class="menu-title">Absensi</div>
+                <div class="menu-description">Scan QR untuk hadir, ajukan izin atau sakit, dan lihat riwayat kehadiranmu.</div>
+            </div>
+        </button>
+
         <button class="menu-button" id="scheduleButton">
             <div class="menu-icon">📅</div>
             <div class="menu-content">
@@ -806,6 +814,10 @@ async function loadAnnouncements() {
         featured.innerHTML = `<div class="announcement-error">❌ Terjadi kesalahan saat memuat pengumuman dan informasi.</div>`;
     }
 }
+
+document.getElementById("attendanceButton").addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "absensi.html";
+});
 
 document.getElementById("scheduleButton").addEventListener("click", function() {
     if (!accountLocked) window.location.href = "jadwal.html";
