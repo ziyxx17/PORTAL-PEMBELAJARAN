@@ -509,6 +509,15 @@
                 </div>
             </button>
 
+            <!-- Absensi -->
+            <button class="menu-button" id="attendanceButton">
+                <div class="menu-icon">✅</div>
+                <div class="menu-title">Absensi</div>
+                <div class="menu-description">
+                    Buat sesi absensi, tampilkan QR, dan isi absensi manual.
+                </div>
+            </button>
+
             <!-- Riwayat Login -->
             <button class="menu-button" id="historyButton">
                 <div class="menu-icon">📜</div>
@@ -592,7 +601,7 @@
         /* Sembunyikan menu yang tidak diizinkan untuk Moderator */
         async function applyRoleMenu(role) {
             const map = {
-                memberButton: "kelola_member", subjectButton: "kelola_mapel", scheduleButton: "kelola_jadwal",
+                attendanceButton: "kelola_absensi", memberButton: "kelola_member", subjectButton: "kelola_mapel", scheduleButton: "kelola_jadwal",
                 materialButton: "kelola_materi", announcementButton: "kelola_pengumuman",
                 statisticsButton: "lihat_statistik", historyButton: "lihat_riwayat"
             };
@@ -684,6 +693,7 @@
         document.getElementById("statisticsButton").addEventListener("click", statisticsMenu);
         document.getElementById("adminSettingsButton").addEventListener("click", adminSettingsMenu);
         document.getElementById("historyButton").addEventListener("click", function () { navigateTo("riwayat-login.html"); });
+        document.getElementById("attendanceButton").addEventListener("click", function () { navigateTo("absensi-admin.html"); });
         document.getElementById("permButton").addEventListener("click", function () { navigateTo("izin-peran.html"); });
 
         /* =====================================================
