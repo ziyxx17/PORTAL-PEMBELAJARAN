@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi - Portal Pembelajaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;background:#0f172a;color:#f8fafc;overflow-x:hidden;opacity:0;animation:fi .6s forwards}
+@keyframes fi{to{opacity:1}}
+.bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.35}
+.o1{width:480px;height:480px;background:#8b5cf6;top:-150px;right:-100px}
+.o2{width:430px;height:430px;background:#3b82f6;bottom:-150px;left:-100px}
+header{background:rgba(15,23,42,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);padding:16px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+header strong{font-size:18px;font-weight:700}
+.back{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#f8fafc;padding:10px 18px;border-radius:12px;cursor:pointer;font-size:13.5px;font-weight:600;font-family:inherit}
+.back:hover{background:rgba(255,255,255,.15)}
+.container{max-width:1000px;margin:auto;padding:28px 20px 40px;position:relative;z-index:1}
+h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+h2{font-size:18px;font-weight:700;margin:0 0 14px}
+.sub{color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:22px}
+.card{background:rgba(30,41,59,.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:20px;margin-bottom:18px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.row>*{flex:1;min-width:150px}
+label{display:block;font-size:12.5px;font-weight:700;color:#cbd5e1;margin-bottom:6px}
+input,select,textarea{width:100%;padding:12px 14px;background:rgba(15,23,42,.7);border:1px solid rgba(255,255,255,.12);border-radius:12px;outline:none;font-size:14px;font-family:inherit;color:#f8fafc}
+input:focus,select:focus,textarea:focus{border-color:#8b5cf6;box-shadow:0 0 0 4px rgba(139,92,246,.15)}
+select option{background:#1e293b;color:#f8fafc}
+textarea{min-height:84px;resize:vertical}
+.btn{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);color:#f8fafc;padding:12px 18px;border-radius:12px;cursor:pointer;font-weight:700;font-size:13.5px;font-family:inherit;transition:.2s}
+.btn:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.pri{background:linear-gradient(135deg,#3b82f6,#2563eb);border-color:transparent}
+.btn.ok{background:linear-gradient(135deg,#10b981,#059669);border-color:transparent}
+.btn.dan{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)}
+.btn.dan:hover{background:#ef4444;color:#fff}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid transparent}
+.b-hadir{background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+.b-izin{background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.3)}
+.b-sakit{background:rgba(245,158,11,.15);color:#fde047;border-color:rgba(245,158,11,.3)}
+.b-alfa{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)}
+.b-dispen{background:rgba(168,85,247,.15);color:#d8b4fe;border-color:rgba(168,85,247,.3)}
+.b-none{background:rgba(148,163,184,.12);color:#94a3b8;border-color:rgba(148,163,184,.25)}
+.b-open{background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+.b-closed{background:rgba(148,163,184,.14);color:#cbd5e1;border-color:rgba(148,163,184,.3)}
+.msg{display:none;padding:13px 16px;border-radius:14px;margin-bottom:18px;font-size:14px;font-weight:600;line-height:1.5}
+.msg.e{display:block;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.msg.s{display:block;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#6ee7b7}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:rgba(30,41,59,.6);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px;text-align:center}
+.stat .n{font-size:26px;font-weight:800}.stat .l{color:#94a3b8;font-size:12px;margin-top:2px;font-weight:600}
+.item{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border-radius:14px;background:rgba(15,23,42,.45);border:1px solid rgba(255,255,255,.07);margin-bottom:10px}
+.item b{display:block;font-size:14.5px}.item span.d{color:#94a3b8;font-size:12.5px}
+.empty{text-align:center;color:#94a3b8;padding:26px;font-size:14px}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9500;align-items:center;justify-content:center;padding:18px}
+.modal.show{display:flex}
+.box{width:100%;max-width:440px;max-height:92vh;overflow-y:auto;background:rgba(30,41,59,.95);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:24px}
+.box h2{text-align:center}.box .f{margin-bottom:14px}
+video{width:100%;border-radius:16px;background:#000;aspect-ratio:1/1;object-fit:cover}
+@media(max-width:600px){header{padding:14px 16px}.container{padding:20px 14px 30px}}
+</style>
+</head>
+<body>
+<div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
+<header><button class="back" onclick="go('member.html')">← Kembali</button><strong>✅ Absensi</strong></header>
+<main class="container">
+  <h1>Absensi Saya</h1>
+  <p class="sub">Scan QR yang ditampilkan guru untuk hadir. Kalau tidak masuk, ajukan izin atau sakit.</p>
+  <div id="msg" class="msg"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <div class="row">
+      <button class="btn pri" id="btnScan">📷 Scan QR Absen</button>
+      <button class="btn" id="btnLeave">📝 Ajukan Izin / Sakit</button>
+    </div>
+  </div>
+
+  <div class="card"><h2>🟢 Sesi yang sedang dibuka</h2><div id="open"><div class="empty">⏳ Memuat...</div></div></div>
+  <div class="card"><h2>🕒 Riwayat absensi saya</h2><div id="hist"><div class="empty">⏳ Memuat...</div></div></div>
+</main>
+
+<div class="modal" id="mScan"><div class="box">
+  <h2>📷 Scan QR Absen</h2>
+  <div class="f"><video id="vid" playsinline muted></video><canvas id="cv" style="display:none"></canvas></div>
+  <p class="sub" id="scanHint" style="text-align:center;margin-bottom:12px">Arahkan kamera ke QR di layar guru.</p>
+  <div class="f"><label for="manual">Atau ketik kode manual</label>
+    <div class="row"><input id="manual" maxlength="12" placeholder="Contoh: A1B2C3D4E5" autocomplete="off"><button class="btn ok" id="btnManual" style="flex:0 0 auto">Kirim</button></div></div>
+  <button class="btn" id="btnCloseScan" style="width:100%">Tutup</button>
+</div></div>
+
+<div class="modal" id="mLeave"><div class="box">
+  <h2>📝 Ajukan Izin / Sakit</h2>
+  <div class="f"><label for="lSession">Sesi</label><select id="lSession"></select></div>
+  <div class="f"><label for="lStatus">Jenis</label><select id="lStatus"><option value="izin">Izin</option><option value="sakit">Sakit</option></select></div>
+  <div class="f"><label for="lNote">Alasan</label><textarea id="lNote" placeholder="Tulis alasan singkat..."></textarea></div>
+  <div class="row"><button class="btn" id="btnLeaveCancel">Batal</button><button class="btn pri" id="btnLeaveSend">Kirim</button></div>
+</div></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+
+const $=id=>document.getElementById(id);
+function esc(v){const d=document.createElement("div");d.textContent=v==null?"":String(v);return d.innerHTML}
+function msg(t,ok){const m=$("msg");m.className="msg "+(ok?"s":"e");m.textContent=t;m.scrollIntoView({behavior:"smooth",block:"nearest"})}
+function go(u){document.body.style.transition="opacity .2s";document.body.style.opacity=0;setTimeout(()=>location.href=u,200)}
+function fmt(iso){const d=new Date(iso);return d.toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"})+", "+d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}
+function jam(iso){return new Date(iso).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}
+const ST={hadir:["✅ Hadir","b-hadir"],izin:["📝 Izin","b-izin"],sakit:["🤒 Sakit","b-sakit"],alfa:["❌ Alfa","b-alfa"],dispen:["🎖️ Dispen","b-dispen"]};
+const METODE={qr:"Scan QR",manual:"Diisi guru/admin",izin_member:"Diajukan sendiri",otomatis:"Otomatis (tidak hadir)"};
+const badge=s=>s&&ST[s]?'<span class="badge '+ST[s][1]+'">'+ST[s][0]+'</span>':'<span class="badge b-none">Belum absen</span>';
+window.addEventListener("pageshow",()=>{document.body.style.opacity=1});
+
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{storage:window.sessionStorage}});
+let me=null,openS=[],recs=[],titles={},stream=null,scanning=false,busy=false;
+
+async function init(){
+  const {data}=await sb.auth.getSession();
+  if(!data.session){go("index.html");return}
+  const {data:p}=await sb.from("profiles").select("id,nama,username,role,status").eq("id",data.session.user.id).maybeSingle();
+  if(!p||String(p.role).toLowerCase()!=="member"||String(p.status).toLowerCase()!=="open"){await sb.auth.signOut({scope:"local"});go("index.html");return}
+  me=p;
+  if(!(await SingleSession.guard(sb)))return;
+  await refresh();
+  setInterval(()=>{if(document.visibilityState==="visible"&&!scanning)refresh()},15000);
+}
+
+async function refresh(){
+  const [s,r]=await Promise.all([
+    sb.from("attendance_sessions").select("id,title,starts_at,ends_at,status").eq("status","open").gt("ends_at",new Date().toISOString()).order("starts_at",{ascending:true}),
+    sb.from("attendance_records").select("session_id,status,method,note,marked_at").eq("user_id",me.id).order("marked_at",{ascending:false}).limit(300)]);
+  if(s.error||r.error){$("open").innerHTML='<div class="empty">❌ '+esc((s.error||r.error).message)+'<br><br>Pastikan 05-absensi.sql sudah dijalankan.</div>';$("hist").innerHTML="";return}
+  openS=s.data||[];recs=r.data||[];
+  const ids=[...new Set(recs.map(x=>x.session_id))].filter(i=>!titles[i]);
+  if(ids.length){const {data}=await sb.from("attendance_sessions").select("id,title,starts_at").in("id",ids);(data||[]).forEach(x=>titles[x.id]=x)}
+  openS.forEach(x=>titles[x.id]=x);
+  render();
+}
+
+function render(){
+  const c={hadir:0,izin:0,sakit:0,alfa:0,dispen:0};recs.forEach(x=>{if(c[x.status]!=null)c[x.status]++});
+  $("stats").innerHTML=Object.keys(c).map(k=>'<div class="stat"><div class="n">'+c[k]+'</div><div class="l">'+ST[k][0]+'</div></div>').join("");
+
+  const mine={};recs.forEach(x=>mine[x.session_id]=x);
+  $("open").innerHTML=openS.length?openS.map(s=>{
+    const m=mine[s.id],lock=m&&(m.status==="hadir"||m.status==="dispen");
+    return '<div class="item"><div><b>'+esc(s.title)+'</b><span class="d">'+fmt(s.starts_at)+' – '+jam(s.ends_at)+'</span></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+badge(m&&m.status)+(lock?'':'<button class="btn" data-leave="'+s.id+'">Izin/Sakit</button>')+'</div></div>';
+  }).join(""):'<div class="empty">Belum ada sesi absensi yang dibuka.</div>';
+
+  $("hist").innerHTML=recs.length?recs.slice(0,60).map(x=>{
+    const t=titles[x.session_id];
+    return '<div class="item"><div><b>'+esc(t?t.title:"Sesi")+'</b><span class="d">'+(t?fmt(t.starts_at):"")+' · '+esc(METODE[x.method]||x.method)+(x.note?' · "'+esc(x.note)+'"':'')+'</span></div>'+badge(x.status)+'</div>';
+  }).join(""):'<div class="empty">Belum ada riwayat absensi.</div>';
+}
+
+/* ---- Scan QR ---- */
+const RESULT={ok:["Absensi berhasil! ✅",1],already:["Kamu sudah tercatat hadir di sesi ini.",1],expired:["Kode kedaluwarsa. Scan ulang QR yang terbaru di layar guru.",0],closed:["Sesi absensi sudah ditutup.",0],invalid:["Kode tidak dikenali. Pastikan QR dari sesi yang sedang dibuka.",0],not_member:["Hanya akun Member yang bisa absen.",0]};
+async function sendCode(code){
+  if(busy)return;busy=true;
+  stopCam();$("mScan").classList.remove("show");
+  const {data,error}=await sb.rpc("scan_attendance",{p_code:String(code||"").trim()});
+  busy=false;
+  if(error){msg("Gagal mengirim absensi: "+error.message,false);return}
+  const r=RESULT[data]||["Respons tidak dikenal: "+data,0];msg(r[0],!!r[1]);refresh();
+}
+function stopCam(){scanning=false;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+async function openScan(){
+  $("mScan").classList.add("show");$("manual").value="";
+  if(typeof jsQR==="undefined"){$("scanHint").textContent="Pemindai tidak termuat. Gunakan kode manual di bawah.";return}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+    const v=$("vid");v.srcObject=stream;await v.play();scanning=true;$("scanHint").textContent="Arahkan kamera ke QR di layar guru.";tick();
+  }catch(e){$("scanHint").textContent="Kamera tidak bisa dibuka (izinkan akses kamera). Gunakan kode manual di bawah."}
+}
+function tick(){
+  if(!scanning)return;
+  const v=$("vid"),c=$("cv");
+  if(v.readyState===v.HAVE_ENOUGH_DATA){
+    c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext("2d");x.drawImage(v,0,0);
+    const img=x.getImageData(0,0,c.width,c.height),res=jsQR(img.data,img.width,img.height,{inversionAttempts:"dontInvert"});
+    if(res&&res.data){sendCode(res.data);return}
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---- Izin / Sakit ---- */
+function openLeave(pre){
+  if(!openS.length){msg("Belum ada sesi absensi yang dibuka untuk diajukan izin.",false);return}
+  $("lSession").innerHTML=openS.map(s=>'<option value="'+s.id+'">'+esc(s.title)+' ('+jam(s.starts_at)+')</option>').join("");
+  if(pre)$("lSession").value=pre;$("lNote").value="";$("mLeave").classList.add("show");
+}
+const LEAVE={ok:["Pengajuan terkirim. Terima kasih! 📝",1],already:["Kamu sudah tercatat hadir/dispen di sesi ini.",0],closed:["Sesi sudah ditutup.",0],note_required:["Alasan wajib diisi (minimal 3 huruf).",0],invalid:["Data tidak valid.",0],not_member:["Hanya akun Member.",0]};
+$("btnLeaveSend").onclick=async()=>{
+  $("btnLeaveSend").disabled=true;
+  const {data,error}=await sb.rpc("submit_leave",{p_session:$("lSession").value,p_status:$("lStatus").value,p_note:$("lNote").value});
+  $("btnLeaveSend").disabled=false;
+  if(error){msg("Gagal: "+error.message,false);return}
+  const r=LEAVE[data]||["Respons: "+data,0];
+  if(data==="note_required"){alert(r[0]);return}
+  $("mLeave").classList.remove("show");msg(r[0],!!r[1]);refresh();
+};
+
+$("btnScan").onclick=openScan;
+$("btnLeave").onclick=()=>openLeave();
+$("btnCloseScan").onclick=()=>{stopCam();$("mScan").classList.remove("show")};
+$("btnLeaveCancel").onclick=()=>$("mLeave").classList.remove("show");
+$("btnManual").onclick=()=>{const v=$("manual").value.trim();if(v.length<6){alert("Kode minimal 6 karakter.");return}sendCode(v)};
+$("open").addEventListener("click",e=>{const b=e.target.closest("[data-leave]");if(b)openLeave(b.dataset.leave)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){stopCam();$("mScan").classList.remove("show");$("mLeave").classList.remove("show")}});
+init();
+</script>
+</body>
+</html>
