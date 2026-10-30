@@ -141,7 +141,7 @@ window.Perm = (function () {
    Berjalan otomatis di halaman admin tanpa mengubah kode halaman. */
 window.StaffSession = (function () {
     const PAGES = ["admin", "member-management", "kelola-jadwal", "announcements-admin", "statistics",
-                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "subjects", "materials"];
+                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "absensi-admin", "subjects", "materials"];
     const ref = (function () { try { return new URL(SUPABASE_URL).hostname.split(".")[0]; } catch (e) { return ""; } })();
     const STORE_KEY = "sb-" + ref + "-auth-token";
     let ended = false;
@@ -240,4 +240,175 @@ window.StaffSession = (function () {
 
     window.addEventListener("load", function () { setTimeout(start, 800); });
     return { leave };
+})();
+
+
+/* HOME BAR "LIQUID GLASS" (gaya iPhone): menu bawah yang bisa digeser.
+   Muncul otomatis di halaman member dan halaman admin/moderator. */
+window.LiquidDock = (function () {
+    const MEMBER = [
+        { label: "Beranda", icon: "🏠", href: "member.html", pages: ["member"] },
+        { label: "Jadwal", icon: "📅", href: "jadwal.html", pages: ["jadwal"] },
+        { label: "Absensi", icon: "✅", href: "absensi.html", pages: ["absensi"] },
+        { label: "Mapel", icon: "📚", href: "subjects.html", pages: ["subjects", "materials", "material-detail"] },
+        { label: "Info", icon: "📢", href: "announcements.html", pages: ["announcements"] },
+        { label: "Profil", icon: "👤", href: "profil-member.html", pages: ["profil-member"] }
+    ];
+    const STAFF = [
+        { label: "Dashboard", icon: "🏠", href: "admin.html", pages: ["admin", "admin-settings", "izin-peran"] },
+        { label: "Absensi", icon: "✅", href: "absensi-admin.html", pages: ["absensi-admin"], perm: "kelola_absensi" },
+        { label: "Member", icon: "👥", href: "member-management.html", pages: ["member-management", "riwayat-login"], perm: "kelola_member" },
+        { label: "Jadwal", icon: "📅", href: "kelola-jadwal.html", pages: ["kelola-jadwal"], perm: "kelola_jadwal" },
+        { label: "Info", icon: "📢", href: "announcements-admin.html", pages: ["announcements-admin"], perm: "kelola_pengumuman" },
+        { label: "Statistik", icon: "📊", href: "statistics.html", pages: ["statistics", "user-status"], perm: "lihat_statistik" }
+    ];
+    const CSS = `
+.lg-dock{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9000;display:flex;align-items:stretch;gap:2px;padding:7px;width:min(94vw,420px);border-radius:999px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
+background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.06) 55%,rgba(255,255,255,.14));
+-webkit-backdrop-filter:blur(26px) saturate(190%);backdrop-filter:blur(26px) saturate(190%);
+border:1px solid rgba(255,255,255,.3);
+box-shadow:0 22px 44px -12px rgba(0,0,0,.6),inset 0 1.5px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(255,255,255,.1),inset 0 0 22px rgba(255,255,255,.07);
+animation:lgIn .7s cubic-bezier(.34,1.56,.64,1) both}
+.lg-dock::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.28) 0%,rgba(255,255,255,0) 38%)}
+.lg-dock.drag{cursor:grabbing}
+@keyframes lgIn{from{opacity:0;transform:translateX(-50%) translateY(40px) scale(.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+.lg-lens{position:absolute;top:5px;bottom:5px;left:0;border-radius:999px;pointer-events:none;z-index:1;opacity:0;
+background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.12));
+-webkit-backdrop-filter:blur(6px) brightness(1.3);backdrop-filter:blur(6px) brightness(1.3);
+border:1px solid rgba(255,255,255,.5);
+box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75),inset 0 -8px 14px rgba(255,255,255,.1),0 8px 20px rgba(0,0,0,.35);
+transition:transform .5s cubic-bezier(.34,1.56,.64,1),width .3s,opacity .3s}
+.lg-dock.drag .lg-lens{transition:width .3s,opacity .3s;filter:brightness(1.12)}
+.lg-item{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:7px 0 5px;color:#e2e8f0;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .2s}
+.lg-item .ic{font-size:21px;line-height:1.1}
+.lg-item small{font-size:9.5px;font-weight:700;letter-spacing:.01em;opacity:.85}
+.lg-item.on{color:#fff}.lg-item.on small{opacity:1}
+body.has-dock{padding-bottom:108px!important}
+@media (prefers-reduced-motion:reduce){.lg-dock,.lg-lens,.lg-item{animation:none!important;transition:none!important}}`;
+
+    const ref = (function () { try { return new URL(SUPABASE_URL).hostname.split(".")[0]; } catch (e) { return ""; } })();
+    const KEY = "sb-" + ref + "-auth-token";
+    function pageName() { return (window.location.pathname.split("/").pop() || "").replace(".html", ""); }
+    function readSession() {
+        try { const j = JSON.parse(sessionStorage.getItem(KEY) || "null"); return j && j.access_token && j.user ? j : null; }
+        catch (e) { return null; }
+    }
+    async function call(path, s, body) {
+        const r = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+            method: body ? "POST" : "GET",
+            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: "Bearer " + s.access_token, "Content-Type": "application/json" },
+            body: body ? JSON.stringify(body) : undefined
+        });
+        return r.ok ? r.json() : null;
+    }
+    function activeIndex(items, p) {
+        for (let i = 0; i < items.length; i++) if (items[i].pages.indexOf(p) >= 0) return i;
+        return -1;
+    }
+
+    function mount(items, active) {
+        const st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
+        const dock = document.createElement("nav");
+        dock.className = "lg-dock"; dock.setAttribute("aria-label", "Navigasi utama");
+        const lens = document.createElement("div"); lens.className = "lg-lens"; dock.appendChild(lens);
+        const els = items.map(function (it) {
+            const a = document.createElement("a");
+            a.className = "lg-item"; a.href = it.href;
+            a.innerHTML = '<span class="ic">' + it.icon + '</span><small>' + it.label + "</small>";
+            dock.appendChild(a);
+            return a;
+        });
+        document.body.appendChild(dock);
+        document.body.classList.add("has-dock");
+
+        let cur = active, drag = false, sx = 0, last = 0;
+        const centerOf = function (k) { return els[k].offsetLeft + els[k].offsetWidth / 2; };
+        const lensW = function () { return els[0].offsetWidth + 6; };
+        function put(x, s) {
+            const w = lensW();
+            lens.style.width = w + "px";
+            lens.style.transform = "translateX(" + (x - w / 2) + "px) scale(" + s + ")";
+            lens.style.opacity = 1;
+        }
+        function snap(i) {
+            put(centerOf(i), 1);
+            els.forEach(function (e, k) { e.classList.toggle("on", k === i); e.style.transform = ""; });
+        }
+        function localX(cx) { const r = dock.getBoundingClientRect(); return cx - r.left - (dock.clientLeft || 0); }
+        function follow(cx) {
+            const x = Math.max(centerOf(0), Math.min(centerOf(els.length - 1), localX(cx)));
+            put(x, 1.16);
+            els.forEach(function (e, k) {
+                const d = Math.abs(centerOf(k) - x) / els[k].offsetWidth;
+                e.style.transform = "scale(" + (1 + Math.max(0, 1 - d) * 0.3) + ")";
+            });
+        }
+        function nearest(cx) {
+            const x = localX(cx); let b = 0, bd = 1e9;
+            for (let k = 0; k < els.length; k++) { const d = Math.abs(centerOf(k) - x); if (d < bd) { bd = d; b = k; } }
+            return b;
+        }
+        function go(href) {
+            document.body.style.transition = "opacity .18s";
+            document.body.style.opacity = "0";
+            setTimeout(function () { window.location.href = href; }, 170);
+        }
+        function finish(cx, cancel) {
+            if (!drag) return;
+            drag = false; dock.classList.remove("drag");
+            const i = cancel ? cur : nearest(cx);
+            if (i < 0) { lens.style.opacity = 0; els.forEach(function (e) { e.style.transform = ""; }); return; }
+            snap(i);
+            if (cancel) return;
+            last = Date.now();
+            if (i !== cur) { cur = i; go(items[i].href); }
+        }
+
+        dock.addEventListener("pointerdown", function (e) {
+            drag = true; sx = e.clientX;
+            try { dock.setPointerCapture(e.pointerId); } catch (x) {}
+            dock.classList.add("drag"); follow(e.clientX);
+        });
+        dock.addEventListener("pointermove", function (e) { if (drag) follow(e.clientX); });
+        dock.addEventListener("pointerup", function (e) { finish(e.clientX, false); });
+        dock.addEventListener("pointercancel", function (e) { finish(e.clientX, true); });
+        els.forEach(function (a, k) {
+            a.addEventListener("click", function (e) {
+                e.preventDefault();                         // tombol keyboard (Enter) tetap bisa pindah
+                if (Date.now() - last < 600) return;
+                if (k !== cur) { cur = k; snap(k); go(items[k].href); }
+            });
+        });
+        window.addEventListener("resize", function () { if (cur >= 0) snap(cur); });
+        window.addEventListener("pageshow", function () { document.body.style.opacity = ""; });
+
+        if (cur >= 0) requestAnimationFrame(function () { snap(cur); });
+        return { dock: dock, lens: lens, els: els, snap: snap };
+    }
+
+    async function init() {
+        const p = pageName();
+        const s = readSession();
+        if (!s) return;
+        const rows = await call("profiles?select=role,status&id=eq." + s.user.id, s);
+        const role = rows && rows[0] ? String(rows[0].role || "").toLowerCase() : "";
+        const open = rows && rows[0] ? String(rows[0].status || "").toLowerCase() === "open" : false;
+        if (!open) return;
+
+        let items = null;
+        if (role === "member" && activeIndex(MEMBER, p) >= 0) {
+            items = MEMBER;
+        } else if ((role === "admin" || role === "moderator") && (activeIndex(STAFF, p) >= 0 || p === "subjects" || p === "materials")) {
+            items = [];
+            for (const it of STAFF) {
+                if (!it.perm || role === "admin") { items.push(it); continue; }
+                const ok = await call("rpc/has_permission", s, { p_key: it.perm });
+                if (ok === true) items.push(it);
+            }
+        }
+        if (items && items.length >= 2) mount(items, activeIndex(items, p));
+    }
+
+    window.addEventListener("load", function () { setTimeout(init, 400); });
+    return { _mount: mount };
 })();
