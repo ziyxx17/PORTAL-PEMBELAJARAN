@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil - Portal Pembelajaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;background:#0f172a;color:#f8fafc;overflow-x:hidden;opacity:0;animation:fi .6s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes fi{to{opacity:1}}
+.bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.35}
+.o1{width:480px;height:480px;background:#8b5cf6;top:-150px;right:-100px}
+.o2{width:430px;height:430px;background:#3b82f6;bottom:-150px;left:-100px}
+body.mod .o1{background:#3b82f6}body.mod .o2{background:#06b6d4}
+header{background:rgba(15,23,42,.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);padding:16px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+header strong{font-size:18px;font-weight:700}
+.container{max-width:760px;margin:auto;padding:26px 18px 40px;position:relative;z-index:1}
+.card{background:rgba(30,41,59,.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:22px;margin-bottom:18px}
+h2.sec{font-size:15px;font-weight:800;margin:6px 4px 12px;letter-spacing:-.01em;color:#e2e8f0}
+
+/* hero */
+.hero{display:flex;align-items:center;gap:18px;flex-wrap:wrap;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,var(--acc2),transparent 55%);opacity:.55}
+.avatar{position:relative;z-index:1;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font-size:32px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc3));border:2px solid rgba(255,255,255,.35);box-shadow:0 10px 28px -8px var(--acc),inset 0 2px 0 rgba(255,255,255,.4)}
+.who{position:relative;z-index:1;min-width:0;flex:1}
+.who h1{font-size:22px;font-weight:800;letter-spacing:-.02em;word-break:break-word}
+.who .un{color:#94a3b8;font-size:14px;margin:2px 0 10px;font-weight:600}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:800;border:1px solid transparent}
+.b-role{background:var(--acc2);color:var(--accText);border-color:var(--acc)}
+.b-ok{background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+body.adm{--acc:#8b5cf6;--acc2:rgba(139,92,246,.22);--acc3:#6366f1;--accText:#ddd6fe}
+body.mod{--acc:#3b82f6;--acc2:rgba(59,130,246,.22);--acc3:#06b6d4;--accText:#bfdbfe}
+body:not(.adm):not(.mod){--acc:#64748b;--acc2:rgba(100,116,139,.2);--acc3:#475569;--accText:#e2e8f0}
+
+/* banner peran */
+.note{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:var(--acc2);border:1px solid var(--acc);margin-bottom:18px;font-size:13.5px;line-height:1.55;color:#e2e8f0}
+.note .ni{font-size:20px;line-height:1.2}
+
+/* tile akses cepat */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-bottom:18px}
+.tile{display:flex;align-items:center;gap:13px;text-align:left;padding:14px 15px;border-radius:18px;cursor:pointer;font-family:inherit;color:#f8fafc;
+border:1px solid rgba(255,255,255,.1);background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.03));box-shadow:inset 0 1px 0 rgba(255,255,255,.15);
+transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s,box-shadow .25s}
+.tile:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 14px 28px -14px var(--acc)}
+.tile:active{transform:scale(.98)}
+.tile .ti{flex:0 0 44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:21px;background:var(--acc2);border:1px solid var(--acc)}
+.tile b{display:block;font-size:14px;font-weight:800}
+.tile small{display:block;font-size:11.5px;color:#94a3b8;font-weight:600;line-height:1.35;margin-top:2px}
+.tile.adm-only{border-color:rgba(139,92,246,.35)}
+.empty{text-align:center;color:#94a3b8;font-size:14px;padding:18px}
+
+/* chip izin moderator */
+.perms{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;font-size:12.5px;font-weight:700;border:1px solid transparent}
+.chip.y{background:rgba(16,185,129,.14);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+.chip.n{background:rgba(148,163,184,.1);color:#94a3b8;border-color:rgba(148,163,184,.22)}
+
+/* info */
+.row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}
+.row:last-child{border-bottom:0}.row span{color:#94a3b8;font-weight:600}.row b{text-align:right;font-weight:700}
+
+.logout{width:100%;padding:15px;border-radius:16px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.15);color:#fca5a5;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;transition:.2s}
+.logout:hover{background:#ef4444;color:#fff;transform:translateY(-2px)}
+.logout:disabled{opacity:.6;cursor:not-allowed;transform:none}
+body.page-exit{opacity:0!important;transition:opacity .2s}
+</style>
+</head>
+<body>
+<div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
+<header><strong id="hTitle">👤 Profil</strong></header>
+
+<main class="container">
+  <section class="card hero">
+    <div class="avatar" id="avatar">?</div>
+    <div class="who">
+      <h1 id="pName">Memuat...</h1>
+      <div class="un" id="pUser">@-</div>
+      <div class="badges" id="pBadges"></div>
+    </div>
+  </section>
+
+  <div class="note" id="roleNote"><span class="ni">⏳</span><div>Memuat data akun...</div></div>
+
+  <h2 class="sec" id="secTiles" style="display:none">⚡ Akses Cepat</h2>
+  <section class="tiles" id="tiles"></section>
+
+  <div id="permBox" style="display:none">
+    <h2 class="sec">🔑 Izin dari Admin</h2>
+    <section class="card"><div class="perms" id="perms"></div></section>
+  </div>
+
+  <h2 class="sec">🔐 Info Akun</h2>
+  <section class="card" id="info"></section>
+
+  <button class="logout" id="logoutButton">🚪 Keluar dari Akun</button>
+</main>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { storage: window.sessionStorage } });
+const $ = id => document.getElementById(id);
+
+function go(u){ document.body.classList.add("page-exit"); setTimeout(function(){ window.location.href = u; }, 200); }
+window.addEventListener("pageshow", function(e){ if (e.persisted) document.body.classList.remove("page-exit"); });
+
+/* Daftar izin yang bisa diberikan Admin ke Moderator */
+const PERMS = [
+  { key: "kelola_absensi",    icon: "✅", label: "Kelola Absensi" },
+  { key: "kelola_jadwal",     icon: "📅", label: "Kelola Jadwal" },
+  { key: "kelola_mapel",      icon: "📚", label: "Mata Pelajaran" },
+  { key: "kelola_materi",     icon: "📖", label: "Kelola Materi" },
+  { key: "kelola_member",     icon: "👥", label: "Kelola Member" },
+  { key: "kelola_pengumuman", icon: "📢", label: "Info & Pengumuman" },
+  { key: "lihat_statistik",   icon: "📊", label: "Statistik" },
+  { key: "lihat_riwayat",     icon: "📜", label: "Riwayat Login" }
+];
+
+/* Menu yang TIDAK ada di bar bawah (bar bawah: Dashboard, Jadwal, Absensi, Mapel, Profil) */
+const TILES = [
+  { perm: "kelola_member",     icon: "👥", t: "Kelola Member",     d: "Tambah, ubah, kunci, dan hapus akun member", href: "member-management.html" },
+  { perm: "kelola_materi",     icon: "📖", t: "Kelola Materi",     d: "Tambah, edit, dan hapus materi",            href: "materials-management.html" },
+  { perm: "kelola_pengumuman", icon: "📢", t: "Info & Pengumuman", d: "Buat informasi, tugas, dan pengumuman",     href: "announcements-admin.html" },
+  { perm: "lihat_statistik",   icon: "📊", t: "Statistik",         d: "Pengguna, materi, dan status penggunaan",   href: "statistics.html" },
+  { perm: "lihat_riwayat",     icon: "📜", t: "Riwayat Login",     d: "Kapan member masuk dan keluar",             href: "riwayat-login.html" },
+  { adminOnly: true, icon: "🛡️", t: "Izin Peran",       d: "Atur apa yang boleh dilakukan Moderator",  href: "izin-peran.html" },
+  { adminOnly: true, icon: "⚙️", t: "Pengaturan Admin", d: "Ubah nama, username, dan password",        href: "admin-settings.html" }
+];
+
+function badge(cls, text){ const s = document.createElement("span"); s.className = "badge " + cls; s.textContent = text; return s; }
+
+function addTile(box, t){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "tile" + (t.adminOnly ? " adm-only" : "");
+  b.innerHTML = '<span class="ti">' + t.icon + '</span><span><b>' + t.t + '</b><small>' + t.d + '</small></span>';
+  b.addEventListener("click", function(){ go(t.href); });
+  box.appendChild(b);
+}
+
+function addRow(box, k, v){
+  const r = document.createElement("div"); r.className = "row";
+  const s = document.createElement("span"); s.textContent = k;
+  const b = document.createElement("b"); b.textContent = v;
+  r.appendChild(s); r.appendChild(b); box.appendChild(r);
+}
+
+async function load(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { go("index.html"); return; }
+
+  const { data: p, error } = await sb.from("profiles").select("id, nama, username, role, status").eq("id", session.user.id).single();
+  if (error || !p) { await sb.auth.signOut({ scope: "local" }); go("index.html"); return; }
+
+  const role = String(p.role || "").toLowerCase();
+  if ((role !== "admin" && role !== "moderator") || String(p.status || "").toLowerCase() !== "open") {
+    await sb.auth.signOut({ scope: "local" }); go("index.html"); return;
+  }
+
+  const isAdmin = role === "admin";
+  document.body.classList.add(isAdmin ? "adm" : "mod");
+  document.body.classList.remove(isAdmin ? "mod" : "adm");
+
+  const nama = p.nama || p.username || (isAdmin ? "Admin" : "Moderator");
+  $("avatar").textContent = nama.charAt(0).toUpperCase();
+  $("pName").textContent = nama;
+  $("pUser").textContent = "@" + (p.username || "-");
+  $("pBadges").appendChild(badge("b-role", isAdmin ? "🛡️ Administrator" : "⭐ Moderator"));
+  $("pBadges").appendChild(badge("b-ok", "🟢 Akun aktif"));
+  $("hTitle").textContent = isAdmin ? "🛡️ Profil Admin" : "⭐ Profil Moderator";
+
+  const note = $("roleNote");
+  note.innerHTML = isAdmin
+    ? '<span class="ni">👑</span><div><b>Akses penuh.</b> Kamu bisa mengelola seluruh sistem, mengatur izin Moderator, dan mengubah pengaturan administrator.</div>'
+    : '<span class="ni">🧭</span><div><b>Akses sesuai izin.</b> Menu yang bisa kamu buka ditentukan oleh Admin. Menu tanpa izin akan redup di bar bawah.</div>';
+
+  /* Akses cepat */
+  const tiles = $("tiles"); let shown = 0;
+  if (isAdmin) {
+    TILES.forEach(function(t){ addTile(tiles, t); shown++; });
+  } else {
+    const allowed = {};
+    await Promise.all(PERMS.map(async function(x){ allowed[x.key] = await Perm.allow(sb, role, x.key); }));
+    TILES.forEach(function(t){ if (!t.adminOnly && allowed[t.perm]) { addTile(tiles, t); shown++; } });
+
+    const box = $("perms");
+    PERMS.forEach(function(x){
+      const c = document.createElement("span");
+      c.className = "chip " + (allowed[x.key] ? "y" : "n");
+      c.textContent = (allowed[x.key] ? x.icon : "🔒") + " " + x.label;
+      box.appendChild(c);
+    });
+    $("permBox").style.display = "";
+  }
+  if (shown) $("secTiles").style.display = "";
+  else { $("secTiles").style.display = ""; tiles.innerHTML = '<div class="empty" style="grid-column:1/-1">Belum ada menu tambahan untuk akunmu.</div>'; }
+
+  /* Info akun */
+  const info = $("info");
+  addRow(info, "Nama", nama);
+  addRow(info, "Username", "@" + (p.username || "-"));
+  addRow(info, "Peran", isAdmin ? "Administrator" : "Moderator");
+  addRow(info, "Status", "Aktif");
+  addRow(info, "Sesi login", isAdmin ? "Per tab browser" : "1 akun, 1 perangkat");
+}
+
+$("logoutButton").addEventListener("click", async function(){
+  const btn = $("logoutButton");
+  btn.disabled = true; btn.textContent = "🚪 Keluar...";
+  try {
+    await StaffSession.leave(sb);
+    await sb.auth.signOut({ scope: "local" });
+  } catch (e) { console.error("LOGOUT:", e); }
+  localStorage.removeItem("portal_user");
+  localStorage.removeItem("admin_profile");
+  go("index.html");
+});
+
+load().catch(function(e){ console.error(e); go("index.html"); });
+</script>
+</body>
+</html>
