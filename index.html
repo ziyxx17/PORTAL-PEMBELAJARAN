@@ -480,37 +480,6 @@
                 transition: none !important;
             }
         }
-
-        /* PILIH PERAN */
-        .roles {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            padding: 6px;
-            margin-bottom: 22px;
-            background: rgba(15, 23, 42, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            animation: fadeUp 0.6s ease 0.22s both;
-        }
-        .role-tab {
-            border: none;
-            background: transparent;
-            color: #94a3b8;
-            padding: 11px 6px;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        .role-tab:hover { color: #e2e8f0; background: rgba(255, 255, 255, 0.06); }
-        .role-tab.active {
-            color: #ffffff;
-            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-            box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.55);
-        }
     </style>
 </head>
 
@@ -536,13 +505,6 @@
         <!-- TITLE -->
         <h1>Portal Pembelajaran</h1>
         <p class="subtitle">Selamat datang! Silakan masukkan username dan password untuk login!</p>
-
-        <!-- PILIH PERAN -->
-        <div class="roles" id="roleTabs">
-            <button type="button" class="role-tab active" data-role="member">🎓 Member</button>
-            <button type="button" class="role-tab" data-role="moderator">🛠️ Moderator</button>
-            <button type="button" class="role-tab" data-role="admin">🛡️ Admin</button>
-        </div>
 
         <!-- MESSAGE -->
         <div id="message" class="message"></div>
