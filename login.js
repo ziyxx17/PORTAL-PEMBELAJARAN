@@ -1,5 +1,6 @@
 /**
- * LOGIN TERPADU: Member / Moderator / Admin dalam satu halaman.
+ * LOGIN OTOMATIS: Member / Moderator / Admin dalam satu form, tanpa memilih peran.
+ * Peran dikenali dari akunnya, lalu langsung diarahkan ke halaman yang sesuai.
  * Semua peran memakai sesi per-tab (sessionStorage): membuka tab baru tidak
  * mengganggu tab lain, dan tab baru selalu menampilkan form login.
  * Member & Moderator: 1 akun = 1 sesi. Admin: tanpa batas.
@@ -14,7 +15,6 @@ const passwordInput = document.getElementById("password");
 const messageBox = document.getElementById("message");
 const loginButton = document.getElementById("loginButton");
 
-let currentRole = "member";
 const NAMA_PERAN = { member: "Member", moderator: "Moderator", admin: "Admin" };
 const TUJUAN = { member: "member.html", moderator: "admin.html", admin: "admin.html" };
 
@@ -24,17 +24,8 @@ function showMessage(text, type) {
     messageBox.textContent = text;
 }
 
-document.title = document.title.replace(/ • v\d+$/, "") + " • v5";
+document.title = document.title.replace(/ • v\d+$/, "") + " • v6";
 const sessionReady = (typeof SingleSession !== "undefined");
-
-document.querySelectorAll(".role-tab").forEach(function (tab) {
-    tab.addEventListener("click", function () {
-        currentRole = tab.dataset.role;
-        document.querySelectorAll(".role-tab").forEach(function (t) { t.classList.toggle("active", t === tab); });
-        messageBox.style.display = "none";
-        usernameInput.focus();
-    });
-});
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get("reason") === "session") {
@@ -67,23 +58,35 @@ async function checkExistingSession() {
 }
 checkExistingSession();
 
-/* Member & Moderator: login langsung + klaim sesi (1 akun = 1 sesi) */
-async function loginBatasSesi(username, password, wanted) {
+/* Admin lewat fungsi server (dipakai kalau akun bukan akun biasa). Semua kegagalan dibuat seragam. */
+async function loginAdminCadangan(username, password) {
+    try { return await loginAdmin(username, password); }
+    catch (e) { console.error("LOGIN ADMIN (cadangan):", e); throw new Error("Username atau password salah."); }
+}
+
+/* Satu pintu untuk semua peran: peran dikenali dari profil akun setelah password benar.
+   Member & Moderator: klaim sesi (1 akun = 1 sesi). Admin: tanpa batas sesi. */
+async function loginAkun(username, password) {
     if (!sessionReady) throw new Error("Kode sesi tidak terbaca: config.js masih versi lama. Ganti config.js lalu tekan Ctrl+Shift+R.");
 
     const { data: authData, error: authError } = await client.auth.signInWithPassword({ email: username + "@portal.local", password: password });
-    if (authError) throw new Error("Username atau password salah.");
+    if (authError) {
+        const salahKredensial = authError.code === "invalid_credentials" || authError.status === 400 || /invalid login credentials/i.test(authError.message || "");
+        if (!salahKredensial) throw new Error("Gagal terhubung ke server. Periksa internet lalu coba lagi.");
+        return await loginAdminCadangan(username, password);   // mungkin akun Admin
+    }
 
     const { data: profile, error: profileError } = await client.from("profiles").select("status, role").eq("id", authData.user.id).maybeSingle();
     if (profileError || !profile) { await client.auth.signOut({ scope: "local" }); throw new Error("Gagal memverifikasi profil."); }
 
     const role = String(profile.role || "").toLowerCase().trim();
     const status = String(profile.status || "").toLowerCase().trim();
-    if (role !== wanted) {
+    if (!Object.prototype.hasOwnProperty.call(TUJUAN, role)) {
         await client.auth.signOut({ scope: "local" });
-        throw new Error("Akun ini bukan akun " + NAMA_PERAN[wanted] + ". Pilih peran yang sesuai di atas.");
+        throw new Error("Peran akun tidak dikenali. Hubungi Admin.");
     }
     if (status !== "open") { await client.auth.signOut({ scope: "local" }); throw new Error("Akun Anda sedang dikunci oleh Admin."); }
+    if (role === "admin") return { tujuan: TUJUAN.admin, peran: "admin" };   // admin: tanpa batas sesi
 
     let result;
     try { result = await SingleSession.claim(client); }
@@ -95,10 +98,10 @@ async function loginBatasSesi(username, password, wanted) {
         await client.auth.signOut({ scope: "local" });
         if (result === "active") throw new Error("Akun masih dalam status login di tab atau perangkat lain! Keluar dulu di sana lewat tombol Keluar. Jika tab sebelumnya tertutup tanpa keluar, minta Admin untuk mereset status login akun kamu.");
         if (result === "locked") throw new Error("Akun Anda sedang dikunci oleh Admin.");
-        if (result === "not_member") throw new Error("Akun ini bukan akun " + NAMA_PERAN[wanted] + ".");
+        if (result === "not_member") throw new Error("Akun ini bukan akun Member atau Moderator.");
         throw new Error("Gagal memverifikasi profil.");
     }
-    return TUJUAN[wanted];
+    return { tujuan: TUJUAN[role], peran: role };
 }
 
 /* Admin: lewat fungsi server admin-login */
@@ -114,7 +117,7 @@ async function loginAdmin(username, password) {
         const { error: sErr } = await client.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
         if (sErr) throw new Error("Gagal menyimpan sesi login.");
     }
-    return TUJUAN.admin;
+    return { tujuan: TUJUAN.admin, peran: "admin" };
 }
 
 loginForm.addEventListener("submit", async function (event) {
@@ -123,16 +126,15 @@ loginForm.addEventListener("submit", async function (event) {
     const password = passwordInput.value;
     if (!username || !password) { showMessage("Username dan password wajib diisi.", "error"); return; }
 
-    showMessage("Mencoba masuk sebagai " + NAMA_PERAN[currentRole] + "...", "loading");
+    showMessage("Memeriksa akun...", "loading");
     loginButton.disabled = true;
     loginButton.textContent = "Memproses...";
 
     try {
-        const tujuan = currentRole === "admin"
-            ? await loginAdmin(username, password)
-            : await loginBatasSesi(username, password, currentRole);
+        const hasil = await loginAkun(username, password);
+        const tujuan = hasil.tujuan;
 
-        showMessage("Login berhasil! Mengalihkan...", "success");
+        showMessage("Login berhasil sebagai " + NAMA_PERAN[hasil.peran] + "! Mengalihkan...", "success");
         loginButton.textContent = "Berhasil!";
         setTimeout(function () {
             document.body.classList.add("page-exit");
