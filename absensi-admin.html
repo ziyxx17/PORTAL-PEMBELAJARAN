@@ -61,6 +61,30 @@ textarea{min-height:84px;resize:vertical}
 .box{width:100%;max-width:440px;max-height:92vh;overflow-y:auto;background:rgba(30,41,59,.95);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:24px}
 .box h2{text-align:center}.box .f{margin-bottom:14px}
 video{width:100%;border-radius:16px;background:#000;aspect-ratio:1/1;object-fit:cover}
+/* ===== Tombol aksi sesi ===== */
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.act{--tint:rgba(255,255,255,.1);--bd:rgba(255,255,255,.2);--glow:rgba(148,163,184,.5);position:relative;overflow:hidden;display:flex;align-items:center;gap:13px;text-align:left;padding:13px 15px;border-radius:18px;cursor:pointer;font-family:inherit;color:#f8fafc;
+border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.03));
+-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s,border-color .25s,background .25s}
+.act::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.14),rgba(255,255,255,0) 45%)}
+.act .ico{position:relative;flex:0 0 44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:21px;background:var(--tint);border:1px solid var(--bd);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.act .tx{position:relative;display:flex;flex-direction:column;gap:2px;min-width:0}
+.act .tx b{font-size:14px;font-weight:800;line-height:1.25;display:block;letter-spacing:-.01em}
+.act .tx small{font-size:11.5px;color:#94a3b8;font-weight:600;line-height:1.35}
+.act:hover{transform:translateY(-3px);border-color:var(--bd);box-shadow:0 14px 28px -12px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)}
+.act:active{transform:translateY(0) scale(.98)}
+.act:focus-visible{outline:2px solid #8b5cf6;outline-offset:2px}
+.act:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.a-pause{--tint:rgba(245,158,11,.2);--bd:rgba(245,158,11,.45);--glow:rgba(245,158,11,.65)}
+.a-open{--tint:rgba(59,130,246,.22);--bd:rgba(59,130,246,.5);--glow:rgba(59,130,246,.7);background:linear-gradient(135deg,rgba(59,130,246,.24),rgba(37,99,235,.08))}
+.a-final{--tint:rgba(16,185,129,.24);--bd:rgba(16,185,129,.55);--glow:rgba(16,185,129,.7);background:linear-gradient(135deg,rgba(16,185,129,.3),rgba(5,150,105,.1));border-color:rgba(16,185,129,.35)}
+.a-final .tx small{color:#a7f3d0}
+.a-csv{--tint:rgba(56,189,248,.2);--bd:rgba(56,189,248,.45);--glow:rgba(56,189,248,.6)}
+.a-del{--tint:rgba(239,68,68,.2);--bd:rgba(239,68,68,.5);--glow:rgba(239,68,68,.65);background:linear-gradient(135deg,rgba(239,68,68,.14),rgba(239,68,68,.04));border-color:rgba(239,68,68,.28)}
+.a-del .tx b{color:#fca5a5}.a-del .tx small{color:#f8a4a4;opacity:.85}
+.a-del:hover{background:linear-gradient(135deg,rgba(239,68,68,.28),rgba(239,68,68,.1))}
 @media(max-width:600px){header{padding:14px 16px}.container{padding:20px 14px 30px}}
 </style>
 </head>
@@ -90,11 +114,11 @@ video{width:100%;border-radius:16px;background:#000;aspect-ratio:1/1;object-fit:
         <div><h2 id="dTitle" style="margin:0"></h2><span class="sub" id="dWhen" style="margin:0"></span></div>
         <div id="dStatus"></div>
       </div>
-      <div class="row">
-        <button class="btn" id="btnToggle"></button>
-        <button class="btn ok" id="btnFinal">🏁 Tutup &amp; tandai Alfa yang belum absen</button>
-        <button class="btn" id="btnCsv">⬇️ Unduh CSV</button>
-        <button class="btn dan" id="btnDel">🗑️ Hapus sesi</button>
+      <div class="actions">
+        <button class="act a-pause" id="btnToggle" type="button"></button>
+        <button class="act a-final" id="btnFinal" type="button"><span class="ico">🏁</span><span class="tx"><b>Tutup &amp; tandai Alfa</b><small>Yang belum absen otomatis jadi Alfa</small></span></button>
+        <button class="act a-csv" id="btnCsv" type="button"><span class="ico">⬇️</span><span class="tx"><b>Unduh CSV</b><small>Simpan rekap absensi sesi ini</small></span></button>
+        <button class="act a-del" id="btnDel" type="button"><span class="ico">🗑️</span><span class="tx"><b>Hapus sesi</b><small>Hapus permanen beserta catatannya</small></span></button>
       </div>
     </div>
 
@@ -114,7 +138,7 @@ video{width:100%;border-radius:16px;background:#000;aspect-ratio:1/1;object-fit:
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://unpkg.com/qrcode@1.4.4/build/qrcode.min.js';document.head.appendChild(s)"></script>
 <script>
 
 const $=id=>document.getElementById(id);
@@ -168,11 +192,19 @@ async function loadRecs(){
   recs=new Map((data||[]).map(r=>[r.user_id,r]));
 }
 
+function setToggle(open){
+  const b=$("btnToggle");
+  b.className="act "+(open?"a-pause":"a-open");
+  b.innerHTML=open
+    ?'<span class="ico">⏸️</span><span class="tx"><b>Tutup sesi</b><small>Tanpa menandai Alfa</small></span>'
+    :'<span class="ico">▶️</span><span class="tx"><b>Buka lagi sesi</b><small>Member bisa scan QR kembali</small></span>';
+}
+
 function renderDetail(){
   const open=cur.status==="open";
   $("dTitle").textContent=cur.title;$("dWhen").textContent=fmt(cur.starts_at)+" – "+jam(cur.ends_at);
   $("dStatus").innerHTML='<span class="badge '+(open?"b-open":"b-closed")+'">'+(open?"🟢 Terbuka":"⚪ Ditutup")+'</span>';
-  $("btnToggle").textContent=open?"⏸️ Tutup sesi (tanpa alfa)":"▶️ Buka lagi";
+  setToggle(open);
   $("qrCard").style.display=open?"":"none";
   const c={hadir:0,izin:0,sakit:0,alfa:0,dispen:0};let belum=0;
   members.forEach(m=>{const r=recs.get(m.id);if(r&&c[r.status]!=null)c[r.status]++;else belum++});
@@ -189,8 +221,9 @@ async function rotateQR(){
   try{
     const {data,error}=await sb.rpc("rotate_attendance_code",{p_session:cur.id});
     if(error)throw error;
-    await QRCode.toCanvas($("qr"),data,{width:240,margin:1,color:{dark:"#0f172a",light:"#ffffff"}});
     $("qrCode").textContent=data;nextRotate=Date.now()+25000;
+    if(typeof QRCode==="undefined")throw new Error("Library QR tidak termuat, pakai kode manual");
+    await QRCode.toCanvas($("qr"),data,{width:240,margin:1,color:{dark:"#0f172a",light:"#ffffff"}});
   }catch(e){$("qrCd").textContent="Gagal membuat QR: "+(e.message||e)}
   rotating=false;
 }
