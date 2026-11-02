@@ -141,7 +141,7 @@ window.Perm = (function () {
    Berjalan otomatis di halaman admin tanpa mengubah kode halaman. */
 window.StaffSession = (function () {
     const PAGES = ["admin", "member-management", "kelola-jadwal", "announcements-admin", "statistics",
-                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "absensi-admin", "subjects", "materials"];
+                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "absensi-admin", "subjects", "materials", "profil-staff"];
     const ref = (function () { try { return new URL(SUPABASE_URL).hostname.split(".")[0]; } catch (e) { return ""; } })();
     const STORE_KEY = "sb-" + ref + "-auth-token";
     let ended = false;
@@ -244,26 +244,42 @@ window.StaffSession = (function () {
 
 
 /* HOME BAR "LIQUID GLASS" (gaya iPhone): menu bawah yang bisa digeser.
-   Muncul otomatis di halaman member dan halaman admin/moderator. */
+   Sama untuk Member, Moderator, dan Admin: 5 menu tetap
+   [ Beranda/Dashboard | Jadwal | Absensi | Mapel | Profil ]
+   - Beranda  : member.html (member) / admin.html (moderator & admin)
+   - Profil   : profil-member.html (member) / profil-staff.html (moderator & admin, isinya beda per peran)
+   - Menu lain (Member, Info, Statistik, Riwayat, Materi, dll) dibuka dari Beranda / Profil.
+   - Moderator yang belum diberi izin untuk sebuah menu: ikonnya redup + muncul pesan saat ditekan. */
 window.LiquidDock = (function () {
-    const MEMBER = [
-        { label: "Beranda", icon: "🏠", href: "member.html", pages: ["member"] },
-        { label: "Jadwal", icon: "📅", href: "jadwal.html", pages: ["jadwal"] },
-        { label: "Absensi", icon: "✅", href: "absensi.html", pages: ["absensi"] },
-        { label: "Mapel", icon: "📚", href: "subjects.html", pages: ["subjects", "materials", "material-detail"] },
-        { label: "Info", icon: "📢", href: "announcements.html", pages: ["announcements"] },
-        { label: "Profil", icon: "👤", href: "profil-member.html", pages: ["profil-member"] }
-    ];
-    const STAFF = [
-        { label: "Dashboard", icon: "🏠", href: "admin.html", pages: ["admin", "admin-settings", "izin-peran"] },
-        { label: "Absensi", icon: "✅", href: "absensi-admin.html", pages: ["absensi-admin"], perm: "kelola_absensi" },
-        { label: "Member", icon: "👥", href: "member-management.html", pages: ["member-management", "riwayat-login"], perm: "kelola_member" },
-        { label: "Jadwal", icon: "📅", href: "kelola-jadwal.html", pages: ["kelola-jadwal"], perm: "kelola_jadwal" },
-        { label: "Info", icon: "📢", href: "announcements-admin.html", pages: ["announcements-admin"], perm: "kelola_pengumuman" },
-        { label: "Statistik", icon: "📊", href: "statistics.html", pages: ["statistics", "user-status"], perm: "lihat_statistik" }
-    ];
+    function memberTabs() {
+        return [
+            { label: "Beranda", icon: "🏠", href: "member.html", pages: ["member", "announcements"] },
+            { label: "Jadwal", icon: "📅", href: "jadwal.html", pages: ["jadwal"] },
+            { label: "Absensi", icon: "✅", href: "absensi.html", pages: ["absensi"] },
+            { label: "Mapel", icon: "📚", href: "subjects.html", pages: ["subjects", "materials", "material-detail"] },
+            { label: "Profil", icon: "👤", href: "profil-member.html", pages: ["profil-member"] }
+        ];
+    }
+    function staffTabs(role) {
+        return [
+            { label: "Dashboard", icon: "🏠", href: "admin.html",
+              pages: ["admin", "admin-settings", "izin-peran", "member-management", "riwayat-login", "announcements-admin", "statistics", "user-status"] },
+            { label: "Jadwal", icon: "📅", href: "kelola-jadwal.html", pages: ["kelola-jadwal"], perm: "kelola_jadwal" },
+            { label: "Absensi", icon: "✅", href: "absensi-admin.html", pages: ["absensi-admin"], perm: "kelola_absensi" },
+            { label: "Mapel", icon: "📚", href: "subjects.html", pages: ["subjects", "materials", "material-detail", "materials-management"], perm: "kelola_mapel" },
+            { label: "Profil", icon: role === "admin" ? "🛡️" : "⭐", href: "profil-staff.html", pages: ["profil-staff"] }
+        ];
+    }
+    function pagesOf(items) {
+        const out = [];
+        items.forEach(function (it) { it.pages.forEach(function (p) { if (out.indexOf(p) < 0) out.push(p); }); });
+        return out;
+    }
+    const MEMBER_PAGES = pagesOf(memberTabs());
+    const STAFF_PAGES = pagesOf(staffTabs("admin"));
+
     const CSS = `
-.lg-dock{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9000;display:flex;align-items:stretch;gap:2px;padding:7px;width:min(94vw,420px);border-radius:999px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
+.lg-dock{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9000;display:flex;align-items:stretch;gap:2px;padding:7px;width:min(94vw,400px);border-radius:999px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
 background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.06) 55%,rgba(255,255,255,.14));
 -webkit-backdrop-filter:blur(26px) saturate(190%);backdrop-filter:blur(26px) saturate(190%);
 border:1px solid rgba(255,255,255,.3);
@@ -279,10 +295,14 @@ border:1px solid rgba(255,255,255,.5);
 box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75),inset 0 -8px 14px rgba(255,255,255,.1),0 8px 20px rgba(0,0,0,.35);
 transition:transform .5s cubic-bezier(.34,1.56,.64,1),width .3s,opacity .3s}
 .lg-dock.drag .lg-lens{transition:width .3s,opacity .3s;filter:brightness(1.12)}
-.lg-item{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:7px 0 5px;color:#e2e8f0;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .2s}
+.lg-item{position:relative;z-index:2;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:7px 0 5px;color:#e2e8f0;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:transform .35s cubic-bezier(.34,1.56,.64,1),color .2s,opacity .2s}
 .lg-item .ic{font-size:21px;line-height:1.1}
 .lg-item small{font-size:9.5px;font-weight:700;letter-spacing:.01em;opacity:.85}
 .lg-item.on{color:#fff}.lg-item.on small{opacity:1}
+.lg-item.off{opacity:.38}
+.lg-toast{position:fixed;left:50%;bottom:calc(98px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(10px);z-index:9100;max-width:90vw;padding:10px 16px;border-radius:14px;font:600 13px/1.4 'Plus Jakarta Sans',-apple-system,sans-serif;color:#f8fafc;text-align:center;
+background:rgba(30,41,59,.92);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 12px 30px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.lg-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 body.has-dock{padding-bottom:108px!important}
 @media (prefers-reduced-motion:reduce){.lg-dock,.lg-lens,.lg-item{animation:none!important;transition:none!important}}`;
 
@@ -306,6 +326,15 @@ body.has-dock{padding-bottom:108px!important}
         return -1;
     }
 
+    let toastEl = null, toastTimer = null;
+    function toast(text) {
+        if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "lg-toast"; document.body.appendChild(toastEl); }
+        toastEl.textContent = text;
+        toastEl.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2600);
+    }
+
     function mount(items, active) {
         const st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
         const dock = document.createElement("nav");
@@ -313,7 +342,7 @@ body.has-dock{padding-bottom:108px!important}
         const lens = document.createElement("div"); lens.className = "lg-lens"; dock.appendChild(lens);
         const els = items.map(function (it) {
             const a = document.createElement("a");
-            a.className = "lg-item"; a.href = it.href;
+            a.className = "lg-item" + (it.locked ? " off" : ""); a.href = it.href;
             a.innerHTML = '<span class="ic">' + it.icon + '</span><small>' + it.label + "</small>";
             dock.appendChild(a);
             return a;
@@ -321,7 +350,7 @@ body.has-dock{padding-bottom:108px!important}
         document.body.appendChild(dock);
         document.body.classList.add("has-dock");
 
-        let cur = active, drag = false, sx = 0, last = 0;
+        let cur = active, drag = false, last = 0;
         const centerOf = function (k) { return els[k].offsetLeft + els[k].offsetWidth / 2; };
         const lensW = function () { return els[0].offsetWidth + 6; };
         function put(x, s) {
@@ -358,6 +387,12 @@ body.has-dock{padding-bottom:108px!important}
             drag = false; dock.classList.remove("drag");
             const i = cancel ? cur : nearest(cx);
             if (i < 0) { lens.style.opacity = 0; els.forEach(function (e) { e.style.transform = ""; }); return; }
+            if (!cancel && items[i].locked) {
+                last = Date.now();
+                toast("Kamu belum punya izin untuk menu " + items[i].label + ". Hubungi Admin.");
+                snap(cur);
+                return;
+            }
             snap(i);
             if (cancel) return;
             last = Date.now();
@@ -365,7 +400,7 @@ body.has-dock{padding-bottom:108px!important}
         }
 
         dock.addEventListener("pointerdown", function (e) {
-            drag = true; sx = e.clientX;
+            drag = true;
             try { dock.setPointerCapture(e.pointerId); } catch (x) {}
             dock.classList.add("drag"); follow(e.clientX);
         });
@@ -376,6 +411,7 @@ body.has-dock{padding-bottom:108px!important}
             a.addEventListener("click", function (e) {
                 e.preventDefault();                         // tombol keyboard (Enter) tetap bisa pindah
                 if (Date.now() - last < 600) return;
+                if (items[k].locked) { toast("Kamu belum punya izin untuk menu " + items[k].label + ". Hubungi Admin."); return; }
                 if (k !== cur) { cur = k; snap(k); go(items[k].href); }
             });
         });
@@ -396,17 +432,19 @@ body.has-dock{padding-bottom:108px!important}
         if (!open) return;
 
         let items = null;
-        if (role === "member" && activeIndex(MEMBER, p) >= 0) {
-            items = MEMBER;
-        } else if ((role === "admin" || role === "moderator") && (activeIndex(STAFF, p) >= 0 || p === "subjects" || p === "materials")) {
-            items = [];
-            for (const it of STAFF) {
-                if (!it.perm || role === "admin") { items.push(it); continue; }
-                const ok = await call("rpc/has_permission", s, { p_key: it.perm });
-                if (ok === true) items.push(it);
+        if (role === "member" && MEMBER_PAGES.indexOf(p) >= 0) {
+            items = memberTabs();
+        } else if ((role === "admin" || role === "moderator") && STAFF_PAGES.indexOf(p) >= 0) {
+            items = staffTabs(role);
+            if (role === "moderator") {
+                await Promise.all(items.map(async function (it) {
+                    if (!it.perm) return;
+                    const ok = await call("rpc/has_permission", s, { p_key: it.perm });
+                    it.locked = ok !== true;
+                }));
             }
         }
-        if (items && items.length >= 2) mount(items, activeIndex(items, p));
+        if (items) mount(items, activeIndex(items, p));
     }
 
     window.addEventListener("load", function () { setTimeout(init, 400); });
