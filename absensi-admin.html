@@ -117,6 +117,18 @@ background:rgba(15,23,42,.5);border:1px solid rgba(255,255,255,.1);transition:tr
 .sh-count{text-align:right;font-size:11.5px;color:#64748b;margin-top:6px;font-weight:600}
 .sh-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:10px;margin-top:16px}
 .sh-actions .btn{padding:14px;font-size:14.5px;border-radius:14px}
+/* ===== Pilihan interval kode ===== */
+.ivbox{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.09);text-align:left}
+.ivgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.iv{padding:11px 4px;border-radius:13px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;color:#cbd5e1;text-align:center;line-height:1.2;
+background:rgba(15,23,42,.5);border:1px solid rgba(255,255,255,.1);transition:transform .2s cubic-bezier(.34,1.56,.64,1),background .2s,border-color .2s,box-shadow .2s}
+.iv:hover{border-color:rgba(139,92,246,.6);transform:translateY(-2px)}
+.iv:active{transform:scale(.96)}
+.iv.on{color:#fff;background:rgba(139,92,246,.28);border-color:rgba(139,92,246,.9);box-shadow:0 0 0 3px rgba(139,92,246,.18),inset 0 1px 0 rgba(255,255,255,.25)}
+.iv:disabled{opacity:.5;cursor:wait;transform:none}
+.ivnote{font-size:12.5px;color:#94a3b8;line-height:1.55;margin:12px 2px 14px}
+.a-reset{--tint:rgba(139,92,246,.24);--bd:rgba(139,92,246,.55);--glow:rgba(139,92,246,.7);width:100%;justify-content:center}
+.a-reset .tx{align-items:flex-start}
 @media(max-width:600px){header{padding:14px 16px}.container{padding:20px 14px 30px}}
 </style>
 </head>
@@ -160,7 +172,12 @@ background:rgba(15,23,42,.5);border:1px solid rgba(255,255,255,.1);transition:tr
       <p style="margin-top:12px;font-size:13px;color:#94a3b8">Kode manual:</p>
       <p id="qrCode" style="font-size:26px;font-weight:800;letter-spacing:.12em"></p>
       <p id="qrCd" style="font-size:12.5px;color:#94a3b8;margin-top:4px"></p>
-      <p style="font-size:12px;color:#64748b;margin-top:10px;line-height:1.5">QR berganti otomatis tiap 25 detik agar tidak bisa dibagikan lewat foto. Biarkan halaman ini terbuka / tampilkan di layar kelas.</p>
+      <div class="ivbox">
+        <span class="sh-lbl">⏱️ Ganti kode otomatis setiap</span>
+        <div class="ivgrid" id="ivGrid"></div>
+        <p class="ivnote" id="ivNote"></p>
+        <button class="act a-reset" id="btnReset" type="button"><span class="ico">🔄</span><span class="tx"><b>Reset kode sekarang</b><small>Kode lama langsung tidak berlaku</small></span></button>
+      </div>
     </div>
 
     <div class="stats" id="sum"></div>
@@ -201,7 +218,7 @@ const badge=s=>s&&ST[s]?'<span class="badge '+ST[s][1]+'">'+ST[s][0]+'</span>':'
 window.addEventListener("pageshow",()=>{document.body.style.opacity=1});
 
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{storage:window.sessionStorage}});
-let sessions=[],cur=null,members=[],recs=new Map(),nextRotate=0,tickN=0,rotating=false;
+let sessions=[],cur=null,members=[],recs=new Map(),nextRotate=0,tickN=0,rotating=false,curCode="",curInterval=300,qrErr="";
 
 async function init(){
   const {data}=await sb.auth.getSession();
@@ -229,8 +246,9 @@ async function openSession(id){
   }
   await loadRecs();
   $("detail").style.display="";
-  if(cur.status==="open"){nextRotate=0}
+  curCode="";qrErr="";nextRotate=0;
   renderDetail();loadSessions();
+  if(cur.status==="open")await initCode();
   $("detail").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
@@ -263,27 +281,90 @@ function renderDetail(){
   }).join(""):'<div class="empty">Belum ada member.</div>';
 }
 
-async function rotateQR(){
-  if(rotating||!cur||cur.status!=="open")return;rotating=true;
+const IV=[[30,"30 dtk","30 detik"],[60,"1 mnt","1 menit"],[300,"5 mnt","5 menit"],[600,"10 mnt","10 menit"],[1800,"30 mnt","30 menit"],[3600,"1 jam","1 jam"],[0,"Manual","Manual"],[-1,"Tetap","Tidak pernah ganti"]];
+function fmtDur(s){const h=Math.floor(s/3600),m=Math.floor(s%3600/60),d=s%60,p=n=>String(n).padStart(2,"0");return h?h+":"+p(m)+":"+p(d):m+":"+p(d)}
+function ivNote(){
+  const iv=IV.find(x=>x[0]===curInterval);const nm=iv?iv[2]:"";
+  if(curInterval>0)return "Kode berganti otomatis setiap "+nm+". Kalau halaman ini ditutup, kode lama otomatis kedaluwarsa sekitar 45 detik setelah jadwal ganti berikutnya. Untuk interval panjang, kode yang sama bisa dipakai siswa sepanjang waktu itu.";
+  if(curInterval===0)return "Mode manual: kode tetap sama sampai kamu menekan Reset. Berlaku sampai sesi ditutup atau waktu sesi habis. Siswa tidak perlu scan ulang kalau kode belum direset.";
+  return "Kode tidak pernah berganti selama sesi dibuka (sampai sesi ditutup atau waktu sesi habis). Paling praktis, tapi QR/kode bisa dibagikan ke siapa saja, termasuk yang tidak hadir. Kamu tetap bisa menekan Reset kapan saja.";
+}
+function renderIv(){
+  $("ivGrid").innerHTML=IV.map(o=>'<button type="button" class="iv'+(o[0]===curInterval?" on":"")+'" data-v="'+o[0]+'">'+o[1]+'</button>').join("");
+  $("ivNote").textContent=ivNote();
+}
+function cdText(){
+  if(curInterval>0)return "Berganti dalam "+fmtDur(Math.max(0,Math.ceil((nextRotate-Date.now())/1000)));
+  return curInterval===0?"Kode tetap • ganti lewat tombol Reset":"Kode tetap sampai sesi ditutup";
+}
+async function drawQR(code){
+  if(typeof QRCode==="undefined"){qrErr="Library QR tidak termuat, pakai kode manual";return}
+  try{await QRCode.toCanvas($("qr"),code,{width:240,margin:1,color:{dark:"#0f172a",light:"#ffffff"}})}
+  catch(e){qrErr="Gagal membuat QR: "+(e.message||e)}
+}
+function applyCode(code,at){
+  curCode=code;qrErr="";$("qrCode").textContent=code;
+  nextRotate=curInterval>0?at+curInterval*1000:Infinity;
+  renderIv();return drawQR(code);
+}
+async function fetchCode(){
+  const {data,error}=await sb.rpc("get_attendance_code",{p_session:cur.id});
+  return error?null:data;
+}
+async function initCode(){
+  const g=await fetchCode();
+  if(g&&g.code&&g.interval!=null){
+    curInterval=g.interval;renderIv();
+    const age=Number(g.age)||0;
+    if(!(g.interval>0&&age>=g.interval)){await applyCode(g.code,Date.now()-age*1000);return}
+  }else{curInterval=300;renderIv()}
+  await rotateQR();
+}
+async function syncCode(){
+  if(!cur||cur.status!=="open"||rotating)return;
+  const g=await fetchCode();
+  if(!g||!g.code||g.interval==null)return;
+  if(g.code!==curCode||g.interval!==curInterval){curInterval=g.interval;await applyCode(g.code,Date.now()-(Number(g.age)||0)*1000)}
+}
+async function rotateQR(force){
+  if(!cur||cur.status!=="open")return;
+  if(rotating){if(!force)return;while(rotating)await new Promise(r=>setTimeout(r,120))}
+  rotating=true;
   try{
-    const {data,error}=await sb.rpc("rotate_attendance_code",{p_session:cur.id});
+    const {data,error}=await sb.rpc("rotate_attendance_code",{p_session:cur.id,p_interval:curInterval});
     if(error)throw error;
-    $("qrCode").textContent=data;nextRotate=Date.now()+25000;
-    if(typeof QRCode==="undefined")throw new Error("Library QR tidak termuat, pakai kode manual");
-    await QRCode.toCanvas($("qr"),data,{width:240,margin:1,color:{dark:"#0f172a",light:"#ffffff"}});
-  }catch(e){$("qrCd").textContent="Gagal membuat QR: "+(e.message||e)}
+    await applyCode(data,Date.now());
+  }catch(e){
+    const m=String(e.message||e);
+    qrErr="Gagal membuat kode: "+(/p_interval|Could not find|schema cache/i.test(m)?"jalankan skrip 06-interval-kode.sql di Supabase dulu.":m);
+    if(!curCode||curInterval>0)nextRotate=Date.now()+10000;
+  }
   rotating=false;
 }
-
 function tick(){
   if(!cur||document.visibilityState!=="visible")return;
   tickN++;
   if(cur.status==="open"){
     if(Date.now()>=nextRotate)rotateQR();
-    else $("qrCd").textContent="Berganti dalam "+Math.max(0,Math.ceil((nextRotate-Date.now())/1000))+" dtk";
-    if(tickN%8===0&&!$("sheet").classList.contains("show"))loadRecs().then(renderDetail);
+    else $("qrCd").textContent=qrErr||cdText();
+    if(qrErr)$("qrCd").textContent=qrErr;
+    if(tickN%8===0&&!$("sheet").classList.contains("show")){loadRecs().then(renderDetail);syncCode()}
   }
 }
+$("ivGrid").addEventListener("click",async e=>{
+  const b=e.target.closest(".iv");if(!b||!cur||cur.status!=="open")return;
+  const v=Number(b.dataset.v);if(v===curInterval)return;
+  curInterval=v;renderIv();
+  document.querySelectorAll(".iv").forEach(x=>x.disabled=true);
+  await rotateQR(true);
+  document.querySelectorAll(".iv").forEach(x=>x.disabled=false);
+});
+$("btnReset").onclick=async()=>{
+  const btn=$("btnReset"),t=btn.querySelector("b");btn.disabled=true;t.textContent="Mereset...";
+  await rotateQR(true);
+  t.textContent=qrErr?"Gagal, coba lagi":"✅ Kode direset";
+  setTimeout(()=>{t.textContent="Reset kode sekarang";btn.disabled=false},1400);
+};
 
 const SH_OPTS=[["hadir","✅","Hadir"],["izin","📝","Izin"],["sakit","🤒","Sakit"],["alfa","❌","Alfa"],["dispen","🎖️","Dispen"],["","⏺️","Belum"]];
 const SH_QUICK={izin:["Acara keluarga","Keperluan keluarga","Urusan mendesak"],sakit:["Demam","Sakit kepala","Sakit perut","Ada surat dokter"],dispen:["Mewakili sekolah","Lomba","Kegiatan sekolah"]};
