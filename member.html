@@ -542,6 +542,14 @@ header {
             </div>
         </button>
 
+        <button class="menu-button" id="taskButton">
+            <div class="menu-icon">📝</div>
+            <div class="menu-content">
+                <div class="menu-title">Tugas Soal</div>
+                <div class="menu-description">Kerjakan soal dari guru sesuai waktu yang ditentukan dan lihat nilaimu.</div>
+            </div>
+        </button>
+
     </section>
 
     <h2 class="section-title">👤 Akun</h2>
@@ -825,6 +833,10 @@ document.getElementById("scheduleButton").addEventListener("click", function() {
 
 document.getElementById("subjectButton").addEventListener("click", function() {
     if (!accountLocked) window.location.href = "subjects.html";
+});
+
+document.getElementById("taskButton").addEventListener("click", function() {
+    if (!accountLocked) window.location.href = "tugas.html";
 });
 
 document.getElementById("announcementButton").addEventListener("click", function() {
