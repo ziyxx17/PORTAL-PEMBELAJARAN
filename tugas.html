@@ -228,7 +228,8 @@ function kartu(t,grp){
   const bg={aktif:["🟢 Berlangsung","b-on"],akan:["🕒 Akan dibuka","b-plan"],selesai:null,lewat:["⚫ Terlewat","b-end"]}[grp];
   let badge=bg?'<span class="badge '+bg[1]+'">'+bg[0]+'</span>':"",aksi="";
   if(grp==="selesai"){
-    if(t.hasil_boleh&&t.nilai!=null)badge='<div class="sc">'+Number(t.nilai)+'</div>';
+    if(t.tidak_mengerjakan)badge='<span class="badge b-end">⚠️ Tidak mengerjakan'+(t.hasil_boleh&&t.nilai!=null?' · nilai '+Number(t.nilai):'')+'</span>';
+    else if(t.hasil_boleh&&t.nilai!=null)badge='<div class="sc">'+Number(t.nilai)+'</div>';
     else if(t.status_kerja==="menunggu")badge='<span class="badge b-wait">⏳ Menunggu penilaian</span>';
     else badge='<span class="badge b-done">✅ Sudah dikirim</span>';
     aksi=(t.bisa_ubah?'<button class="btn sm ok" data-a="ubah" data-id="'+t.id+'">✏️ Ubah jawaban</button> ':'')+'<button class="btn sm pri" data-a="hasil" data-id="'+t.id+'">Lihat hasil</button>';
@@ -342,7 +343,7 @@ async function simpan(){
 }
 async function selesaiOtomatis(){
   const id=T.tugas.id;stopKerja();
-  msg("Waktu pengerjaan sudah habis. Jawaban terakhirmu sudah dikirim otomatis.",true);
+  msg("Pengerjaan sudah ditutup (waktu habis atau diakhiri guru). Jawaban terakhirmu sudah dikirim otomatis.",true);
   await lihatHasil(id,true);
 }
 function stopKerja(){clearInterval(tickH);clearTimeout(saveTimer);T=null;dirty=false}
@@ -386,7 +387,9 @@ function tampilHasil(h,id){
   let r="";
   let ub="";
   if(h.bisa_ubah)ub='<div class="card" style="border-color:rgba(16,185,129,.4)"><b>✏️ Jawabanmu masih bisa diubah</b><p class="sub" style="margin:6px 0 12px">Sampai '+fmt(h.batas_at)+'. Setelah mengubah, kirim ulang jawabanmu. Kalau tidak dikirim ulang, jawaban terakhir dikirim otomatis saat waktu habis.</p><button class="btn ok" id="hUbah" type="button" data-id="'+esc(id)+'">Ubah jawaban</button></div>';
-  if(h.hasil_boleh&&h.nilai!=null){
+  if(h.tidak_mengerjakan){
+    r='<div class="card skor"><div style="font-size:44px;margin-bottom:8px">⚠️</div><b style="font-size:16px">Kamu tidak mengerjakan tugas ini</b><p class="sub" style="margin:8px 0 0">Tugas sudah diakhiri oleh guru.'+(h.hasil_boleh?' Nilai kamu: <b>0</b>.':' Nilai akan tampil sesuai pengaturan guru.')+'</p></div>';
+  }else if(h.hasil_boleh&&h.nilai!=null){
     const n=Number(h.nilai),c=n>=75?"#10b981":n>=50?"#f59e0b":"#ef4444";
     r='<div class="card skor"><div class="ring" style="--p:'+Math.max(0,Math.min(100,n))+';--c:'+c+'"><span>'+n+'</span></div><b style="font-size:16px">Nilai kamu</b><p class="sub" style="margin:6px 0 0">Dikirim '+fmt(h.dikirim_at)+'</p></div>';
   }else if(h.hasil_boleh&&h.status==="menunggu"){
