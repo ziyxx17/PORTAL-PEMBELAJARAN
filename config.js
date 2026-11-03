@@ -141,7 +141,7 @@ window.Perm = (function () {
    Berjalan otomatis di halaman admin tanpa mengubah kode halaman. */
 window.StaffSession = (function () {
     const PAGES = ["admin", "member-management", "kelola-jadwal", "announcements-admin", "statistics",
-                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "absensi-admin", "subjects", "materials", "profil-staff"];
+                   "user-status", "admin-settings", "riwayat-login", "izin-peran", "absensi-admin", "subjects", "materials", "profil-staff", "tugas-admin"];
     const ref = (function () { try { return new URL(SUPABASE_URL).hostname.split(".")[0]; } catch (e) { return ""; } })();
     const STORE_KEY = "sb-" + ref + "-auth-token";
     let ended = false;
@@ -253,7 +253,7 @@ window.StaffSession = (function () {
 window.LiquidDock = (function () {
     function memberTabs() {
         return [
-            { label: "Beranda", icon: "🏠", href: "member.html", pages: ["member", "announcements"] },
+            { label: "Beranda", icon: "🏠", href: "member.html", pages: ["member", "announcements", "tugas"] },
             { label: "Jadwal", icon: "📅", href: "jadwal.html", pages: ["jadwal"] },
             { label: "Absensi", icon: "✅", href: "absensi.html", pages: ["absensi"] },
             { label: "Mapel", icon: "📚", href: "subjects.html", pages: ["subjects", "materials", "material-detail"] },
@@ -263,7 +263,7 @@ window.LiquidDock = (function () {
     function staffTabs(role) {
         return [
             { label: "Dashboard", icon: "🏠", href: "admin.html",
-              pages: ["admin", "admin-settings", "izin-peran", "member-management", "riwayat-login", "announcements-admin", "statistics", "user-status"] },
+              pages: ["admin", "admin-settings", "izin-peran", "member-management", "riwayat-login", "announcements-admin", "statistics", "user-status", "tugas-admin"] },
             { label: "Jadwal", icon: "📅", href: "kelola-jadwal.html", pages: ["kelola-jadwal"], perm: "kelola_jadwal" },
             { label: "Absensi", icon: "✅", href: "absensi-admin.html", pages: ["absensi-admin"], perm: "kelola_absensi" },
             { label: "Mapel", icon: "📚", href: "subjects.html", pages: ["subjects", "materials", "material-detail", "materials-management"], perm: "kelola_mapel" },
