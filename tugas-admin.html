@@ -164,6 +164,7 @@ img.zoomable{cursor:zoom-in}
       <button class="btn sm" id="nKembali" type="button">← Daftar tugas</button>
       <button class="btn sm" id="nSoal" type="button">📝 Soal</button>
       <button class="btn sm" id="nCsv" type="button">⬇️ Unduh CSV</button>
+      <button class="btn sm dan" id="nAkhiri" type="button">🏁 Akhiri tugas</button>
       <button class="btn sm" id="nRilis" type="button" style="display:none"></button>
     </div>
     <h1 id="nJudul"></h1>
@@ -590,10 +591,11 @@ $("eSimpan").onclick=async()=>{
 $("mImg").addEventListener("click",()=>$("mImg").classList.remove("show"));
 
 /* ====================== NILAI & PENGERJAAN ====================== */
-const STP={belum:["Belum mengerjakan","b-draft"],berjalan:["Sedang mengerjakan","b-plan"],menunggu:["Menunggu penilaian","b-wait"],dinilai:["Sudah dinilai","b-done"]};
+const STP={tidak_mengerjakan:["Tidak mengerjakan · 0","b-end"],belum:["Belum mengerjakan","b-draft"],berjalan:["Sedang mengerjakan","b-plan"],menunggu:["Menunggu penilaian","b-wait"],dinilai:["Sudah dinilai","b-done"]};
 async function bukaNilai(t){
   curT=t;tampil("vNilai");$("nJudul").textContent=t.judul;
-  $("nInfo").textContent="🗓️ "+fmt(t.mulai_at)+" → "+fmt(t.tenggat_at);
+  $("nInfo").textContent="🗓️ "+fmt(t.mulai_at)+" → "+fmt(t.tenggat_at)+(t.diakhiri_at?" · 🏁 diakhiri guru "+fmt(t.diakhiri_at):"");
+  $("nAkhiri").style.display=(t.status==="terbit"&&Date.now()>=new Date(t.mulai_at).getTime())?"":"none";
   const rb=$("nRilis");
   if(t.hasil_mode==="manual"){rb.style.display="";rb.textContent=t.hasil_dirilis?"🔒 Tarik hasil dari siswa":"📣 Rilis hasil ke siswa";rb.className="btn sm "+(t.hasil_dirilis?"":"ok")}
   else rb.style.display="none";
@@ -607,8 +609,9 @@ async function muatRekap(){
 }
 function renderRekap(){
   const kirim=rekap.filter(r=>r.status==="menunggu"||r.status==="dinilai"),tunggu=rekap.filter(r=>r.status==="menunggu"),
-        nil=kirim.filter(r=>r.nilai!=null).map(r=>Number(r.nilai)),rata=nil.length?Math.round(nil.reduce((a,b)=>a+b,0)/nil.length*10)/10:"-";
-  $("nStats").innerHTML='<div class="stat"><div class="n">'+kirim.length+'/'+rekap.length+'</div><div class="l">Sudah mengumpulkan</div></div><div class="stat"><div class="n">'+tunggu.length+'</div><div class="l">Menunggu penilaian</div></div><div class="stat"><div class="n">'+rata+'</div><div class="l">Rata-rata nilai</div></div>';
+        nol=rekap.filter(r=>r.status==="tidak_mengerjakan"),
+        nil=rekap.filter(r=>r.nilai!=null).map(r=>Number(r.nilai)),rata=nil.length?Math.round(nil.reduce((a,b)=>a+b,0)/nil.length*10)/10:"-";
+  $("nStats").innerHTML='<div class="stat"><div class="n">'+kirim.length+'/'+rekap.length+'</div><div class="l">Sudah mengumpulkan</div></div><div class="stat"><div class="n">'+tunggu.length+'</div><div class="l">Menunggu penilaian</div></div><div class="stat"><div class="n">'+nol.length+'</div><div class="l">Tidak mengerjakan</div></div><div class="stat"><div class="n">'+rata+'</div><div class="l">Rata-rata nilai</div></div>';
   if(!rekap.length){$("nList").innerHTML='<div class="empty">Belum ada member.</div>';return}
   $("nList").innerHTML=rekap.map((r,i)=>{
     const st=STP[r.status]||STP.belum;
@@ -628,6 +631,22 @@ $("nList").addEventListener("click",async e=>{
     msg("Pengerjaan direset.",true);muatRekap();
   }
 });
+$("nAkhiri").onclick=async()=>{
+  const belum=rekap.filter(r=>r.status==="belum").length,jalan=rekap.filter(r=>r.status==="berjalan").length;
+  const ok=await konfirmasi("Akhiri tugas sekarang?",
+    "Waktu pengerjaan ditutup saat ini juga. "+(jalan?jalan+" siswa yang masih mengerjakan akan dikirim otomatis dengan jawaban terakhirnya. ":"")+
+    (belum?belum+" siswa yang belum mengerjakan akan mendapat nilai 0. ":"Semua siswa sudah mengerjakan. ")+
+    "Kamu masih bisa me-reset pengerjaan seorang siswa dan memperpanjang batas waktu di Pengaturan.","Ya, akhiri");
+  if(!ok)return;
+  $("nAkhiri").disabled=true;
+  const {data,error}=await sb.rpc("tugas_akhiri",{p_tugas:curT.id});
+  $("nAkhiri").disabled=false;
+  if(error){msg("Gagal mengakhiri: "+error.message,false);return}
+  const {data:t2}=await sb.from("tugas").select("*").eq("id",curT.id).single();
+  if(t2)Object.assign(curT,t2);
+  await bukaNilai(curT);
+  msg("Tugas diakhiri. "+data.dikirim_otomatis+" pengerjaan dikirim otomatis dan "+data.nilai_nol+" siswa yang belum mengerjakan diberi nilai 0.",true);
+};
 $("nRilis").onclick=async()=>{
   const baru=!curT.hasil_dirilis;
   const {data,error}=await sb.from("tugas").update({hasil_dirilis:baru}).eq("id",curT.id).select().single();
