@@ -112,6 +112,7 @@ window.addEventListener("pageshow", function(e){ if (e.persisted) document.body.
 /* Daftar izin yang bisa diberikan Admin ke Moderator */
 const PERMS = [
   { key: "kelola_absensi",    icon: "✅", label: "Kelola Absensi" },
+  { key: "kelola_tugas",      icon: "📝", label: "Tugas Soal" },
   { key: "kelola_jadwal",     icon: "📅", label: "Kelola Jadwal" },
   { key: "kelola_mapel",      icon: "📚", label: "Mata Pelajaran" },
   { key: "kelola_materi",     icon: "📖", label: "Kelola Materi" },
@@ -123,6 +124,7 @@ const PERMS = [
 
 /* Menu yang TIDAK ada di bar bawah (bar bawah: Dashboard, Jadwal, Absensi, Mapel, Profil) */
 const TILES = [
+  { perm: "kelola_tugas",      icon: "📝", t: "Tugas Soal",        d: "Buat tugas, soal, dan nilai jawaban siswa",   href: "tugas-admin.html" },
   { perm: "kelola_member",     icon: "👥", t: "Kelola Member",     d: "Tambah, ubah, kunci, dan hapus akun member", href: "member-management.html" },
   { perm: "kelola_materi",     icon: "📖", t: "Kelola Materi",     d: "Tambah, edit, dan hapus materi",            href: "materials-management.html" },
   { perm: "kelola_pengumuman", icon: "📢", t: "Info & Pengumuman", d: "Buat informasi, tugas, dan pengumuman",     href: "announcements-admin.html" },
