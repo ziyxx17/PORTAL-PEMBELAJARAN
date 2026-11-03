@@ -135,6 +135,7 @@ img.zoomable{cursor:zoom-in}
           <select id="fStatus"><option value="draft">📝 Draft (belum terlihat siswa)</option><option value="terbit">🚀 Terbit (terlihat siswa)</option></select></div>
       </div>
       <div class="f"><label class="chk"><input type="checkbox" id="fKunci"> Tampilkan kunci jawaban &amp; pembahasan ke siswa saat nilai sudah tampil</label></div>
+      <div class="f"><label class="chk"><input type="checkbox" id="fUbah"> Izinkan siswa mengubah jawaban setelah dikirim (sampai batas waktu pengerjaan)</label><div class="hint" id="fUbahHint"></div></div>
       <div class="foot" style="display:flex;gap:10px"><button class="btn" id="fBatal2" type="button">Batal</button><button class="btn pri" id="fSimpan" type="button" style="flex:1">Simpan</button></div>
     </div>
   </section>
@@ -152,6 +153,7 @@ img.zoomable{cursor:zoom-in}
     <div class="card">
       <h2>➕ Tambah soal</h2>
       <div class="tipes" id="tipes"></div>
+      <div class="hint" style="margin:12px 0 0">Pilihan ganda, kompleks, benar/salah, dan menjodohkan dinilai otomatis. <b>Uraian singkat dan esai dinilai sendiri oleh guru.</b></div>
     </div>
     <div id="soalList"></div>
   </section>
@@ -295,7 +297,7 @@ function fmtKunci(r){
   if(r.tipe==="pgk")return(k.idx||[]).map(i=>LTR[i]+". "+(o||[])[i]).join("\n")+(k.parsial?"\n(nilai sebagian)":"");
   if(r.tipe==="bs")return k.nilai?"Benar":"Salah";
   if(r.tipe==="jodoh")return((o&&o.kiri)||[]).map((t,i)=>t+"  →  "+((o.kanan||[])[(k.pasangan||[])[i]]||"-")).join("\n");
-  if(r.tipe==="uraian")return(k.jawaban&&k.jawaban.length)?k.jawaban.join("  /  "):"(tidak ada kunci, nilai manual)";
+  if(r.tipe==="uraian")return(k.jawaban&&k.jawaban.length)?k.jawaban.join("  /  "):"(tanpa kunci, dinilai guru)";
   if(r.tipe==="esai")return k.rubrik?k.rubrik:"(tanpa rubrik)";
   return"";
 }
@@ -383,7 +385,16 @@ function bukaForm(t){
   $("fMulai").value=toLocalInput(t?t.mulai_at:now.toISOString());
   $("fTenggat").value=toLocalInput(t?t.tenggat_at:besok.toISOString());
   $("fHasil").value=t?t.hasil_mode:"setelah_tenggat";$("fStatus").value=t?t.status:"draft";$("fKunci").checked=t?!!t.tampil_kunci:false;
+  $("fUbah").checked=t?!!t.boleh_ubah:false;ubahHint();
 }
+function ubahHint(){
+  const u=$("fUbah").checked,h=$("fHasil").value;
+  $("fUbahHint").textContent=u
+    ?(h==="manual"?"Siswa bisa mengubah jawaban sampai batas waktu, atau sampai kamu merilis hasil. Setelah hasil dirilis, jawaban tidak bisa diubah lagi."
+                  :"Siswa bisa mengubah jawaban sampai batas waktu. Nilai dan kunci baru tampil setelah batas waktu berakhir, supaya jawaban tidak bisa dicocokkan dulu. Soal uraian/esai yang jawabannya berubah perlu kamu nilai ulang.")
+    :"Jika dimatikan, jawaban yang sudah dikirim tidak bisa diubah lagi.";
+}
+$("fUbah").onchange=$("fHasil").onchange=ubahHint;
 async function simpanForm(){
   const judul=$("fJudul").value.trim();if(!judul){msg("Judul tugas wajib diisi.",false);return}
   if(!$("fMulai").value||!$("fTenggat").value){msg("Waktu mulai dan batas waktu wajib diisi.",false);return}
@@ -397,7 +408,7 @@ async function simpanForm(){
     if(!count){msg("Tambahkan minimal satu soal sebelum menerbitkan tugas.",false);return}
   }
   const row={judul:judul,mapel:$("fMapel").value.trim()||null,deskripsi:$("fDesk").value.trim()||null,durasi_menit:durasi,
-    mulai_at:mulai,tenggat_at:tenggat,hasil_mode:$("fHasil").value,status:status,tampil_kunci:$("fKunci").checked};
+    mulai_at:mulai,tenggat_at:tenggat,hasil_mode:$("fHasil").value,status:status,tampil_kunci:$("fKunci").checked,boleh_ubah:$("fUbah").checked};
   if(status==="terbit"&&!curT){row.status="draft"}
   $("fSimpan").disabled=true;
   let res;
@@ -509,12 +520,12 @@ function renderEditor(){
        '<button class="btn sm" type="button" data-act="add-pc">➕ Tambah pengecoh</button></div>';
   }
   if(s.tipe==="uraian"){
-    h+='<div class="f"><label for="eUr">Jawaban yang diterima <small>(satu per baris, huruf besar/kecil diabaikan)</small></label><textarea id="eUr" data-f="uraianKunci" placeholder="Contoh:&#10;Jakarta&#10;DKI Jakarta">'+esc(s.uraianKunci)+'</textarea>'+
-       '<div class="hint">Jawaban siswa dinilai otomatis jika sama persis dengan salah satu baris di atas. Kosongkan jika ingin menilai sendiri. Kamu tetap bisa mengubah nilai satu per satu nanti.</div></div>';
+    h+='<div class="f"><label for="eUr">Kunci / acuan jawaban <small>(opsional, hanya dilihat guru, satu per baris)</small></label><textarea id="eUr" data-f="uraianKunci" placeholder="Contoh:&#10;Jakarta&#10;DKI Jakarta">'+esc(s.uraianKunci)+'</textarea>'+
+       '<div class="hint">Uraian singkat dinilai sendiri oleh guru lewat menu Nilai &amp; Jawaban. Kunci di atas hanya menjadi acuan saat memeriksa, tidak dinilai otomatis.</div></div>';
   }
   if(s.tipe==="esai"){
     h+='<div class="f"><label for="eRu">Rubrik / contoh jawaban <small>(opsional, hanya dilihat penilai)</small></label><textarea id="eRu" data-f="rubrik" placeholder="Poin-poin yang perlu ada di jawaban...">'+esc(s.rubrik)+'</textarea>'+
-       '<div class="hint">Esai dinilai manual oleh admin/moderator.</div></div>';
+       '<div class="hint">Esai dinilai sendiri oleh admin/moderator lewat menu Nilai &amp; Jawaban.</div></div>';
   }
   h+='<div class="row"><div class="f"><label for="ePoin">Poin soal</label><input id="ePoin" type="number" min="0" max="1000" step="0.5" data-f="poin" value="'+esc(s.poin)+'"></div><div class="f" style="flex:2"><label for="ePemb">Pembahasan <small>(opsional)</small></label><input id="ePemb" type="text" data-f="pembahasan" value="'+esc(s.pembahasan)+'" maxlength="1000" placeholder="Penjelasan jawaban yang benar"></div></div>';
   $("eBody").innerHTML=h;
