@@ -518,6 +518,15 @@
                 </div>
             </button>
 
+            <!-- Tugas Soal -->
+            <button class="menu-button" id="taskButton">
+                <div class="menu-icon">📝</div>
+                <div class="menu-title">Tugas Soal</div>
+                <div class="menu-description">
+                    Buat tugas dan soal, atur waktu pengerjaan, lalu nilai jawaban siswa.
+                </div>
+            </button>
+
             <!-- Riwayat Login -->
             <button class="menu-button" id="historyButton">
                 <div class="menu-icon">📜</div>
@@ -603,7 +612,7 @@
             const map = {
                 attendanceButton: "kelola_absensi", memberButton: "kelola_member", subjectButton: "kelola_mapel", scheduleButton: "kelola_jadwal",
                 materialButton: "kelola_materi", announcementButton: "kelola_pengumuman",
-                statisticsButton: "lihat_statistik", historyButton: "lihat_riwayat"
+                statisticsButton: "lihat_statistik", historyButton: "lihat_riwayat", taskButton: "kelola_tugas"
             };
             for (const id in map) {
                 const el = document.getElementById(id);
@@ -694,6 +703,7 @@
         document.getElementById("adminSettingsButton").addEventListener("click", adminSettingsMenu);
         document.getElementById("historyButton").addEventListener("click", function () { navigateTo("riwayat-login.html"); });
         document.getElementById("attendanceButton").addEventListener("click", function () { navigateTo("absensi-admin.html"); });
+        document.getElementById("taskButton").addEventListener("click", function () { navigateTo("tugas-admin.html"); });
         document.getElementById("permButton").addEventListener("click", function () { navigateTo("izin-peran.html"); });
 
         /* =====================================================
