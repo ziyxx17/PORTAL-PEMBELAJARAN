@@ -147,6 +147,7 @@ img.zoomable{cursor:zoom-in}
       <button class="btn sm" id="sPengaturan" type="button">⚙️ Pengaturan</button>
       <button class="btn sm" id="sNilai" type="button">📊 Nilai &amp; Jawaban</button>
       <button class="btn sm ok" id="sTerbit" type="button">🚀 Terbitkan</button>
+      <button class="btn sm dan" id="sAkhiri" type="button">🏁 Akhiri tugas</button>
     </div>
     <h1 id="sJudul"></h1>
     <p class="sub" id="sInfo"></p>
@@ -351,10 +352,11 @@ function renderDaftar(){
   if(!daftar.length){$("daftar").innerHTML='<div class="empty">Belum ada tugas. Tekan <b>➕ Buat Tugas</b> untuk memulai.</div>';return}
   $("daftar").innerHTML=daftar.map(t=>{
     const st=statusTugas(t),ns=t.tugas_soal&&t.tugas_soal[0]?t.tugas_soal[0].count:0,np=t.tugas_pengerjaan&&t.tugas_pengerjaan[0]?t.tugas_pengerjaan[0].count:0;
-    return '<div class="item"><div style="min-width:0"><b>'+esc(t.judul)+'</b><span class="d">'+(t.mapel?esc(t.mapel)+" · ":"")+ns+' soal · '+np+' mengerjakan'+(t.durasi_menit?' · '+t.durasi_menit+' menit':'')+'<br>🗓️ '+fmt(t.mulai_at)+' → '+fmt(t.tenggat_at)+'</span></div>'+
+    return '<div class="item"><div style="min-width:0"><b>'+esc(t.judul)+'</b><span class="d">'+(t.mapel?esc(t.mapel)+" · ":"")+ns+' soal · '+np+' mengerjakan'+(t.durasi_menit?' · '+t.durasi_menit+' menit':'')+(t.diakhiri_at?' · 🏁 diakhiri guru':'')+'<br>🗓️ '+fmt(t.mulai_at)+' → '+fmt(t.tenggat_at)+'</span></div>'+
       '<div class="acts"><span class="badge '+st[1]+'">'+st[0]+'</span>'+
       '<button class="btn sm" data-a="soal" data-id="'+t.id+'">📝 Soal</button>'+
       '<button class="btn sm" data-a="nilai" data-id="'+t.id+'">📊 Nilai</button>'+
+      (t.status==="terbit"&&Date.now()>=new Date(t.mulai_at).getTime()?'<button class="btn sm dan" data-a="akhiri" data-id="'+t.id+'">🏁 Akhiri</button>':'')+
       '<button class="btn sm" data-a="set" data-id="'+t.id+'">⚙️</button>'+
       '<button class="btn sm dan" data-a="hapus" data-id="'+t.id+'">🗑️</button></div></div>';
   }).join("");
@@ -365,6 +367,7 @@ $("daftar").addEventListener("click",async e=>{
   if(b.dataset.a==="soal")bukaSoal(t);
   else if(b.dataset.a==="nilai")bukaNilai(t);
   else if(b.dataset.a==="set")bukaForm(t);
+  else if(b.dataset.a==="akhiri"){await bukaNilai(t);$("nAkhiri").onclick()}
   else if(b.dataset.a==="hapus"){
     if(!(await konfirmasi("Hapus tugas?","Tugas \""+t.judul+"\" beserta semua soal dan jawaban siswa akan dihapus permanen.","Hapus")))return;
     const {data:sl}=await sb.from("tugas_soal").select("gambar_path").eq("tugas_id",t.id);
@@ -474,6 +477,7 @@ $("soalList").addEventListener("click",async e=>{
 $("sKembali").onclick=$("nKembali").onclick=()=>{muatDaftar();tampil("vList")};
 $("sPengaturan").onclick=()=>bukaForm(curT);
 $("sNilai").onclick=()=>bukaNilai(curT);
+$("sAkhiri").onclick=async()=>{await bukaNilai(curT);$("nAkhiri").onclick()};
 $("nSoal").onclick=()=>bukaSoal(curT);
 $("sTerbit").onclick=async()=>{
   const baru=curT.status==="terbit"?"draft":"terbit";
@@ -595,7 +599,6 @@ const STP={tidak_mengerjakan:["Tidak mengerjakan · 0","b-end"],belum:["Belum me
 async function bukaNilai(t){
   curT=t;tampil("vNilai");$("nJudul").textContent=t.judul;
   $("nInfo").textContent="🗓️ "+fmt(t.mulai_at)+" → "+fmt(t.tenggat_at)+(t.diakhiri_at?" · 🏁 diakhiri guru "+fmt(t.diakhiri_at):"");
-  $("nAkhiri").style.display=(t.status==="terbit"&&Date.now()>=new Date(t.mulai_at).getTime())?"":"none";
   const rb=$("nRilis");
   if(t.hasil_mode==="manual"){rb.style.display="";rb.textContent=t.hasil_dirilis?"🔒 Tarik hasil dari siswa":"📣 Rilis hasil ke siswa";rb.className="btn sm "+(t.hasil_dirilis?"":"ok")}
   else rb.style.display="none";
@@ -632,6 +635,8 @@ $("nList").addEventListener("click",async e=>{
   }
 });
 $("nAkhiri").onclick=async()=>{
+  if(curT.status!=="terbit"){msg("Tugas ini masih Draft. Terbitkan dulu, baru bisa diakhiri.",false);return}
+  if(Date.now()<new Date(curT.mulai_at).getTime()){msg("Tugas ini belum dimulai ("+fmt(curT.mulai_at)+"), jadi belum bisa diakhiri.",false);return}
   const belum=rekap.filter(r=>r.status==="belum").length,jalan=rekap.filter(r=>r.status==="berjalan").length;
   const ok=await konfirmasi("Akhiri tugas sekarang?",
     "Waktu pengerjaan ditutup saat ini juga. "+(jalan?jalan+" siswa yang masih mengerjakan akan dikirim otomatis dengan jawaban terakhirnya. ":"")+
